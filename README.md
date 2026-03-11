@@ -1,16 +1,26 @@
-# React + Vite
+<<<<<<< HEAD
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Help---TCC
 
-Currently, two official plugins are available:
+O Help é uma solução Full Stack concebida no âmbito acadêmico do curso de Engenharia de Software da Universidade Evangélica de Goiás. O projeto surge como uma resposta técnica e humana à fragmentação do mercado de serviços informais, visando estruturar um ecossistema seguro e auditável para a conexão entre prestadores de serviço, clientes e recrutadores (RH).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Tecnologias Utilizadas
 
-## React Compiler
+Backend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Java 21 com Spring Boot 
 
-## Expanding the ESLint configuration
+Spring Data JPA para persistência de dados
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+PostgreSQL como banco de dados relacional
+
+Maven para gerenciamento de dependências
+
+
+Frontend
+
+React.js para uma interface dinâmica e responsiva
+
+Axios para consumo da API REST
+
+>>>>>>> e47617704c429ee21f36215e228c6e7882f94846
