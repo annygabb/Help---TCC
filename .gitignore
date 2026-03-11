@@ -22,3 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Java / Maven (Spring Boot)
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.factorypath
+.project
+.settings/
+.classpath
+
+# Database (Postgres)
+# Ignora dumps locais se você não quiser versioná-los
+*.sql_dump
+*.backup
+
+# Security
+.env
+.env.local
