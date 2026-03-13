@@ -1,8 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Hook para navegação limpa
+import { useNavigate, Link } from 'react-router-dom'; // Importação correta no topo
 import { Mail, Lock, ArrowLeft } from 'lucide-react';
 import './Login.css';
-import logoImg from '../assets/logo.png'; // Logo oficial
+import logoImg from '../assets/logo.png';
 
 function Login() {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ function Login() {
       </button>
 
       <div className="card-login">
-        {/* Logo oficial ampliada conforme o Cadastro */}
         <img
           src={logoImg}
           alt="Help Logo"
@@ -65,14 +64,14 @@ function Login() {
             />
           </div>
 
-          {/* Link de Esqueci a Senha */}
+          {/* Link de Esqueci a Senha corrigido */}
           <div style={{ textAlign: 'right', width: '100%', marginBottom: '20px' }}>
-            <span
-              onClick={() => navigate('/recuperar-senha')}
-              style={{ color: '#a855f7', cursor: 'pointer', fontSize: '14px' }}
+            <Link
+              to="/recuperar-senha"
+              style={{ color: '#a855f7', textDecoration: 'none', fontSize: '14px' }}
             >
               Esqueceu a senha?
-            </span>
+            </Link>
           </div>
 
           <button type="submit" className="btn-entrar">
@@ -82,7 +81,10 @@ function Login() {
 
         <p className="footer-text">
           Ainda não tem uma conta?{' '}
-          <span onClick={() => navigate('/cadastro')} style={{ color: '#a855f7', cursor: 'pointer', fontWeight: 'bold' }}>
+          <span
+            onClick={() => navigate('/cadastro')}
+            style={{ color: '#a855f7', cursor: 'pointer', fontWeight: 'bold' }}
+          >
             Cadastre-se
           </span>
         </p>

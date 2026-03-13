@@ -1,0 +1,71 @@
+.feed-container {
+  background-color: #080115;
+  min-height: 100-vh;
+  color: white;
+}
+
+.user-header {
+  background: rgba(13, 5, 33, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 8px 0;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feed-content {
+  max-width: 1200px;
+  margin: 24px auto;
+  display: grid;
+  grid-template-columns: 225px 1fr 300px;
+  gap: 24px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.avatar-large {
+  width: 72px;
+  height: 72px;
+  background: #a855f7;
+  border: 4px solid #080115;
+  border-radius: 50%;
+  margin: -36px auto 10px;
+}
+
+.post-actions {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.post-actions button {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #b8b8b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.post-actions button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}

@@ -13,7 +13,6 @@ import conexaoImg from '../assets/conexao.png';
 // Estilos
 import './Home.css';
 
-// Dados centralizados para facilitar a manutenção
 const DATA = {
   courses: [
     {
@@ -61,7 +60,31 @@ function Home() {
     }, { threshold: 0.1 });
 
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+
+    // Função de scroll atualizada para capturar o ID corretamente no GitHub Pages
+    const handleHashScroll = () => {
+      const currentHash = window.location.hash;
+      // Extrai o ID final (ex: de #/#sobre pega apenas 'sobre')
+      const targetId = currentHash.includes('/#')
+        ? currentHash.split('/#')[1]
+        : currentHash.split('#')[1];
+
+      if (targetId && targetId !== '/') {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashScroll);
+    // Executa imediatamente para caso o usuário já entre com o link direto
+    setTimeout(handleHashScroll, 100);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('hashchange', handleHashScroll);
+    };
   }, []);
 
   const handleNavigation = (path) => {
@@ -77,15 +100,17 @@ function Home() {
             src={logoImg}
             alt="Help Logo"
             className="logo-image"
+            style={{ cursor: 'pointer' }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           />
 
           <nav className={`nav-central ${isSearchOpen ? 'nav-minimized' : ''}`}>
-            <a href="#inicio">Início</a>
-            <a href="#sobre">Sobre Nós</a>
-            <a href="#curso">Cursos</a>
-            <a href="#vaga">Vagas</a>
-            <a href="#avaliacoes">Avaliações</a>
+            {/* Formato otimizado para HashRouter no GitHub Pages */}
+            <a href="#/#inicio">Início</a>
+            <a href="#/#sobre">Sobre Nós</a>
+            <a href="#/#curso">Cursos</a>
+            <a href="#/#vaga">Vagas</a>
+            <a href="#/#avaliacoes">Avaliações</a>
           </nav>
 
           <div className="header-actions">
@@ -114,7 +139,6 @@ function Home() {
       </header>
 
       <main className="main-container-full">
-        {/* HERO */}
         <section id="inicio" className="hero-banner">
           <div className="hero-text-side">
             <div className="content-box reveal">
@@ -124,7 +148,9 @@ function Home() {
                 <button className="btn-primary" onClick={() => handleNavigation('/cadastro')}>
                   Começar agora <ArrowRight size={20} />
                 </button>
-                <button className="btn-secondary">Explorar Vagas</button>
+                <button className="btn-secondary" onClick={() => window.location.hash = "/#vaga"}>
+                  Explorar Vagas
+                </button>
               </div>
             </div>
           </div>
@@ -134,7 +160,6 @@ function Home() {
           </div>
         </section>
 
-        {/* SOBRE */}
         <section id="sobre" className="about-section">
           <div className="about-container">
             <div className="about-image-side">
@@ -166,7 +191,6 @@ function Home() {
           </div>
         </section>
 
-        {/* CURSOS */}
         <section id="curso" className="section-padding">
           <div className="section-header reveal">
             <span className="badge">Cursos</span>
@@ -177,7 +201,6 @@ function Home() {
               <div key={course.id} className={`course-card reveal ${course.highlight ? 'highlighted' : ''}`}>
                 <div className="course-icon">{course.icon}</div>
                 <h3>{course.title}</h3>
-
                 <div className="course-meta">
                   <div className="meta-info">
                     <Award size={16} />
@@ -187,7 +210,6 @@ function Home() {
                     <span>{course.duration}</span>
                   </div>
                 </div>
-
                 <div className="tech-tags">
                   {course.tags.map(tag => (
                     <span key={tag} className="tag">{tag}</span>
@@ -199,7 +221,6 @@ function Home() {
           </div>
         </section>
 
-        {/* VAGAS */}
         <section id="vaga" className="section-padding bg-darker">
           <div className="section-header reveal">
             <span className="badge">Jobs</span>
@@ -230,7 +251,6 @@ function Home() {
           </div>
         </section>
 
-        {/* AVALIAÇÕES */}
         <section id="avaliacoes" className="section-padding">
           <div className="section-header reveal">
             <span className="badge">Avaliações</span>
@@ -246,7 +266,7 @@ function Home() {
                 <div className="reviewer-avatar"></div>
                 <div className="reviewer-text">
                   <strong>Anny Gabrielly</strong>
-                  <span>Systems Analyst @ Teste</span>
+                  <span>Systems Analyst @ NTT DATA</span>
                 </div>
               </div>
             </div>
@@ -258,3 +278,5 @@ function Home() {
 }
 
 export default Home;
+
+
