@@ -1,40 +1,132 @@
 .feed-container {
   background-color: #080115;
-  min-height: 100-vh;
+  min-height: 100vh;
   color: white;
 }
 
+/* =========================================
+   HEADER (ESTILO HOME CENTRALIZADO)
+   ========================================= */
 .user-header {
   background: rgba(13, 5, 33, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 8px 0;
+  height: 100px; /* Mantido para comportar a logo de 80px */
+  display: flex;
+  align-items: center;
 }
 
 .header-inner {
-  max-width: 1200px;
+  max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
+  padding: 0 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+/* AJUSTE FINAL DA LOGO */
+.header-logo {
+  height: 80px !important; /* */
+  width: auto !important;
+  min-width: 80px;
+  cursor: pointer;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 40px;
+  width: 280px;
+}
+
+.search-bar input {
+  background: none;
+  border: none;
+  color: white;
+  padding-left: 10px;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+}
+
+/* GRUPO DE NAVEGAÇÃO À DIREITA */
+.header-right-nav {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #b8b8b8;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 12px;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: #a855f7;
+}
+
+/* Nota: .profile-trigger e .avatar-mini (do header) removidos para limpar o layout */
+
+/* =========================================
+   CONTEÚDO DO FEED (GRID CENTRALIZADO)
+   ========================================= */
 .feed-content {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 24px auto;
   display: grid;
   grid-template-columns: 225px 1fr 300px;
   gap: 24px;
+  padding: 0 20px;
 }
 
 .glass-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 16px;
+}
+
+/* Perfil Lateral Interativo */
+.profile-card {
+  transition: transform 0.2s ease, background 0.2s ease;
+  cursor: pointer; /* */
+}
+
+.profile-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px); /* Efeito suave de elevação ao passar o mouse */
+}
+
+.profile-bg {
+  height: 60px;
+  background: linear-gradient(45deg, #a855f7, #6366f1);
 }
 
 .avatar-large {
@@ -46,9 +138,23 @@
   margin: -36px auto 10px;
 }
 
+.profile-card h3 {
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.profile-card p {
+  text-align: center;
+  font-size: 12px;
+  color: #b8b8b8;
+  padding: 0 10px 15px;
+}
+
+/* Postagens */
 .post-actions {
   display: flex;
-  padding: 10px;
+  padding: 5px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -61,11 +167,13 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .post-actions button:hover {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
+  color: white;
 }

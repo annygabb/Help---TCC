@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Importação correta no topo
+import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowLeft } from 'lucide-react';
 import './Login.css';
 import logoImg from '../assets/logo.png';
@@ -7,9 +7,14 @@ import logoImg from '../assets/logo.png';
 function Login() {
   const navigate = useNavigate();
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Navega para o feed após o clique
+    navigate('/feed');
+  };
+
   return (
     <div className="container-login">
-      {/* Botão para voltar à Home */}
       <button
         className="back-btn"
         onClick={() => navigate('/')}
@@ -43,11 +48,13 @@ function Login() {
 
         <h2 style={{ color: 'white', marginBottom: '20px' }}>Entrar no Help</h2>
 
-        <form className="login-form">
+        <form className="login-form" onSubmit={handleSubmit}>
           <div className="input-container">
             <Mail size={20} color="#7c3aed" style={{ marginLeft: '15px' }} />
             <input
               type="email"
+              id="email"   // Adicionado para resolver o aviso
+              name="email" // Adicionado para resolver o aviso
               placeholder="E-mail"
               className="input-field"
               required
@@ -58,13 +65,14 @@ function Login() {
             <Lock size={20} color="#7c3aed" style={{ marginLeft: '15px' }} />
             <input
               type="password"
+              id="password"   // Adicionado para resolver o aviso
+              name="password" // Adicionado para resolver o aviso
               placeholder="Senha"
               className="input-field"
               required
             />
           </div>
 
-          {/* Link de Esqueci a Senha corrigido */}
           <div style={{ textAlign: 'right', width: '100%', marginBottom: '20px' }}>
             <Link
               to="/recuperar-senha"
