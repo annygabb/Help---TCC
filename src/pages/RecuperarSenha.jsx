@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import './Login.css'; // Reutilizando seus estilos de Login
+import './Login.css';
 import logoImg from '../assets/logo.png';
 
 function RecuperarSenha() {
@@ -10,7 +10,6 @@ function RecuperarSenha() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aqui entraria a lógica de integração com o backend
     setEnviado(true);
   };
 

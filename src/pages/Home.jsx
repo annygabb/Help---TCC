@@ -5,12 +5,9 @@ import {
   Code, Database, Brain, MapPin, Briefcase, Star
 } from 'lucide-react';
 
-// Ativos
 import logoImg from '../assets/logo.png';
 import womanImg from '../assets/mulher-escritorio.png';
 import conexaoImg from '../assets/conexao.png';
-
-// Estilos
 import './Home.css';
 
 const DATA = {
@@ -61,10 +58,8 @@ function Home() {
 
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
-    // Função de scroll atualizada para capturar o ID corretamente no GitHub Pages
     const handleHashScroll = () => {
       const currentHash = window.location.hash;
-      // Extrai o ID final (ex: de #/#sobre pega apenas 'sobre')
       const targetId = currentHash.includes('/#')
         ? currentHash.split('/#')[1]
         : currentHash.split('#')[1];
@@ -78,7 +73,6 @@ function Home() {
     };
 
     window.addEventListener('hashchange', handleHashScroll);
-    // Executa imediatamente para caso o usuário já entre com o link direto
     setTimeout(handleHashScroll, 100);
 
     return () => {
@@ -105,7 +99,6 @@ function Home() {
           />
 
           <nav className={`nav-central ${isSearchOpen ? 'nav-minimized' : ''}`}>
-            {/* Formato otimizado para HashRouter no GitHub Pages */}
             <a href="#/#inicio">Início</a>
             <a href="#/#sobre">Sobre Nós</a>
             <a href="#/#curso">Cursos</a>

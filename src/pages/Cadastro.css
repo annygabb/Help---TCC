@@ -19,7 +19,6 @@
   border: none;
 }
 
-/* Ajuste nos inputs do cadastro */
 .input-with-icon {
   display: flex;
   align-items: center;
@@ -33,7 +32,6 @@
   transition: border-color 0.3s;
 }
 
-/* Foco no input para destacar o roxo */
 .input-with-icon:focus-within {
   border-color: #a855f7;
 }
@@ -49,7 +47,6 @@
   font-size: 16px;
 }
 
-/* BOTÃO DE CADASTRO: Roxo Vibrante */
 .btn-cadastro {
   width: 100%;
   padding: 16px;
@@ -70,7 +67,7 @@
 }
 
 .logo-subtext {
-  color: #a855f7; /* Alterado de azul para Roxo Help */
+  color: #a855f7;
   margin-bottom: 35px;
   font-size: 18px;
   font-weight: 600;
@@ -86,7 +83,7 @@
 }
 
 .footer-text span {
-  color: #a855f7; /* Alterado de azul para Roxo Help */
+  color: #a855f7;
   font-weight: bold;
   cursor: pointer;
   margin-left: 5px;
@@ -98,7 +95,6 @@
   text-decoration: underline;
 }
 
-/* Botão voltar */
 .back-btn:hover {
   color: #a855f7 !important;
 }

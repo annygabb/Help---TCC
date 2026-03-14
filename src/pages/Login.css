@@ -21,8 +21,6 @@
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* Removido logo-h e subtitulo pois agora você usa a logo oficial */
-
 .login-form {
     width: 100%;
 }
@@ -30,21 +28,21 @@
 .input-container {
     width: 100%;
     margin-bottom: 15px;
-    display: flex; /* Alinha o ícone e o input na mesma linha */
+    display: flex;
     align-items: center;
-    background-color: #ffffff; /* Fundo branco para o container inteiro */
+    background-color: #ffffff;
     border-radius: 50px;
-    padding: 0 20px; /* Espaçamento interno */
+    padding: 0 20px;
     box-sizing: border-box;
 }
 
 .input-field {
-    flex: 1; /* Faz o input ocupar todo o espaço restante */
+    flex: 1;
     padding: 16px 10px;
     border: none;
     font-size: 16px;
-    background-color: transparent; /* Fundo transparente para não sobrepor o branco */
-    outline: none; /* Remove a borda azul ao clicar */
+    background-color: transparent;
+    outline: none;
     color: #333;
 }
 
@@ -74,7 +72,6 @@
     text-align: center;
 }
 
-/* Classe para o botão de voltar que adicionamos no JS */
 .back-btn {
     transition: opacity 0.3s;
 }

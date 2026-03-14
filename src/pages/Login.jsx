@@ -9,7 +9,6 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Navega para o feed após o clique
     navigate('/feed');
   };
 
@@ -53,8 +52,8 @@ function Login() {
             <Mail size={20} color="#7c3aed" style={{ marginLeft: '15px' }} />
             <input
               type="email"
-              id="email"   // Adicionado para resolver o aviso
-              name="email" // Adicionado para resolver o aviso
+              id="email"
+              name="email"
               placeholder="E-mail"
               className="input-field"
               required
@@ -65,8 +64,8 @@ function Login() {
             <Lock size={20} color="#7c3aed" style={{ marginLeft: '15px' }} />
             <input
               type="password"
-              id="password"   // Adicionado para resolver o aviso
-              name="password" // Adicionado para resolver o aviso
+              id="password"
+              name="password"
               placeholder="Senha"
               className="input-field"
               required

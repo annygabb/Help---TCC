@@ -29,16 +29,16 @@ function Cadastro() {
       </button>
 
       <div className="cadastro-card">
-        {/* Logo aumentada e parágrafo redundante removido */}
+
         <img
           src={logoImg}
           alt="Help Logo"
           className="logo-image-auth"
           style={{
-            height: '100px', // Aumentado de 50px para 100px
+            height: '100px',
             width: 'auto',
             objectFit: 'contain',
-            marginBottom: '20px' // Aumentado o espaço inferior
+            marginBottom: '20px' //
           }}
         />
 
