@@ -1,0 +1,70 @@
+.vagas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vaga-card {
+  background-color: #0d0521;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vaga-content {
+  padding: 20px;
+}
+
+.vaga-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.vaga-title-area {
+  display: flex;
+  gap: 12px;
+}
+
+.vaga-details h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.vaga-details p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #b8b8b8;
+}
+
+.vaga-badge {
+  background: rgba(167, 85, 247, 0.1);
+  color: #a755f7;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.vaga-footer {
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-candidatar {
+  width: 100%;
+  background: #a755f7;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-candidatar:hover {
+  background: #9333ea;
+}

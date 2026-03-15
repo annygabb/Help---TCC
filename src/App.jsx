@@ -6,6 +6,8 @@ import Cadastro from './pages/Cadastro.jsx';
 import RecuperarSenha from './pages/RecuperarSenha.jsx';
 import Feed from './pages/Feed.jsx';
 import ConfigPerfil from './pages/ConfigPerfil.jsx';
+import Cursos from './pages/Cursos.jsx';
+import Vagas from './pages/Vagas.jsx';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/recuperar-senha" element={<RecuperarSenha />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/configuracao-perfil" element={<ConfigPerfil />} />
+        <Route path="/cursos" element={<Cursos />} />
+        <Route path="/vagas" element={<Vagas />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
-  User, Mail, MapPin, Save, Building2, Calendar, AlignLeft
+  User, Mail, MapPin, Save, Building2, Calendar, AlignLeft, Clock
 } from 'lucide-react';
 import './ConfigPerfil.css';
 import logoImg from '../assets/logo.png';
@@ -11,14 +11,33 @@ import api from '../services/api';
 const ConfigPerfil = () => {
   const navigate = useNavigate();
   const [trabalhaAtualmente, setTrabalhaAtualmente] = useState(true);
+  const [tempoTrabalho, setTempoTrabalho] = useState('');
+
+  const calcularTempoEmpresa = (dataInicioStr) => {
+    if (!dataInicioStr) return '';
+    const inicio = new Date(dataInicioStr + "-01");
+    const hoje = new Date();
+    let mesesTotal = (hoje.getFullYear() - inicio.getFullYear()) * 12;
+    mesesTotal -= inicio.getMonth();
+    mesesTotal += hoje.getMonth();
+    const anos = Math.floor(mesesTotal / 12);
+    const mesesRestantes = mesesTotal % 12;
+    const parteAnos = anos > 0 ? `${anos} ano${anos > 1 ? 's' : ''}` : '';
+    const parteMeses = mesesRestantes > 0 ? `${mesesRestantes} mê${mesesRestantes > 1 ? 'ses' : 's'}` : '';
+    return [parteAnos, parteMeses].filter(Boolean).join(' e ') || 'Menos de 1 mês';
+  };
+
+  useEffect(() => {
+    if (trabalhaAtualmente) {
+      setTempoTrabalho(calcularTempoEmpresa("2026-03"));
+    }
+  }, [trabalhaAtualmente]);
 
   const handleSave = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
-
     data.trabalha_atualmente = trabalhaAtualmente;
-
     try {
       await api.put('/usuarios/perfil', data);
       alert("Perfil atualizado com sucesso!");
@@ -51,32 +70,23 @@ const ConfigPerfil = () => {
       </nav>
 
       <main className="config-main">
-        <div className="glass-card config-card profile-card-dark">
+        <div className="glass-card config-card profile-card-dark centralizado-total">
           <section className="profile-photo-section">
-            <div className="avatar-preview"></div>
+            <div className="avatar-preview-large">
+              <div className="purple-circle-photo"></div>
+            </div>
             <button className="change-photo-btn" type="button">Alterar foto de perfil</button>
           </section>
 
           <form className="config-form" onSubmit={handleSave}>
             <div className="input-group full-width">
               <label htmlFor="full_name"><User size={18} /> Nome Completo</label>
-              <input
-                type="text"
-                id="full_name"
-                name="full_name"
-                defaultValue="Anny Gabrielly Gonçalves de Oliveira"
-              />
+              <input type="text" id="full_name" name="full_name" defaultValue="Anny Gabrielly Gonçalves de Oliveira" />
             </div>
 
             <div className="input-group full-width">
               <label htmlFor="job_role"><AlignLeft size={18} /> Título Profissional (Bio)</label>
-              <textarea
-                id="job_role"
-                name="job_role"
-                className="bio-textarea"
-                defaultValue="Cursando Engenharia de Software | Java | HTML | CSS | PostgreSQL | UX/UI | Service Now | Metodologias Ágeis | Suporte de TI"
-                rows="3"
-              ></textarea>
+              <textarea id="job_role" name="job_role" className="bio-textarea" defaultValue="Cursando Engenharia de Software | Java | HTML | CSS | PostgreSQL | UX/UI | ServiceNow | Metodologias Ágeis | Suporte de TI" rows="3"></textarea>
             </div>
 
             <div className="input-row">
@@ -86,28 +96,32 @@ const ConfigPerfil = () => {
               </div>
               <div className="input-group">
                 <label htmlFor="user_location"><MapPin size={18} /> Localização</label>
-                <input
-                  type="text"
-                  id="user_location"
-                  name="user_location"
-                  defaultValue="Silvânia, Goiás, Brasil"
-                />
+                <input type="text" id="user_location" name="user_location" defaultValue="Silvânia, Goiás, Brasil" />
               </div>
             </div>
 
             <div className="input-group full-width">
               <label htmlFor="user_bio">Sobre (Resumo Profissional)</label>
-              <textarea
-                id="user_bio"
-                name="user_bio"
-                placeholder="Conte um pouco sobre sua trajetória profissional..."
-                rows="5"
-              ></textarea>
+              <textarea id="user_bio" name="user_bio" placeholder="Conte um pouco sobre sua trajetória profissional..." rows="5"></textarea>
             </div>
 
             <hr className="divider" />
 
             <h3 className="section-title">Experiência Profissional</h3>
+
+            <div className="company-preview-card">
+              <div className="company-logo-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b2/NTT_Data_Logo.svg" alt="NTT DATA" className="ntt-logo-img" />
+              </div>
+              <div className="company-info-details">
+                <span className="company-name-text">NTT DATA Europe & Latam</span>
+                {trabalhaAtualmente && tempoTrabalho && (
+                  <span className="company-duration-text">
+                    <Clock size={12} /> {tempoTrabalho} no cargo atual
+                  </span>
+                )}
+              </div>
+            </div>
 
             <div className="input-group full-width">
               <label htmlFor="company_name"><Building2 size={18} /> Empresa</label>
@@ -117,7 +131,7 @@ const ConfigPerfil = () => {
             <div className="input-row">
               <div className="input-group">
                 <label htmlFor="current_position">Cargo atual</label>
-                <input type="text" id="current_position" name="current_position" defaultValue="Systems Analyst" />
+                <input type="text" id="current_position" name="current_position" defaultValue="Analista de Sistemas" />
               </div>
               <div className="input-group">
                 <label htmlFor="employment_type">Tipo de emprego</label>
@@ -146,47 +160,26 @@ const ConfigPerfil = () => {
             </div>
 
             <div className="checkbox-group">
-              <input
-                type="checkbox"
-                id="is_current"
-                checked={trabalhaAtualmente}
-                onChange={(e) => setTrabalhaAtualmente(e.target.checked)}
-              />
+              <input type="checkbox" id="is_current" checked={trabalhaAtualmente} onChange={(e) => setTrabalhaAtualmente(e.target.checked)} />
               <label htmlFor="is_current">Trabalho atualmente nesta empresa</label>
             </div>
 
             <div className="input-row">
               <div className="input-group">
                 <label htmlFor="start_date"><Calendar size={18} /> Data de início</label>
-                <input
-                  type="month"
-                  id="start_date"
-                  name="start_date"
-                  className="calendar-input"
-                />
+                <input type="month" id="start_date" name="start_date" className="calendar-input" defaultValue="2026-03" />
               </div>
-
               {!trabalhaAtualmente && (
                 <div className="input-group">
                   <label htmlFor="end_date"><Calendar size={18} /> Data de finalização</label>
-                  <input
-                    type="month"
-                    id="end_date"
-                    name="end_date"
-                    className="calendar-input"
-                  />
+                  <input type="month" id="end_date" name="end_date" className="calendar-input" />
                 </div>
               )}
             </div>
 
             <div className="input-group full-width">
               <label htmlFor="job_description">Descrição das atividades</label>
-              <textarea
-                id="job_description"
-                name="job_description"
-                rows="4"
-                placeholder="Descreva o que você faz no dia a dia..."
-              ></textarea>
+              <textarea id="job_description" name="job_description" rows="4" placeholder="Descreva o que você faz no dia a dia..."></textarea>
             </div>
 
             <div className="form-actions">

@@ -5,6 +5,86 @@
   font-family: 'Inter', sans-serif;
 }
 
+.user-header {
+  background: rgba(13, 5, 33, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 100px;
+  display: flex;
+  align-items: center;
+}
+
+.header-inner {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.header-logo {
+  height: 80px !important;
+  width: auto !important;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 40px;
+  width: 280px;
+}
+
+.search-bar input {
+  background: none;
+  border: none;
+  color: white;
+  padding-left: 10px;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+}
+
+.header-right-nav {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #b8b8b8;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.nav-item:hover {
+  color: #a755f7;
+}
+
 .config-main {
   max-width: 850px;
   margin: 40px auto;
@@ -19,6 +99,8 @@
   padding: 40px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 30px;
 }
 
@@ -29,9 +111,16 @@
   gap: 15px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 30px;
+  width: 100%;
 }
 
-.avatar-preview {
+.avatar-preview-large {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.purple-circle-photo {
   width: 120px;
   height: 120px;
   background: #a755f7;
@@ -40,18 +129,18 @@
 }
 
 .change-photo-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  padding: 8px 20px;
-  border-radius: 20px;
+  padding: 10px 24px;
+  border-radius: 30px;
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
 }
 
 .change-photo-btn:hover {
-  background: rgba(167, 85, 247, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   border-color: #a755f7;
 }
 
@@ -59,6 +148,57 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  text-align: left;
+}
+
+.company-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 10px;
+}
+
+.company-logo-container {
+  width: 48px;
+  height: 48px;
+  background-color: #0076b6;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ntt-logo-img {
+  width: 80%;
+  height: auto;
+  mix-blend-mode: lighten;
+}
+
+.company-info-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.company-name-text {
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+}
+
+.company-duration-text {
+  font-size: 13px;
+  color: #a755f7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
 }
 
 .input-row {
@@ -96,6 +236,7 @@
   outline: none;
   font-size: 14px;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .bio-textarea {
@@ -132,12 +273,14 @@
   color: #a755f7;
   margin: 10px 0 5px 0;
   font-weight: 600;
+  align-self: flex-start;
 }
 
 .divider {
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin: 15px 0;
+  width: 100%;
 }
 
 .checkbox-group {
@@ -174,6 +317,7 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 30px;
+  width: 100%;
 }
 
 .save-btn {
@@ -203,5 +347,11 @@
   }
   .profile-card-dark {
     padding: 25px 20px;
+  }
+  .header-inner {
+    padding: 0 20px;
+  }
+  .search-bar {
+    display: none;
   }
 }

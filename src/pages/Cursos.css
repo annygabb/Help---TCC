@@ -1,0 +1,128 @@
+.feed-container {
+  background-color: #0d0521;
+  min-height: 100vh;
+  color: white;
+}
+
+.post {
+  background-color: #130a2d;
+  border-radius: 12px;
+  border: 1px solid rgba(167, 85, 247, 0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.post:hover {
+  border-color: rgba(167, 85, 247, 0.4);
+}
+
+.company-logo-box {
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid white;
+}
+
+.company-logo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.location-text {
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+
+.bio-text {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.create-post-modal {
+  background-color: #130a2d;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  transition: background 0.2s;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.publish-button {
+  background-color: #a755f7;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+
+.publish-button:hover {
+  background-color: #9333ea;
+}
+
+.btn-small {
+  width: auto !important;
+  padding: 8px 20px !important;
+}
+
+.create-post-container {
+  background-color: #130a2d;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(167, 85, 247, 0.1);
+  margin-bottom: 20px;
+}
+
+.profile-card-dark {
+  cursor: pointer;
+}
