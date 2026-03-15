@@ -3,7 +3,7 @@ package com.example.Help.model.usuario;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record UsuarioRequestDTO (
-        @JsonProperty("nome") String name, // Mantido para o cadastro inicial
+        @JsonProperty("nome") String name, //para o cadastro inicial
 
         String email,
         String password,

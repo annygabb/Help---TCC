@@ -5,10 +5,12 @@ import com.example.Help.model.usuario.UsuarioRepository;
 import com.example.Help.model.usuario.UsuarioRequestDTO;
 import com.example.Help.model.usuario.UsuarioResponseDTO;
 import com.example.Help.model.login.LoginRequestDTO;
+import com.example.Help.model.curso.Curso;
+import com.example.Help.model.curso.CursoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
@@ -16,40 +18,47 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
+    @Autowired
+    private CursoRepository cursoRepository; //gerenciar os cursos do usuario
+
     public void salvar(UsuarioRequestDTO data) {
-        if (repository.existsByEmail(data.email())) { //vai procurar se o email ja existe ou nao
-            throw new RuntimeException("E-mail já cadastrado no sistema."); //aqui ele vai travar pra nao usar esse email
+        if (repository.findByEmail(data.email()).isPresent()) {
+            throw new RuntimeException("E-mail já cadastrado no sistema.");
         }
         Usuario usuarioData = new Usuario(data);
         repository.save(usuarioData);
     }
 
     public List<UsuarioResponseDTO> listarTodos() {
-        return repository.findAll().stream() //aqui ele vai pegar as informações dos usuarios e guardar em response, para não ser possível ver os dados sensíveis
+        return repository.findAll().stream()
                 .map(UsuarioResponseDTO::new)
                 .toList();
     }
 
-    public String autenticar(LoginRequestDTO data) {
-        Optional<Usuario> usuarioParaLogin = repository.findByEmail(data.email()); //o optional vai ajudar o cod em não travar, pois ele fará abrir mais ""caixas"" para achar as informações.
-        if (usuarioParaLogin.isPresent()) {
-            Usuario usuario = usuarioParaLogin.get(); //antes de ter o get ele vai verificar se os dados batem (senha etc)
-            if (usuario.getPassword().equals(data.password())) {
-                return "Login realizado com sucesso! Bem-vindo " + usuario.getName();
-            }
-            return "Senha incorreta!";
-        }
-        return "Usuário não encontrado!";
-    }
-        public void atualizarPerfil(UsuarioRequestDTO data) {
-            Usuario usuarioExistente = repository.findByEmail(data.email())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado para atualização."));
+    public UsuarioResponseDTO autenticarUsuario(LoginRequestDTO data) {
+        Usuario usuario = repository.findByEmail(data.email())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
-            usuarioExistente.setName(data.full_name());
-            usuarioExistente.setJobRole(data.job_role());
-            usuarioExistente.setLocation(data.user_location());
-            usuarioExistente.setBio(data.user_bio());
-
-            repository.save(usuarioExistente);
+        if (usuario.getPassword().equals(data.password())) {
+            return new UsuarioResponseDTO(usuario);
+        } else {
+            throw new RuntimeException("Senha incorreta!");
         }
     }
+
+    public void atualizarPerfil(UsuarioRequestDTO data) {
+        Usuario usuarioExistente = repository.findByEmail(data.email())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado para atualização."));
+
+        usuarioExistente.setName(data.name());
+        usuarioExistente.setJobRole(data.job_role());
+        usuarioExistente.setBio(data.user_bio());
+        usuarioExistente.setLocation(data.user_location());
+
+        repository.save(usuarioExistente);
+    }
+
+    public List<Curso> listarCursosDoUsuario(UUID usuarioId) {//mostra os cursos que envolvem o usuário logado
+        return cursoRepository.findByAlunoId(usuarioId);
+    }
+}

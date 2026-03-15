@@ -4,22 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import lombok.*;
+import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
 
-@Table
-@Entity
+@Table(name = "usuarios")
+@Entity(name = "Usuario")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@JsonPropertyOrder({ "name", "id", "email", "password" })
+@JsonPropertyOrder({ "id", "name", "email", "password", "jobRole", "location", "bio" })
 
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID")
     private UUID id;
 
     @JsonProperty("nome")
@@ -27,20 +29,24 @@ public class Usuario {
 
     @Column(unique = true)
     private String email;
+
     private String password;
+
+    @JsonProperty("cargo")
     private String jobRole;
+
+    @JsonProperty("localizacao")
     private String location;
 
-    @Column(columnDefinition = "TEXT") //Permite textos longos para a Bio
+    @Column(columnDefinition = "TEXT")
     private String bio;
 
-    public Usuario(UsuarioRequestDTO data) {
+    public Usuario(@NonNull UsuarioRequestDTO data) {
+        this.name = data.name();
         this.email = data.email();
         this.password = data.password();
-        this.name = data.name();
         this.jobRole = data.job_role();
         this.location = data.user_location();
         this.bio = data.user_bio();
-
-        }
+    }
 }

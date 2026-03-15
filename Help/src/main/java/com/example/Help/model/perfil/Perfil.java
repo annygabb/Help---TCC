@@ -18,6 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder // Facilita a criação de objetos nos testes e no Service
 @JsonPropertyOrder({ "id", "cargoAtual", "bio", "usuario" })
+
 public class Perfil {
 
     @Id
