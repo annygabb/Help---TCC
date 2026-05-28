@@ -6,8 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,33 +17,48 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder // Facilita a criação de objetos nos testes e no Service
-@JsonPropertyOrder({ "id", "cargoAtual", "bio", "usuario" })
-
+@Builder
+@JsonPropertyOrder({ "id", "name", "cargoAtual", "bio", "usuario", "experiencias", "cursos" })
 public class Perfil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(columnDefinition = "TEXT") //faz a bio ser longa no postgre
+    @Column(length = 150)
+    private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String bio;
+
     private String fotoUrl;
 
-    @Column(length = 100) //ta limitando o banco por enquanto para 100, por conta de garantir um desempenho
+    private String curriculoUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String skills;
+
+    @Column(length = 100)
     private String cargoAtual;
 
-    private String linkedinUrl;
-
-    @OneToOne(fetch = FetchType.LAZY) //ao inves de carregar toda consulta envolvendo usuarios e seus dados, ele traz so o necessario
-    @JoinColumn(name = "usuario_id", nullable = false) //faz ser impossivel ter perfil sem usuario
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @CreationTimestamp //mostra que horas os dados do banco foram inseridos pela primeira vez
-    @Column(updatable = false) //nao deixa alterar informações extremamente importante
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "perfil_id")
+    @Builder.Default
+    private List<Experiencia> experiencias = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "perfil_id")
+    @Builder.Default
+    private List<CursoPerfil> cursos = new ArrayList<>();
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime dataCriacao;
 
-    @UpdateTimestamp //atualiza automatico alguns dados ex:trocou bio
+    @UpdateTimestamp
     private LocalDateTime dataAtualizacao;
 }

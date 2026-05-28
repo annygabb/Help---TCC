@@ -8,28 +8,26 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowedHeaders = "*")
 public class TokenRecuperacaoController {
 
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping("/esqueci-senha") //endpoint pra solicitar a recuperação
+    @PostMapping("/esqueci-senha")
     public ResponseEntity<?> solicitarRecuperacao(@RequestBody Map<String, String> request) {
         try {
             String email = request.get("email");
-            String token = usuarioService.gerarTokenRecuperacao(email);
-
+            usuarioService.gerarTokenRecuperacao(email);
             return ResponseEntity.ok(Map.of(
-                    "message", "Código de recuperação gerado com sucesso!",
-                    "token", token
+                    "message", "Código de recuperação enviado ao seu e-mail!"
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    @PostMapping("/redefinir-senha")//endpoint pra validar o token e trocar a senha
+    @PostMapping("/redefinir-senha")
     public ResponseEntity<?> redefinirSenha(@RequestBody Map<String, String> request) {
         try {
             String token = request.get("token");

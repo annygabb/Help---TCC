@@ -68,3 +68,136 @@
 .btn-candidatar:hover {
   background: #9333ea;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #121217;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a755f7;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.close-button:hover {
+  transform: rotate(90deg);
+  opacity: 0.8;
+}
+
+.input-group-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.input-group-edit label {
+  color: #9ca3af;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dark-input {
+  background: #13131a;
+  border: 1px solid #333;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.dark-input:focus {
+  border-color: #a755f7;
+  box-shadow: 0 0 0 2px rgba(167, 85, 247, 0.2);
+}
+
+.spinner-animation {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.filter-container-dark {
+  transition: all 0.3s ease;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #13131a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0 15px;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.search-input-wrapper input {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 12px 0;
+  width: 100%;
+  outline: none;
+}
+
+.card-item-review {
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.card-item-review:hover {
+  border-color: rgba(167, 85, 247, 0.5);
+}
+
+.publish-button {
+  background: #a755f7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.publish-button:hover {
+  background: #9333ea;
+  box-shadow: 0 4px 15px rgba(167, 85, 247, 0.4);
+}

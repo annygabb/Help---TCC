@@ -8,12 +8,26 @@ import Feed from './pages/Feed.jsx';
 import ConfigPerfil from './pages/ConfigPerfil.jsx';
 import Cursos from './pages/Cursos.jsx';
 import Vagas from './pages/Vagas.jsx';
+import DashboardRH from './pages/DashboardRH.jsx';
+import Talentos from './pages/Talentos.jsx';
+import LoginEmpresa from './pages/LoginEmpresa.jsx';
+import CadastroEmpresa from './pages/CadastroEmpresa.jsx';
 
 const ProtectedRoute = ({ children }) => {
   const usuarioLogado = localStorage.getItem('usuarioLogado');
 
   if (!usuarioLogado) {
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+const ProtectedRouteEmpresa = ({ children }) => {
+  const tokenEmpresa = localStorage.getItem('token');
+
+  if (!tokenEmpresa) {
+    return <Navigate to="/login-empresa" replace />;
   }
 
   return children;
@@ -27,6 +41,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+        <Route path="/login-empresa" element={<LoginEmpresa />} />
+        <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
 
         <Route
           path="/feed"
@@ -61,6 +77,24 @@ function App() {
             <ProtectedRoute>
               <Vagas />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/talentos"
+          element={
+            <ProtectedRouteEmpresa>
+              <Talentos />
+            </ProtectedRouteEmpresa>
+          }
+        />
+
+        <Route
+          path="/dashboard-rh"
+          element={
+            <ProtectedRouteEmpresa>
+              <DashboardRH />
+            </ProtectedRouteEmpresa>
           }
         />
 

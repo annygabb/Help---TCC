@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -26,29 +27,29 @@ const ConfigPerfil = () => {
     fotoPerfil: null
   });
 
+  const [fotoFile, setFotoFile] = useState(null);
+
   const [experiencias, setExperiencias] = useState([]);
   const [cursos, setCursos] = useState([]);
-
   const [previewFile, setPreviewFile] = useState(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
+    const tokenDireto = localStorage.getItem('token');
 
     if (savedUser) {
       const parsed = JSON.parse(savedUser);
 
-      if (parsed && (parsed.id || parsed.idUsuario)) {
-        setUserData({
-          id: parsed.id || parsed.idUsuario || '',
-          nome: parsed.nome || '',
-          cargo: parsed.cargo || '',
-          localidade: parsed.localidade || '',
-          email: parsed.email || '',
-          bio: parsed.bio || '',
-          token: parsed.token || '',
-          fotoPerfil: parsed.fotoPerfil || null
-        });
-      }
+      setUserData({
+        id: parsed.id || parsed.idUsuario || parsed.uuid || '',
+        nome: parsed.nome || parsed.name || '',
+        cargo: parsed.cargo || parsed.cargoAtual || '',
+        localidade: parsed.localidade || '',
+        email: parsed.email || '',
+        bio: parsed.bio || '',
+        token: tokenDireto || parsed.token || '',
+        fotoPerfil: parsed.fotoPerfil || null
+      });
 
       if (parsed.experiencias) setExperiencias(parsed.experiencias);
       if (parsed.cursos) setCursos(parsed.cursos);
@@ -60,6 +61,7 @@ const ConfigPerfil = () => {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setUserData(prev => ({ ...prev, fotoPerfil: reader.result }));
@@ -70,7 +72,7 @@ const ConfigPerfil = () => {
 
   const adicionarExperiencia = () => {
     setExperiencias([...experiencias, {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       empresa: '',
       cargo: '',
       tipoEmprego: 'integral',
@@ -94,13 +96,14 @@ const ConfigPerfil = () => {
 
   const adicionarCurso = () => {
     setCursos([...cursos, {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       nomeCurso: '',
       instituicao: '',
       cargaHoraria: '',
       tempoDuracao: '',
       certificadoPdf: null,
-      nomeArquivo: ''
+      nomeArquivo: '',
+      arquivoReal: null
     }]);
   };
 
@@ -118,7 +121,12 @@ const ConfigPerfil = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setCursos(cursos.map(c =>
-          c.id === id ? { ...c, certificadoPdf: reader.result, nomeArquivo: file.name } : c
+          c.id === id ? {
+            ...c,
+            arquivoReal: file,
+            certificadoPdf: reader.result,
+            nomeArquivo: file.name
+          } : c
         ));
       };
       reader.readAsDataURL(file);
@@ -128,34 +136,55 @@ const ConfigPerfil = () => {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    if (!userData.id || userData.id === 'undefined') {
-      alert("Erro técnico: Sessão inválida.");
-      navigate('/login');
+    const tokenEnvio = localStorage.getItem('token') || userData.token;
+
+    if (!userData.id) {
+      console.error("ID ausente no userData:", userData);
+      alert("Erro: ID do usuário não encontrado. Tente fazer login novamente.");
       return;
     }
 
-    const payload = {
-      ...userData,
-      experiencias,
-      cursos
+    const formData = new FormData();
+
+    const perfilDados = {
+      name: userData.nome,
+      bio: userData.bio,
+      cargoAtual: userData.cargo,
+      usuario: { id: userData.id },
+      experiencias: experiencias,
+      cursos: cursos.map(({ arquivoReal, certificadoPdf, ...c }) => c)
     };
 
+    formData.append("dados", JSON.stringify(perfilDados));
+
+    if (fotoFile) formData.append("foto", fotoFile);
+
     try {
-      await api.put(`/usuarios/${userData.id}`, payload, {
-        headers: { Authorization: `Bearer ${userData.token}` }
-      });
+          console.log("Token enviado:", tokenEnvio);
+          await axios.put(`http://localhost:8080/api/usuarios/${userData.id}`, formData, {
+            headers: {
+              Authorization: `Bearer ${tokenEnvio}`,
+              "Content-Type": "multipart/form-data"
+            }
+          });
 
-      localStorage.setItem('usuarioLogado', JSON.stringify(payload));
-      alert("Perfil atualizado com sucesso!");
-      navigate('/feed');
-    } catch (error) {
-      console.error("Erro ao salvar:", error);
-      alert("Não foi possível salvar as alterações.");
-    }
-  };
+          alert("Perfil atualizado com sucesso!");
 
-  return (
-    <div className="config-container">
+          localStorage.setItem('usuarioLogado', JSON.stringify({
+            ...userData,
+            experiencias,
+            cursos
+          }));
+
+        } catch (error) {
+          console.error("Erro no Update:", error.response);
+          alert("Erro ao salvar alterações.");
+        }
+      };
+
+      return (
+        <div className="config-container">
+
       <nav className="user-header">
         <div className="header-inner">
           <div className="header-left">
@@ -260,12 +289,12 @@ const ConfigPerfil = () => {
                   <div className="input-row spacer-bottom">
                     <div className="input-group full-width">
                        <div className="checkbox-group-styled">
-                          <input
-                            type="checkbox"
-                            id={`current-${exp.id}`}
-                            checked={exp.trabalhaAtualmente}
-                            onChange={(e) => handleExpChange(exp.id, 'trabalhaAtualmente', e.target.checked)}
-                          />
+                         <input
+                           type="checkbox"
+                           id={`current-${exp.id}`}
+                           checked={exp.trabalhaAtualmente}
+                           onChange={(e) => handleExpChange(exp.id, 'trabalhaAtualmente', e.target.checked)}
+                         />
                           <label htmlFor={`current-${exp.id}`} className="label-white" style={{marginLeft: '10px'}}>Trabalho atualmente neste cargo</label>
                        </div>
                     </div>

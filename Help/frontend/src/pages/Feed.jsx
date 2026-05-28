@@ -111,27 +111,83 @@ const Feed = () => {
       </nav>
 
       <main className="feed-content">
-        <aside className="left-column">
-          <div className="profile-card-dark" onClick={() => navigate('/configuracao-perfil')}>
-            <div className="profile-header-info">
-              <div className="avatar-preview-small">
-                <img src={userProfileImg} alt="Perfil" style={avatarStyle} />
-              </div>
-              <div className="user-details-text">
-                <h3>{user.name.split(' ')[0]} {user.name.split(' ')[1]}</h3>
-                <p className="bio-text">{user.role} | Engenharia de Software</p>
-                <div className="location-info">
-                  <MapPin size={12} />
-                  <span className="location-text">{user.location}</span>
-                </div>
-              </div>
-            </div>
-            <div className="company-info-row">
-              <div className="company-logo-box"><img src={nttLogo} alt="NTT DATA" /></div>
-              <span className="company-name">{user.company}</span>
-            </div>
-          </div>
-        </aside>
+<aside className="left-column">
+  <div
+    className="profile-card-dark"
+    onClick={() => navigate('/configuracao-perfil')}
+    style={{
+      cursor: 'pointer',
+      padding: '20px'
+    }}
+  >
+    <div className="profile-header-info" style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '5px' }}>
+      <div
+        className="avatar-preview-small"
+        style={{
+          position: 'relative',
+          width: '70px',
+          height: '70px',
+          backgroundImage: 'none'
+        }}
+      >
+        <div style={{
+          position: 'absolute',
+          inset: '-3px',
+          borderRadius: '18px',
+          background: 'linear-gradient(45deg, #a755f7, #6366f1)',
+          zIndex: 0
+        }}></div>
+
+        <img
+          src={userProfileImg}
+          alt="Perfil"
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '15px',
+            objectFit: 'cover',
+            position: 'relative',
+            zIndex: 1,
+            border: '3px solid #121217'
+          }}
+        />
+      </div>
+
+      <div className="user-details-text">
+        <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>
+          {user.name.split(' ')[0]} {user.name.split(' ')[1]}
+        </h3>
+        <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0' }}>
+          {user.role} | Engenharia de Software
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <MapPin size={12} color="#9ca3af" />
+          <span style={{ fontSize: '12px', color: '#9ca3af' }}>{user.location}</span>
+        </div>
+      </div>
+    </div>
+
+    <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
+
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{
+        width: '40px',
+        height: '40px',
+        background: 'white',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '5px'
+      }}>
+        <img src={nttLogo} alt="NTT DATA" style={{ width: '100%', objectFit: 'contain' }} />
+      </div>
+      <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>
+        {user.company}
+      </span>
+    </div>
+  </div>
+</aside>
 
         <section className="main-column">
           <div className="create-post-container">

@@ -29,9 +29,13 @@ public class TokenRecuperacao {
     @Column(nullable = false)
     private LocalDateTime dataExpiracao;
 
-    public TokenRecuperacao(String token, Usuario usuario) {
+    public TokenRecuperacao(String token, Usuario usuario, LocalDateTime dataExpiracao) {
         this.token = token;
         this.usuario = usuario;
-        this.dataExpiracao = LocalDateTime.now().plusMinutes(15);
+        this.dataExpiracao = dataExpiracao;
+    }
+
+    public TokenRecuperacao(String token, Usuario usuario) {
+        this(token, usuario, LocalDateTime.now().plusMinutes(15));
     }
 }

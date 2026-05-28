@@ -14,12 +14,10 @@ import java.util.UUID;
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@JsonPropertyOrder({ "id", "nome", "email", "cargo", "localizacao", "bio" })
+@JsonPropertyOrder({ "id", "nome", "email", "cargo", "localizacao", "formacao", "skills", "bio" })
 public class Usuario implements UserDetails {
 
     @Id
@@ -42,6 +40,12 @@ public class Usuario implements UserDetails {
     @JsonProperty("localizacao")
     private String location;
 
+    @JsonProperty("formacao")
+    private String formacao;
+
+    @JsonProperty("skills")
+    private String skills;
+
     @Column(columnDefinition = "TEXT")
     private String bio;
 
@@ -51,6 +55,8 @@ public class Usuario implements UserDetails {
         this.senha = data.password();
         this.jobRole = data.job_role();
         this.location = data.user_location();
+        this.formacao = data.formacao();
+        this.skills = data.skills();
         this.bio = data.user_bio();
     }
 

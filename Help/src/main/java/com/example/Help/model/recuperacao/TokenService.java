@@ -3,10 +3,12 @@ package com.example.Help.model.recuperacao;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.Help.model.cadastro.Cadastro;
 import com.example.Help.model.usuario.Usuario;
+import com.example.Help.model.empresa.Empresa;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -17,35 +19,51 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    private static final String ISSUER = "Help-API";
+
+    public String gerarToken(UserDetails usuario) {
+        return criarToken(usuario.getUsername());
+    }
+
+    public String gerarToken(Cadastro usuario) {
+        return criarToken(usuario.getEmail());
+    }
+
     public String gerarToken(Usuario usuario) {
+        return criarToken(usuario.getEmail());
+    }
+
+    public String gerarToken(Empresa empresa) {
+        return criarToken(empresa.getEmail());
+    }//token empresas
+
+    private String criarToken(String email) {
         try {
             var algoritmo = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withIssuer("Help-API")
-                    .withSubject(usuario.getEmail())
+                    .withIssuer(ISSUER)
+                    .withSubject(email)
                     .withExpiresAt(dataExpiracao())
                     .sign(algoritmo);
         } catch (Exception exception) {
-            throw new RuntimeException("Erro ao gerar token jwt", exception);
+            throw new RuntimeException("Erro ao gerar token JWT", exception);
         }
     }
 
     public String getSubject(String tokenJWT) {
         try {
             var algoritmo = Algorithm.HMAC256(secret);
-
             return JWT.require(algoritmo)
-                    .withIssuer("Help-API")
+                    .withIssuer(ISSUER)
                     .build()
                     .verify(tokenJWT)
                     .getSubject();
-
-        } catch (JWTVerificationException exception) {
+        } catch (JWTVerificationException exception) {//Retorna null caso o token esteja expirado ou seja inválido, disparando o bloco catch do SecurityFilter
             return null;
         }
     }
 
     public Instant dataExpiracao() {
-        return LocalDateTime.now().plusMinutes(30).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 }

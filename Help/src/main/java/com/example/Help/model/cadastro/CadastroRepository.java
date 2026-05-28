@@ -6,5 +6,7 @@ import java.util.UUID;
 
 public interface CadastroRepository extends JpaRepository<Cadastro, UUID> {
 
-    Optional<Cadastro> findByEmail(String email); //vai buscar o email
+    Optional<Cadastro> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

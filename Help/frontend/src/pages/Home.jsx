@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Search, User, ArrowRight, BookOpen, Award, Share2, X,
+  Search, User, BookOpen, Award, Share2, X,
   Code, Database, Brain, MapPin, Briefcase, Star, Building2
 } from 'lucide-react';
 
 import logoImg from '../assets/logo.png';
 import womanImg from '../assets/mulher-escritorio.png';
-import conexaoImg from '../assets/conexao.png';
+// import conexaoImg from '../assets/conexao.png'; // Comentado temporariamente para não quebrar o Vite se o arquivo não existir
 import './Home.css';
 
 const DATA = {
@@ -138,7 +138,8 @@ function Home() {
               <h1>Conecte sua <span>Empresa</span> aos melhores Talentos Tech.</h1>
               <p>O Help é a plataforma ideal para empresas que desejam divulgar vagas estratégicas e cursos de capacitação para uma comunidade engajada.</p>
               <div className="hero-btns">
-                <button className="btn-primary" onClick={() => handleNavigation('/anunciar')}>
+                {/* CORRIGIDO: Redirecionando agora para a rota certa /login-empresa configurada no seu App.jsx */}
+                <button className="btn-primary" onClick={() => handleNavigation('/login-empresa')}>
                   Anunciar Vagas ou Cursos <Building2 size={20} style={{ marginLeft: '8px' }} />
                 </button>
                 <button className="btn-secondary" onClick={() => handleNavigation('/cadastro')}>
@@ -156,7 +157,8 @@ function Home() {
         <section id="sobre" className="about-section">
           <div className="about-container">
             <div className="about-image-side">
-              <img src={conexaoImg} alt="Conexão" className="img-abstract reveal connected-img-left" />
+              {/* AJUSTADO: Usando womanImg temporariamente para não quebrar a compilação por falta do arquivo conexao.png */}
+              <img src={womanImg} alt="Conexão" className="img-abstract reveal connected-img-left" />
               <div className="side-fade-overlay-left"></div>
             </div>
 

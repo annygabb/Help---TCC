@@ -26,7 +26,7 @@ function Cadastro() {
     };
 
     try {
-    await api.post('/usuarios/cadastro', dados);
+    await api.post('http://localhost:8080/api/usuarios/cadastrar', dados);
 
       alert("Cadastro realizado com sucesso!");
       navigate('/login');

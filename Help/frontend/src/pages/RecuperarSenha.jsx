@@ -10,21 +10,26 @@ function RecuperarSenha() {
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
-  const [etapa, setEtapa] = useState(1); // 1:vai pedir código e 2: Redefinir senha
+  const [etapa, setEtapa] = useState(1);
   const [carregando, setCarregando] = useState(false);
 
-  const handlePedirCodigo = async (e) => {
+const handlePedirCodigo = async (e) => {
     e.preventDefault();
     setCarregando(true);
     try {
-      const response = await fetch(`http://localhost:8080/usuarios/gerar-token?email=${email}`, {
-        method: 'POST'
+      const response = await fetch(`http://localhost:8080/api/usuarios/gerar-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
       });
 
       if (response.ok) {
         setEtapa(2);
       } else {
-        alert("Erro: Verifique se o e-mail está correto.");
+        const errorData = await response.text();
+        alert(errorData || "Erro: Verifique se o e-mail está correto.");
       }
     } catch (error) {
       alert("Erro ao conectar com o servidor.");
@@ -33,12 +38,19 @@ function RecuperarSenha() {
     }
   };
 
-  const handleRedefinirSenha = async (e) => {
+  const handleRedefinirSenha = async (e) => {//redefinir senha
     e.preventDefault();
     setCarregando(true);
     try {
-      const response = await fetch(`http://localhost:8080/usuarios/redefinir-senha?token=${token}&novaSenha=${novaSenha}`, {
-        method: 'POST'
+      const response = await fetch(`http://localhost:8080/usuarios/redefinir-senha`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token: token,
+          novaSenha: novaSenha
+        })
       });
 
       if (response.ok) {

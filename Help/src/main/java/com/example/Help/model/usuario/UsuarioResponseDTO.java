@@ -8,6 +8,8 @@ public record UsuarioResponseDTO(
         String email,
         String jobRole,
         String location,
+        String formacao,
+        String skills,
         String bio
 ) {
     public UsuarioResponseDTO(Usuario usuario) {
@@ -17,6 +19,8 @@ public record UsuarioResponseDTO(
                 usuario.getEmail(),
                 usuario.getJobRole(),
                 usuario.getLocation(),
+                usuario.getFormacao(),
+                usuario.getSkills(),
                 usuario.getBio()
         );
     }

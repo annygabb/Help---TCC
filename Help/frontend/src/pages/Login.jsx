@@ -23,13 +23,14 @@ function Login() {
     };
 
     try {
-      const response = await api.post('/usuarios/login', dados);
+      const response = await api.post('http://localhost:8080/api/usuarios/login', dados);
 
       console.log("Resposta da API:", response.data);
 
       const { token, id, nome, email: userEmail } = response.data;
 
       if (token) {
+          localStorage.setItem('token', token);
         const usuarioParaSalvar = {
           token: token,
           id: id,
