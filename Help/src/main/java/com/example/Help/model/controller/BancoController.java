@@ -1,4 +1,4 @@
-package com.example.Help.controller;
+package com.example.Help.model.controller;
 
 import com.example.Help.Service.UsuarioService;
 import com.example.Help.model.usuario.UsuarioRequestDTO;

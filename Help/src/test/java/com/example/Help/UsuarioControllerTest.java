@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -50,23 +51,30 @@ class UsuarioControllerTest {
 
     @BeforeEach
     void setup() {
+
         requestGenerico = new UsuarioRequestDTO(
-                "Nome Teste",
-                "teste@email.com",
-                "senha123",
-                "62999999999",
-                "000.000.000-00",
-                "Endereço Teste",
-                "Bio de teste"
+                "Nome Teste",          // nome -> name
+                "teste@email.com",           // email
+                "senha123",                  // password
+                "Nome Completo do Teste",    // full_name
+                "Desenvolvedor",             // job_role
+                "Anápolis, Goiás",           // user_location
+                "Ensino Superior",           // formacao
+                "Java, Spring Boot, React",  // skills
+                "Bio de teste profissional"  // user_bio
         );
 
         responseGenerico = new UsuarioResponseDTO(
-                UUID.randomUUID(),
-                "Nome Teste",
-                "teste@email.com",
-                "Desenvolvedor",
-                "Goiás, Brasil",
-                "Bio de teste"
+                UUID.randomUUID(),           //id
+                "Nome Teste",                //name
+                "teste@email.com",           //email
+                "62999999999",               //telefone
+                "Anápolis",                  //cidade
+                "Goiás",                     //estado
+                "Desenvolvedor",             //cargo
+                "Bio de teste profissional", //curriculo
+                "Java, Spring Boot, React",  //skills
+                1500.00                      //salarioBase
         );
     }
 
@@ -114,9 +122,8 @@ class UsuarioControllerTest {
         mockMvc.perform(get("/usuarios"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                // Verificando campos específicos do seu record
                 .andExpect(jsonPath("$[0].name").value("Nome Teste"))
-                .andExpect(jsonPath("$[0].jobRole").value("Desenvolvedor"));
+                .andExpect(jsonPath("$[0].cargo").value("Desenvolvedor")); // Valida a propriedade mapeada no DTO de resposta
     }
 
     @Test
@@ -124,8 +131,11 @@ class UsuarioControllerTest {
     void gerarToken_deveRetornar200_quandoSucesso() throws Exception {
         doNothing().when(service).gerarTokenRecuperacao(anyString());
 
+        Map<String, String> requestBody = Map.of("email", "teste@email.com");
+
         mockMvc.perform(post("/usuarios/gerar-token")
-                        .param("email", "teste@email.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk());
 
         verify(service, times(1)).gerarTokenRecuperacao("teste@email.com");
@@ -136,9 +146,14 @@ class UsuarioControllerTest {
     void redefinirSenha_deveRetornar200_quandoSucesso() throws Exception {
         doNothing().when(service).redefinirSenhaComToken(anyString(), anyString());
 
+        Map<String, String> requestBody = Map.of(
+                "token", "123456",
+                "novaSenha", "novaSenha123"
+        );
+
         mockMvc.perform(post("/usuarios/redefinir-senha")
-                        .param("token", "123456")
-                        .param("novaSenha", "novaSenha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk());
     }
 }

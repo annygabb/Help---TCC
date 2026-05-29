@@ -1,3 +1,4 @@
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import {
@@ -49,12 +50,30 @@ const normalizarTalento = (talento) => {
         pretensaoSalarial
     };
 };
+=======
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // Única adição externa necessária
+
+import {
+    UserPlus,
+    Star,
+    MessageCircle,
+    Heart,
+    Filter,
+    X,
+    Sparkles,
+    Zap,
+    Search
+} from 'lucide-react';
+import './Talentos.css';
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
 
 const Talentos = () => {
     const [talentosDB, setTalentosDB] = useState([]);
     const [carregando, setCarregando] = useState(true);
 
     const [favoritos, setFavoritos] = useState(() => {
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
         const favoritosSalvos = localStorage.getItem('favoritosTalentosRH');
         return favoritosSalvos ? new Set(JSON.parse(favoritosSalvos)) : new Set();
     });
@@ -76,10 +95,24 @@ const Talentos = () => {
     const [areaAtiva, setAreaAtiva] = useState('Todos');
     const [ordenacao, setOrdenacao] = useState('match');
     const [mensagem, setMensagem] = useState('');
+=======
+        const favoritosSalvos =
+            localStorage.getItem('favoritos');
+        return favoritosSalvos
+            ? new Set(JSON.parse(favoritosSalvos))
+            : new Set();
+    });
+
+    const [talentoSelecionado, setTalentoSelecionado] = //talento selecionado
+        useState(null);
+
+    const [busca, setBusca] = useState('');//busca
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
 
     useEffect(() => {
         const buscarDados = async () => {
             try {
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                 const token = localStorage.getItem('token');
                 const config = {};
                 if (token && token !== "null" && token !== "undefined") {
@@ -90,6 +123,12 @@ const Talentos = () => {
                 setTalentosDB(response.data);
             } catch (error) {
                 console.error("Erro ao carregar talentos da API:", error);
+=======
+                const response = await axios.get('http://localhost:8080/api/vagas/talentos');
+                setTalentosDB(response.data);
+            } catch (error) {
+                console.error("Erro ao carregar talentos:", error);
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             } finally {
                 setCarregando(false);
             }
@@ -97,6 +136,7 @@ const Talentos = () => {
         buscarDados();
     }, []);
 
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
     useEffect(() => {
         localStorage.setItem('favoritosTalentosRH', JSON.stringify([...favoritos]));
     }, [favoritos]);
@@ -161,10 +201,27 @@ const Talentos = () => {
         setFavoritos(prev => {
             const novoSet = new Set(prev);
             novoSet.has(id) ? novoSet.delete(id) : novoSet.add(id);
+=======
+    useEffect(() => {//salvar favoritos
+        localStorage.setItem(
+            'favoritos',
+            JSON.stringify([...favoritos])
+        );
+    }, [favoritos]);
+
+    const toggleFavorito = (e, id) => {//favoritar
+        e.stopPropagation();
+        setFavoritos(prev => {
+            const novoSet = new Set(prev);
+            novoSet.has(id)
+                ? novoSet.delete(id)
+                : novoSet.add(id);
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             return novoSet;
         });
     };
 
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
     const toggleSenioridade = (nivel) => {
         setSenioridadesSelecionadas(prev =>
             prev.includes(nivel)
@@ -215,6 +272,45 @@ const Talentos = () => {
                 </div>
             )}
 
+=======
+    const calcularCompatibilidade = (talento) => {//compatibilidade
+        if (!talento) return 0;
+        let score = 70;
+        if (talento.experiencia >= 5) score += 10;
+        if (talento.skills?.length >= 5) score += 10;
+        if (talento.certificacoes?.length > 0) score += 5;
+        return Math.min(score, 100);
+    };
+    const [senioridadesSelecionadas, setSenioridadesSelecionadas] = useState([]);
+
+    const toggleSenioridade = (nivel) => {
+        setSenioridadesSelecionadas((prev) => {
+            if (prev.includes(nivel)) {
+                return prev.filter(item => item !== nivel);
+            }
+            return [...prev, nivel];
+        });
+    };
+
+    const talentos = talentosDB.filter((talento) => {//filtro de buscas
+        const textoBusca = busca.toLowerCase();
+        return (
+            talento.nome?.toLowerCase().includes(textoBusca) ||
+            talento.formacao?.toLowerCase().includes(textoBusca) ||
+            talento.skills?.some(skill =>
+                skill.toLowerCase().includes(textoBusca)
+            )
+        );
+
+    });
+    const [salario, setSalario] = useState(8000);
+
+    if (carregando) return null; //Ou um loader simples se preferir
+
+    return (
+
+        <div className="talentos-layout-wrapper">
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             <aside className="talentos-sidebar">
                 <div className="sidebar-header">
                     <Filter size={18} color="#a755f7" />
@@ -222,7 +318,11 @@ const Talentos = () => {
                 </div>
 
                 <div className="filter-group">
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                     <label>Buscar talentos</label>
+=======
+                    <label>Buscar Talentos</label>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                     <div className="search-wrapper">
                         <Search size={16} className="search-icon" />
                         <input
@@ -230,13 +330,20 @@ const Talentos = () => {
                             placeholder="Nome, skill ou formação..."
                             className="search-input"
                             value={busca}
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                             onChange={(e) => setBusca(e.target.value)}
+=======
+                            onChange={(e) =>
+                                setBusca(e.target.value)
+                            }
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                         />
                     </div>
                 </div>
 
                 <div className="filter-group">
                     <label>Senioridade</label>
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                     {senioridades.map((nivel) => (
                         <div className="check-item" key={nivel}>
                             <input
@@ -255,6 +362,32 @@ const Talentos = () => {
                     <span className="salary-text">
                         R$ {salario.toLocaleString('pt-BR')}
                     </span>
+=======
+                    {['Estagiário', 'Júnior', 'Pleno', 'Sênior']
+                        .map((nivel) => (
+                            <div
+                                className="check-item"
+                                key={nivel}
+                            >
+                                <input
+                                    type="checkbox"
+                                    id={nivel}
+                                    checked={senioridadesSelecionadas.includes(nivel)}
+                                    onChange={() => toggleSenioridade(nivel)}
+                                />
+                                <label htmlFor={nivel}>
+                                    {nivel}
+                                </label>
+                            </div>
+                        ))}
+                </div>
+
+                <div className="filter-group">
+                    <label>Pretensão Salarial</label>
+                    <span className="salary-text">
+        R$ {salario.toLocaleString()}
+    </span>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                     <input
                         type="range"
                         className="salary-slider"
@@ -262,13 +395,20 @@ const Talentos = () => {
                         max="20000"
                         step="500"
                         value={salario}
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                         onChange={(e) => setSalario(Number(e.target.value))}
+=======
+                        onChange={(e) =>
+                            setSalario(Number(e.target.value))
+                        }
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                     />
                     <div className="range-values">
                         <span>2k</span>
                         <span>20k+</span>
                     </div>
                 </div>
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
 
                 <div className="filter-group">
                     <label>Ordenar por</label>
@@ -286,10 +426,15 @@ const Talentos = () => {
 
                 <button className="btn-reset-filters" onClick={limparFiltros}>
                     Limpar tudo
+=======
+                <button className="btn-reset-filters" onClick={() => { setBusca(''); setSenioridadesSelecionadas([]); setSalario(8000); }}>
+                    Limpar Tudo
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                 </button>
             </aside>
 
             <main className="talentos-page-container">
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                 <div className="talentos-summary-grid">
                     <div className="talentos-summary-card">
                         <Users size={18} />
@@ -316,10 +461,18 @@ const Talentos = () => {
                 <header className="talentos-header-v2">
                     <div className="header-text">
                         <h2 className="talentos-title">Banco de Talentos Inteligente</h2>
+=======
+                <header className="talentos-header-v2">
+                    <div className="header-text">
+                        <h2 className="talentos-title">
+                            Banco de Talentos Inteligente
+                        </h2>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                         <p className="talentos-subtitle">
                             {talentos.length} talentos encontrados
                         </p>
                     </div>
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
 
                     <div className="filter-chips">
                         {areas.map(area => (
@@ -331,6 +484,18 @@ const Talentos = () => {
                                 {area}
                             </button>
                         ))}
+=======
+                    <div className="filter-chips">
+                        <button className="chip active">
+                            Todos
+                        </button>
+                        <button className="chip">
+                            Devs
+                        </button>
+                        <button className="chip">
+                            Designers
+                        </button>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                     </div>
                 </header>
 
@@ -340,6 +505,7 @@ const Talentos = () => {
                             <TalentoCard
                                 key={talento.id}
                                 talento={talento}
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                                 compatibilidade={calcularCompatibilidade(talento)}
                                 isSelected={talentoSelecionado?.id === talento.id}
                                 isFavorito={favoritos.has(talento.id)}
@@ -349,13 +515,38 @@ const Talentos = () => {
                                 onToggleFavorito={toggleFavorito}
                                 onConvidar={convidarTalento}
                                 onChat={iniciarChat}
+=======
+                                isSelected={
+                                    talentoSelecionado?.id ===
+                                    talento.id
+                                }
+                                isFavorito={
+                                    favoritos.has(talento.id)
+                                }
+                                onSelect={() =>
+                                    setTalentoSelecionado(talento)
+                                }
+                                onToggleFavorito={
+                                    toggleFavorito
+                                }
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                             />
                         ))
                     ) : (
                         <div className="empty-state">
                             <Sparkles size={40} />
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                             <h3>Nenhum talento encontrado</h3>
                             <p>Tente ajustar os filtros ou realizar outra busca.</p>
+=======
+                            <h3>
+                                Nenhum talento encontrado
+                            </h3>
+                            <p>
+                                Tente ajustar os filtros
+                                ou realizar outra busca.
+                            </p>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                         </div>
                     )}
                 </div>
@@ -363,6 +554,7 @@ const Talentos = () => {
 
             {talentoSelecionado && (
                 <ResumoAI
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                     talento={normalizarTalento(talentoSelecionado)}
                     compatibilidade={calcularCompatibilidade(normalizarTalento(talentoSelecionado))}
                     analiseIA={analisarTalentoIA(normalizarTalento(talentoSelecionado))}
@@ -375,6 +567,17 @@ const Talentos = () => {
                         setConvidados(prev => new Set(prev).add(t.id));
                         mostrarMensagem(`${t.nome} foi convidado para o processo.`);
                     }}
+=======
+                    talento={talentoSelecionado}
+                    compatibilidade={
+                        calcularCompatibilidade(
+                            talentoSelecionado
+                        )
+                    }
+                    onClose={() =>
+                        setTalentoSelecionado(null)
+                    }
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
                 />
             )}
         </div>
@@ -383,6 +586,7 @@ const Talentos = () => {
 
 const TalentoCard = ({
     talento,
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
     compatibilidade,
     isSelected,
     isFavorito,
@@ -413,6 +617,20 @@ const TalentoCard = ({
                 stroke={isFavorito ? '#ef4444' : '#ccc'}
             />
         </button>
+=======
+    isSelected,
+    isFavorito,
+    onSelect,
+    onToggleFavorito
+}) => (
+
+    <div
+        className={`talento-card-v2 ${
+    isSelected ? 'selected' : ''
+}`}
+        onClick={onSelect}
+    >
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
 
         <div className="card-top">
             <div className="avatar-wrapper">
@@ -421,6 +639,7 @@ const TalentoCard = ({
                 </div>
                 <div className="status-indicator online"></div>
             </div>
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
 
             <div className="main-meta">
                 <h3>{talento.nome}</h3>
@@ -456,10 +675,63 @@ const TalentoCard = ({
                         {skill}
                     </span>
                 ))}
+=======
+            <div className="main-meta">
+                <h3>{talento.nome}</h3>
+                <p>{talento.formacao}</p>
+                <div className="exp-label">
+                    <Star
+                        size={14}
+                        className="star-icon"
+                    />
+                    <span>
+                        {talento.experiencia} anos exp.
+                    </span>
+                </div>
+            </div>
+
+            <button
+                className={`fav-btn ${
+    isFavorito ? 'active' : ''
+}`}
+                onClick={(e) =>
+                    onToggleFavorito(e, talento.id)
+                }
+            >
+                <Heart
+                    size={20}
+                    fill={
+                        isFavorito
+                            ? '#ef4444'
+                            : 'transparent'
+                    }
+                    stroke={
+                        isFavorito
+                            ? '#ef4444'
+                            : '#ccc'
+                    }
+                />
+            </button>
+        </div>
+
+        <div className="skills-section">
+            <div className="skills-grid-v2">
+                {talento.skills
+                    ?.slice(0, 4)
+                    .map((skill) => (
+                        <span
+                            key={skill}
+                            className="skill-pill-v2"
+                        >
+                            {skill}
+                        </span>
+                    ))}
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             </div>
         </div>
 
         <div className="card-footer-v2">
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
             <button className="btn-chat-secundario" onClick={(e) => onChat(e, talento)}>
                 <MessageCircle size={18} />
                 Chat
@@ -471,6 +743,14 @@ const TalentoCard = ({
             >
                 {isConvidado ? <CheckCircle size={18} /> : <UserPlus size={18} />}
                 {isConvidado ? 'Convidado' : 'Convidar'}
+=======
+            <button className="btn-chat-secundario">
+                <MessageCircle size={18} />
+            </button>
+            <button className="btn-convidar-primario">
+                <UserPlus size={18} />
+                Convidar
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             </button>
         </div>
     </div>
@@ -479,6 +759,7 @@ const TalentoCard = ({
 const ResumoAI = ({
     talento,
     compatibilidade,
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
     analiseIA,
     isFavorito,
     isConvidado,
@@ -489,6 +770,16 @@ const ResumoAI = ({
 }) => (
     <aside className="resumo-ai-sidebar">
         <button className="btn-close-ai" onClick={onClose}>
+=======
+    onClose
+}) => (
+
+    <aside className="resumo-ai-sidebar">
+        <button
+            className="btn-close-ai"
+            onClick={onClose}
+        >
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             <X size={20} />
         </button>
 
@@ -508,6 +799,7 @@ const ResumoAI = ({
                     <Zap size={14} />
                     Match IA
                 </div>
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                 <span className="match-percentage">{compatibilidade}%</span>
             </div>
 
@@ -531,6 +823,19 @@ const ResumoAI = ({
             <div>
                 <span>Status</span>
                 <strong>{isEntrevista ? 'Entrevista' : isConvidado ? 'Convidado' : isFavorito ? 'Favorito' : 'Novo'}</strong>
+=======
+                <span className="match-percentage">
+                    {compatibilidade}%
+                </span>
+            </div>
+            <div className="match-progress-bg">
+                <div
+                    className="match-progress-fill"
+                    style={{
+                        width: `${compatibilidade}%`
+                    }}
+                ></div>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
             </div>
         </div>
 
@@ -540,6 +845,7 @@ const ResumoAI = ({
                 Resumo Inteligente
             </div>
             <p>
+<<<<<<< HEAD:Help/frontend/src/pages/Talentos.jsx
                 {analiseIA?.resumo || ''} O candidato demonstra alinhamento para projetos de tecnologia, colaboração técnica e evolução de produto.
             </p>
         </div>
@@ -561,6 +867,27 @@ const ResumoAI = ({
                 {isEntrevista ? 'Entrevista agendada' : 'Agendar entrevista'}
             </button>
         </div>
+=======
+                Perfil{' '}
+                <strong>
+                    {talento.experiencia > 5
+                        ? 'Especialista'
+                        : 'Potencial'}
+                </strong>
+                {' '}com domínio em{' '}
+                <strong>
+                    {talento.skills?.join(', ')}
+                </strong>
+                . O candidato demonstra forte
+                alinhamento para projetos de
+                inovação e colaboração técnica.
+            </p>
+        </div>
+
+        <button className="btn-agendar-entrevista">
+            Agendar Entrevista
+        </button>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/Talentos.jsx
     </aside>
 );
 

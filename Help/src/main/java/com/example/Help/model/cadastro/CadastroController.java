@@ -3,6 +3,7 @@ package com.example.Help.model.cadastro;
 import com.example.Help.Service.UsuarioService;
 import com.example.Help.model.recuperacao.TokenService;
 import com.example.Help.model.login.LoginRequestDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -81,7 +81,7 @@ public class CadastroController {
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> dados = objectMapper.readValue(dadosJson, Map.of().getClass());
+            Map<String, Object> dados = objectMapper.readValue(dadosJson, new TypeReference<Map<String, Object>>() {});
 
             var usuario = usuarioExistente.get();
 

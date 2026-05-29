@@ -1,4 +1,4 @@
-package com.example.Help;
+package com.example.Help.model.curso;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -3,9 +3,6 @@ package com.example.Help.model.empresa;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import java.util.UUID;
 
 public record EmpresaRequestDTO(
         @NotBlank(message = "A razão social é obrigatória.")
@@ -25,7 +22,4 @@ public record EmpresaRequestDTO(
         )
         String cnpj
 ) {
-        @Repository
-        public static interface VagaEmpresaRepository extends JpaRepository<TokenDadosEmpresaDTO.VagaEmpresa, UUID> {
-        }
 }

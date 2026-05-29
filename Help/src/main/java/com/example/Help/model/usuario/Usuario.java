@@ -13,7 +13,8 @@ import java.util.UUID;
 
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -53,11 +54,56 @@ public class Usuario implements UserDetails {
         this.name = data.name();
         this.email = data.email();
         this.senha = data.password();
-        this.jobRole = data.job_role();
-        this.location = data.user_location();
+        this.jobRole = data.jobRole();
+        this.location = data.userLocation();
         this.formacao = data.formacao();
         this.skills = data.skills();
-        this.bio = data.user_bio();
+        this.bio = data.userBio();
+    }
+
+    public String getCargo() {
+        return this.jobRole;
+    }
+
+    public void setCargo(String cargo) {
+        this.jobRole = cargo;
+    }
+
+    public String getCidade() {
+        return this.location;
+    }
+
+    public void setCidade(String cidade) {
+        this.location = cidade;
+    }
+
+    public String getTelefone() {
+        return null; //Retorna null ou String vazia para não quebrar o Service
+    }
+
+    public void setTelefone(String telefone) {
+    }
+
+    public String getEstado() {
+        return ""; //Retorna valor padrão para o Service
+    }
+
+    public void setEstado(String estado) {
+    }
+
+    public String getCurriculo() {
+        return this.bio; //Redireciona para o campo de bio/texto
+    }
+
+    public void setCurriculo(String curriculo) {
+        this.bio = curriculo;
+    }
+
+    public Double getSalarioBase() {
+        return 0.0; //Retorna valor numérico para evitar NullPointerException no Service
+    }
+
+    public void setSalarioBase(Double salarioBase) {
     }
 
     @Override

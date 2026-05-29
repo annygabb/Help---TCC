@@ -35,17 +35,28 @@ public class UsuarioService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public UsuarioResponseDTO realizarLogin(LoginRequestDTO data) { //login
+    public UsuarioResponseDTO realizarLogin(LoginRequestDTO data) {
         Usuario usuario = repository.findByEmail(data.email())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
         if (passwordEncoder.matches(data.password(), usuario.getPassword())) {
-            return new UsuarioResponseDTO(usuario);
+            return new UsuarioResponseDTO(
+                    usuario.getId(),
+                    usuario.getName(),
+                    usuario.getEmail(),
+                    usuario.getTelefone(),
+                    usuario.getCidade(),
+                    usuario.getEstado(),
+                    usuario.getCargo(),
+                    usuario.getCurriculo(),
+                    usuario.getSkills(),
+                    usuario.getSalarioBase()
+            );
         }
         throw new RuntimeException("Senha incorreta!");
     }
 
-    @Transactional //recuperar senha
+    @Transactional
     public void gerarTokenRecuperacao(String email) {
         Usuario usuario = buscarUsuarioPorEmail(email);
         String token = prepararNovoToken(usuario);
@@ -67,18 +78,18 @@ public class UsuarioService {
         logger.info("Senha redefinida com sucesso para: " + usuario.getEmail());
     }
 
-    @Transactional //chamado pelo usuariocontroller pra seguir o padrao (cadastro, depois token)
+    @Transactional
     public void gerarTokenMatricula(String email, String nomeCurso) {
-        gerarTokenMatriculaGratuita(email, nomeCurso);
+        generateTokenMatriculaGratuita(email, nomeCurso);
     }
 
-    @Transactional //chamado pelo usuariocontroller pra validar matricula
+    @Transactional
     public void confirmarMatriculaComToken(String token) {
         confirmarMatriculaGratuitaComToken(token);
     }
 
-    @Transactional  //matricula gratuita
-    public void gerarTokenMatriculaGratuita(String email, String nomeCurso) {
+    @Transactional
+    public void generateTokenMatriculaGratuita(String email, String nomeCurso) {
         logger.info("Gerando token de matrícula gratuita para: " + email + " | Curso: " + nomeCurso);
         Usuario usuario = buscarUsuarioPorEmail(email);
         String token = prepararNovoToken(usuario);
@@ -95,7 +106,7 @@ public class UsuarioService {
         logger.info("Matrícula gratuita confirmada para: " + tokenEncontrado.getUsuario().getEmail());
     }
 
-    @Transactional //matricula paga
+    @Transactional
     public void gerarTokenMatriculaPagaAposConfirmacaoPagamento(String email, String nomeCurso) {
         logger.info("Pagamento confirmado. Gerando token de matrícula paga para: " + email + " | Curso: " + nomeCurso);
         Usuario usuario = buscarUsuarioPorEmail(email);
@@ -113,17 +124,37 @@ public class UsuarioService {
         logger.info("Matrícula paga confirmada para: " + tokenEncontrado.getUsuario().getEmail());
     }
 
-    @Transactional //crud usuario
+    @Transactional
     public void salvar(UsuarioRequestDTO data) {
         if (repository.existsByEmail(data.email()))
             throw new RuntimeException("E-mail já cadastrado.");
-        Usuario u = new Usuario(data);
+
+        Usuario u = new Usuario();
+        u.setName(data.name());
+        u.setEmail(data.email());
         u.setSenha(passwordEncoder.encode(data.password()));
+        u.setCargo(data.jobRole());
+        u.setCidade(data.userLocation());
+        u.setSkills(data.skills());
+
         repository.save(u);
     }
 
     public List<UsuarioResponseDTO> listarTodos() {
-        return repository.findAll().stream().map(UsuarioResponseDTO::new).toList();
+        return repository.findAll().stream()
+                .map(usuario -> new UsuarioResponseDTO(
+                        usuario.getId(),
+                        usuario.getName(),
+                        usuario.getEmail(),
+                        usuario.getTelefone(),
+                        usuario.getCidade(),
+                        usuario.getEstado(),
+                        usuario.getCargo(),
+                        usuario.getCurriculo(),
+                        usuario.getSkills(),
+                        usuario.getSalarioBase()
+                ))
+                .toList();
     }
 
     @Transactional
@@ -144,7 +175,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Código inválido ou inexistente."));
     }
 
-    private String prepararNovoToken(Usuario usuario) {//remove tokens antigos e cria um novo
+    private String prepararNovoToken(Usuario usuario) {
         tokenRepository.deleteByUsuario(usuario);
         tokenRepository.flush();
 
@@ -176,7 +207,7 @@ public class UsuarioService {
         }
     }
 
-    private void enviarEmailRecuperacaoSenha(Usuario usuario, String token) {//emails
+    private void enviarEmailRecuperacaoSenha(Usuario usuario, String token) {
         String html = String.format("""
             <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
                 <h2 style="color:#ef4444;margin-top:0;">🔐 Recuperação de Senha</h2>

@@ -6,22 +6,12 @@ public record UsuarioResponseDTO(
         UUID id,
         String name,
         String email,
-        String jobRole,
-        String location,
-        String formacao,
+        String telefone,
+        String cidade,
+        String estado,
+        String cargo,
+        String curriculo,
         String skills,
-        String bio
+        Double salarioBase
 ) {
-    public UsuarioResponseDTO(Usuario usuario) {
-        this(
-                usuario.getId(),
-                usuario.getName(),
-                usuario.getEmail(),
-                usuario.getJobRole(),
-                usuario.getLocation(),
-                usuario.getFormacao(),
-                usuario.getSkills(),
-                usuario.getBio()
-        );
-    }
 }

@@ -10,8 +10,11 @@ import Cursos from './pages/Cursos.jsx';
 import Vagas from './pages/Vagas.jsx';
 import DashboardRH from './pages/DashboardRH.jsx';
 import Talentos from './pages/Talentos.jsx';
+<<<<<<< HEAD:Help/frontend/src/App.jsx
 import LoginEmpresa from './pages/LoginEmpresa.jsx';
 import CadastroEmpresa from './pages/CadastroEmpresa.jsx';
+=======
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/App.jsx
 
 const ProtectedRoute = ({ children }) => {
   const usuarioLogado = localStorage.getItem('usuarioLogado');
@@ -83,18 +86,30 @@ function App() {
         <Route
           path="/talentos"
           element={
+<<<<<<< HEAD:Help/frontend/src/App.jsx
             <ProtectedRouteEmpresa>
               <Talentos />
             </ProtectedRouteEmpresa>
+=======
+            <ProtectedRoute>
+              <Talentos />
+            </ProtectedRoute>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/App.jsx
           }
         />
 
         <Route
           path="/dashboard-rh"
           element={
+<<<<<<< HEAD:Help/frontend/src/App.jsx
             <ProtectedRouteEmpresa>
               <DashboardRH />
             </ProtectedRouteEmpresa>
+=======
+            <ProtectedRoute>
+              <DashboardRH />
+            </ProtectedRoute>
+>>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/App.jsx
           }
         />
 

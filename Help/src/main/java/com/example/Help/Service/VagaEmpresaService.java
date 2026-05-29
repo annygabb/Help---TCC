@@ -1,11 +1,12 @@
 package com.example.Help.Service;
 
-import com.example.Help.model.empresa.EmpresaRepository;
-import com.example.Help.model.empresa.EmpresaRequestDTO;
-import com.example.Help.model.empresa.TokenDadosEmpresaDTO;
+import com.example.Help.model.empresa.VagaEmpresa;
+import com.example.Help.model.empresa.VagaEmpresaRequestDTO;
+import com.example.Help.model.empresa.VagaEmpresaRepository;
 import com.example.Help.model.usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,20 +15,26 @@ import java.util.stream.Collectors;
 public class VagaEmpresaService {
 
     @Autowired
-    private EmpresaRequestDTO.VagaEmpresaRepository repository;
+    private VagaEmpresaRepository repository; // CORREÇÃO: Usando o repositório global e correto
 
     @Autowired
-    private UsuarioRepository usuarioRepository; //Injeção necessária para o Banco de Talentos
+    private UsuarioRepository usuarioRepository; // Injeção necessária para o Banco de Talentos
 
-    public List<TokenDadosEmpresaDTO.VagaEmpresa> listarTodas() {//gerenciamento de vagas
+    // CORREÇÃO: Retorna a lista da entidade global pura VagaEmpresa
+    public List<VagaEmpresa> listarTodas() { // gerenciamento de vagas
         return repository.findAll();
     }
 
-    public TokenDadosEmpresaDTO.VagaEmpresa salvarVaga(EmpresaRepository.VagaEmpresaRequestDTO dados) {
-        TokenDadosEmpresaDTO.VagaEmpresa novaVaga = new TokenDadosEmpresaDTO.VagaEmpresa();
+    // CORREÇÃO: Recebe e retorna os tipos globais e corretos do pacote empresa
+    public VagaEmpresa salvarVaga(VagaEmpresaRequestDTO dados) {
+        VagaEmpresa novaVaga = new VagaEmpresa();
+
+        // Mapeia os dados vindo do Record Request para a nova Entidade
         novaVaga.setCargo(dados.cargo());
         novaVaga.setSkillsExigidas(dados.skillsExigidas());
         novaVaga.setExperienciaMinima(dados.experienciaMinima());
+        novaVaga.setDataPublicacao(LocalDate.now()); // Define a data de publicação automaticamente
+
         return repository.save(novaVaga);
     }
 
@@ -38,13 +45,13 @@ public class VagaEmpresaService {
         repository.deleteById(id);
     }
 
-    public List<Object> listarCandidatosDisponiveis() {//busca todos os candidatos
+    public List<Object> listarCandidatosDisponiveis() { // busca todos os candidatos
         return usuarioRepository.findAll().stream()
                 .map(usuario -> (Object) usuario)
                 .collect(Collectors.toList());
     }
 
-    public Object buscarCandidatoPorId(UUID id) {//busca um candidato específico pelo id
+    public Object buscarCandidatoPorId(UUID id) { // busca um candidato específico pelo id
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Candidato não encontrado com o ID: " + id));
     }
