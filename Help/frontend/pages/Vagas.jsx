@@ -104,7 +104,6 @@ const Vagas = () => {
       const linhas = textoPdf.split('\n').map(l => l.trim()).filter(l => l.length > 3);
       let nomeBruto = linhas[0] || "Não identificado";
 
-      // Ajuste para não capturar linhas gigantes e formatar para Title Case
       if (nomeBruto.length > 50) nomeBruto = nomeBruto.split(' ').slice(0, 4).join(' ');
       const nomeFinal = nomeBruto.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 

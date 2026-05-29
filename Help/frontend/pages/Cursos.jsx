@@ -421,13 +421,15 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => { //fo
 
               <div style={{ //card roxo
                 background: 'rgba(167,85,247,0.08)',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                border: '1px solid rgba(167,85,247,0.15)',
-                width: '100%',
-                boxSizing: 'border-box',
-                alignSelf: 'stretch',
-              }}>
+                padding: '16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(167,85,247,0.15)',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  gap: '20px',
+                  alignItems: 'center'
+                }}>
                 <p style={{ color: '#bdbdbd', margin: 0, fontSize: '11px' }}>Você está se matriculando em:</p>
                 <h4 style={{ color: 'white', fontSize: '18px', fontWeight: '700', margin: '4px 0 0 0' }}>{curso.titulo}</h4>
               </div>
@@ -1163,7 +1165,7 @@ const Cursos = () => {
       )}
 
       {showMeusCursosModal && ( //meus cursos
-        <div className="modal-overlay" onClick={() => setShowMeusCursosModal(false)} style={{ zIndex: 1000 }}>
+        <div className="modal-overlay" onClick={() => setShowMeusCursosModal(false)}>
           <div
             className="create-post-modal"
             onClick={e => e.stopPropagation()}
@@ -1222,11 +1224,11 @@ const Cursos = () => {
       )}
 
       {cursoSelecionadoProgresso && ( //model progresso do curso
-        <div className="modal-overlay" onClick={() => setCursoSelecionadoProgresso(null)} style={{ zIndex: 1100 }}>
+          <div className="modal-overlay" onClick={() => setCursoSelecionadoProgresso(null)}>
           <div
             className="create-post-modal"
             onClick={e => e.stopPropagation()}
-            style={{ width: '620px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', background: '#13131a', borderRadius: '20px', border: '1px solid #333' }}
+            style={{ width: '100%', maxWidth: '620px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', background: '#13131a', borderRadius: '20px', border: '1px solid #333' }}
           >
             <div className="modal-header" style={{ padding: '20px 30px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '600' }}>Detalhes do Treinamento</h3>
@@ -1236,7 +1238,11 @@ const Cursos = () => {
             </div>
 
             <div className="modal-content" style={{ padding: '25px 30px 30px', overflowY: 'auto' }}>
-              <div style={{ display: 'flex', gap: '20px', marginBottom: '25px', alignItems: 'flex-start' }}>
+              <div style={{
+                display: 'flex', gap: '20px', marginBottom: '25px', alignItems: 'center',
+                width: '100%', background: 'rgba(167,85,247,0.08)', padding: '16px',
+                borderRadius: '14px', border: '1px solid rgba(167,85,247,0.15)', boxSizing: 'border-box'
+              }}>
                 <div style={{ width: '80px', height: '80px', background: '#fff', borderRadius: '12px', padding: '8px', flexShrink: 0 }}>
                   <img src={cursoSelecionadoProgresso.foto} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>

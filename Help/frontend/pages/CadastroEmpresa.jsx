@@ -13,16 +13,29 @@ function CadastroEmpresa() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [loading, setLoading] = useState(false);
+    const handleCnpjChange = (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+
+        if (value.length <= 14) {
+            value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+            value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+            value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            setCnpj(value);
+        }
+    };
 
     const handleCadastro = async (e) => {
         e.preventDefault();
         setLoading(true);
 
+        const cnpjLimpo = cnpj.replace(/\D/g, '');
+
         const dados = {
             corporateName: razaoSocial,
             email: email,
             password: senha,
-            cnpj: cnpj
+            cnpj: cnpjLimpo
         };
 
         try {
@@ -69,16 +82,21 @@ function CadastroEmpresa() {
                     alt="Help Logo"
                     className="logo-image-auth"
                     style={{
-                        height: '100px',
+                        height: '85px',
                         width: 'auto',
-                        objectFit: 'contain',
-                        marginBottom: '10px'
+                        display: 'block',
+                        margin: '0 auto 5px auto',
+                        objectFit: 'contain'
                     }}
                 />
 
-                <div className="logo-subtext">Corporativo</div>
+                <div className="logo-subtext" style={{ textAlign: 'center', width: '100%' }}>
+                    Corporativo
+                </div>
 
-                <h2 style={{ color: 'white', marginBottom: '20px', marginTop: '10px' }}>Criar Conta</h2>
+                <h2 style={{ color: 'white', marginBottom: '20px', marginTop: '15px', textAlign: 'center' }}>
+                    Criar Conta
+                </h2>
 
                 <form onSubmit={handleCadastro}>
                     <div className="input-with-icon">
@@ -97,9 +115,9 @@ function CadastroEmpresa() {
                         <input
                             type="text"
                             placeholder="CNPJ (00.000.000/0001-00)"
-                            maxLength="14"
+                            maxLength="18"
                             value={cnpj}
-                            onChange={(e) => setCnpj(e.target.value)}
+                            onChange={handleCnpjChange}
                             required
                         />
                     </div>
@@ -140,4 +158,3 @@ function CadastroEmpresa() {
 }
 
 export default CadastroEmpresa;
-

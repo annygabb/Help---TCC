@@ -1,7 +1,3 @@
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
-/* Layout Base */
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 .feed-container {
     background-color: #080115;
     min-height: 100vh;
@@ -69,10 +65,6 @@
 
 .nav-item.active { color: #a755f7; }
 
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
-/* Grid Layout */
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 .feed-content.rh-layout {
     max-width: 1200px;
     margin: 24px auto;
@@ -106,10 +98,6 @@
 
 .btn-primary-rh:hover { background: #8b3fd6; }
 
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
-/* Status e Vagas */
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 .rh-vaga-content {
     display: flex;
     justify-content: space-between;
@@ -192,10 +180,6 @@
 
 .text-purple { color: #a755f7; font-weight: bold; }
 
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
-/* Talentos */
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 .talent-item {
     display: flex;
     align-items: center;
@@ -211,10 +195,6 @@
     border-radius: 8px;
 }
 
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
-/* Modal */
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -230,13 +210,10 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     padding: 30px;
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
     width: min(520px, calc(100vw - 32px));
     max-height: 88vh;
     overflow-y: auto;
-=======
     width: 450px;
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
     position: relative;
 }
 
@@ -268,7 +245,6 @@
     outline: none;
 }
 
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
 .modal-input option {
     background: #0d0521;
     color: white;
@@ -280,8 +256,6 @@
     font-family: inherit;
 }
 
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 .modal-confirm-btn {
     width: 100%;
     background: #a755f7;
@@ -324,7 +298,6 @@
     background: rgba(167, 85, 247, 0.05);
 }
 
-
 .candidates-list .btn-primary-rh {
     font-size: 11px;
     padding: 6px 12px;
@@ -341,7 +314,6 @@
     padding-right: 10px;
 }
 
-
 .candidates-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -357,14 +329,13 @@
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-
 .candidates-list::-webkit-scrollbar {
     width: 6px;
 }
+
 .candidates-list::-webkit-scrollbar-thumb {
     background: #a755f7;
     border-radius: 10px;
-<<<<<<< HEAD:Help/frontend/src/pages/DashboardRH.css
 }
 
 .ia-match-box {
@@ -411,6 +382,4 @@
 .ia-warning {
     background: rgba(234, 179, 8, 0.12);
     color: #eab308;
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/pages/DashboardRH.css
 }

@@ -24,6 +24,7 @@ function LoginEmpresa() {
         try {
             const response = await api.post('/empresas/login', dados);
 
+            // Armazena o token de autenticação da empresa no localStorage
             localStorage.setItem('token', response.data.token);
 
             alert("Login realizado com sucesso!");
@@ -68,16 +69,21 @@ function LoginEmpresa() {
                     alt="Help Logo"
                     className="logo-image-auth"
                     style={{
-                        height: '100px',
+                        height: '85px',
                         width: 'auto',
-                        objectFit: 'contain',
-                        marginBottom: '10px'
+                        display: 'block',
+                        margin: '0 auto 5px auto',
+                        objectFit: 'contain'
                     }}
                 />
 
-                <div className="logo-subtext">Corporativo</div>
+                <div className="logo-subtext" style={{ textAlign: 'center', width: '100%' }}>
+                    Corporativo
+                </div>
 
-                <h2 style={{ color: 'white', marginBottom: '20px', marginTop: '10px' }}>Entrar na Conta</h2>
+                <h2 style={{ color: 'white', marginBottom: '20px', marginTop: '15px', textAlign: 'center' }}>
+                    Entrar na Conta
+                </h2>
 
                 <form onSubmit={handleLogin}>
                     <div className="input-with-icon">

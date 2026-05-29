@@ -1,20 +1,22 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home.jsx';
-import Login from './pages/Login.jsx';
-import Cadastro from './pages/Cadastro.jsx';
-import RecuperarSenha from './pages/RecuperarSenha.jsx';
-import Feed from './pages/Feed.jsx';
-import ConfigPerfil from './pages/ConfigPerfil.jsx';
-import Cursos from './pages/Cursos.jsx';
-import Vagas from './pages/Vagas.jsx';
-import DashboardRH from './pages/DashboardRH.jsx';
-import Talentos from './pages/Talentos.jsx';
-<<<<<<< HEAD:Help/frontend/src/App.jsx
-import LoginEmpresa from './pages/LoginEmpresa.jsx';
-import CadastroEmpresa from './pages/CadastroEmpresa.jsx';
-=======
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/App.jsx
+
+// 📂 Arquivos dentro da pasta "pages" (fora da pasta src)
+import Home from '../pages/Home.jsx';
+import Cadastro from '../pages/Cadastro.jsx';
+import Feed from '../pages/Feed.jsx';
+import ConfigPerfil from '../pages/ConfigPerfil.jsx';
+import Cursos from '../pages/Cursos.jsx';
+import DashboardRH from '../pages/DashboardRH.jsx';
+import CadastroEmpresa from '../pages/CadastroEmpresa.jsx';
+import CriarPublicacao from '../pages/CriarPublicacao.jsx';
+
+// 📂 Arquivos soltos na raiz do projeto (fora da pasta src)
+import Login from '../pages/Login.jsx';
+import LoginEmpresa from '../pages/LoginEmpresa.jsx';
+import RecuperarSenha from '../pages/RecuperarSenha.jsx';
+import Talentos from '../pages/Talentos.jsx';
+import Vagas from '../pages/Vagas.jsx';
 
 const ProtectedRoute = ({ children }) => {
   const usuarioLogado = localStorage.getItem('usuarioLogado');
@@ -26,11 +28,12 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-const ProtectedRouteEmpresa = ({ children }) => {
+const ProtectedRouteDupla = ({ children }) => {
+  const usuarioLogado = localStorage.getItem('usuarioLogado');
   const tokenEmpresa = localStorage.getItem('token');
 
-  if (!tokenEmpresa) {
-    return <Navigate to="/login-empresa" replace />;
+  if (!usuarioLogado && !tokenEmpresa) {
+    return <Navigate to="/" replace />;
   }
 
   return children;
@@ -40,6 +43,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Rotas Públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
@@ -47,6 +51,7 @@ function App() {
         <Route path="/login-empresa" element={<LoginEmpresa />} />
         <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
 
+        {/* Rotas Protegidas do Candidato */}
         <Route
           path="/feed"
           element={
@@ -83,33 +88,40 @@ function App() {
           }
         />
 
+        {/* Rotas Compartilhadas / RH */}
         <Route
           path="/talentos"
           element={
-<<<<<<< HEAD:Help/frontend/src/App.jsx
-            <ProtectedRouteEmpresa>
+            <ProtectedRouteDupla>
               <Talentos />
-            </ProtectedRouteEmpresa>
-=======
-            <ProtectedRoute>
-              <Talentos />
-            </ProtectedRoute>
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/App.jsx
+            </ProtectedRouteDupla>
           }
         />
 
         <Route
           path="/dashboard-rh"
           element={
-<<<<<<< HEAD:Help/frontend/src/App.jsx
-            <ProtectedRouteEmpresa>
+            <ProtectedRouteDupla>
               <DashboardRH />
-            </ProtectedRouteEmpresa>
-=======
-            <ProtectedRoute>
-              <DashboardRH />
-            </ProtectedRoute>
->>>>>>> 01f3cafd15c9ccd52211aaa6713347c51d2f61ac:src/App.jsx
+            </ProtectedRouteDupla>
+          }
+        />
+
+        {/* 🟢 CORREÇÃO AQUI: Mudamos de CriarPublicacao para CadastroEmpresa */}
+        <Route
+          path="/anunciar"
+          element={
+            <CadastroEmpresa />
+          }
+        />
+
+        {/* Rota para criar posts (caso queira acessá-la por uma URL própria depois) */}
+        <Route
+          path="/criar-publicacao"
+          element={
+            <ProtectedRouteDupla>
+              <CriarPublicacao />
+            </ProtectedRouteDupla>
           }
         />
 
