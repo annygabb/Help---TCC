@@ -35,7 +35,7 @@ public class UsuarioService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public UsuarioResponseDTO realizarLogin(LoginRequestDTO data) {
+    public UsuarioResponseDTO realizarLogin(LoginRequestDTO data) { //login
         Usuario usuario = repository.findByEmail(data.email())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
@@ -56,11 +56,10 @@ public class UsuarioService {
         throw new RuntimeException("Senha incorreta!");
     }
 
-    @Transactional
+    @Transactional //recuperar senha
     public void gerarTokenRecuperacao(String email) {
         Usuario usuario = buscarUsuarioPorEmail(email);
         String token = prepararNovoToken(usuario);
-
         enviarEmailRecuperacaoSenha(usuario, token);
         logger.info("Token de recuperação de senha gerado para: " + email);
     }
@@ -78,53 +77,7 @@ public class UsuarioService {
         logger.info("Senha redefinida com sucesso para: " + usuario.getEmail());
     }
 
-    @Transactional
-    public void gerarTokenMatricula(String email, String nomeCurso) {
-        generateTokenMatriculaGratuita(email, nomeCurso);
-    }
-
-    @Transactional
-    public void confirmarMatriculaComToken(String token) {
-        confirmarMatriculaGratuitaComToken(token);
-    }
-
-    @Transactional
-    public void generateTokenMatriculaGratuita(String email, String nomeCurso) {
-        logger.info("Gerando token de matrícula gratuita para: " + email + " | Curso: " + nomeCurso);
-        Usuario usuario = buscarUsuarioPorEmail(email);
-        String token = prepararNovoToken(usuario);
-
-        enviarEmailConfirmacaoMatriculaGratuita(usuario, token, nomeCurso);
-    }
-
-    @Transactional
-    public void confirmarMatriculaGratuitaComToken(String token) {
-        TokenRecuperacao tokenEncontrado = buscarTokenOuFalhar(token);
-        verificarExpiracaoEDeletar(tokenEncontrado, "O código de confirmação de matrícula expirou.");
-
-        tokenRepository.delete(tokenEncontrado);
-        logger.info("Matrícula gratuita confirmada para: " + tokenEncontrado.getUsuario().getEmail());
-    }
-
-    @Transactional
-    public void gerarTokenMatriculaPagaAposConfirmacaoPagamento(String email, String nomeCurso) {
-        logger.info("Pagamento confirmado. Gerando token de matrícula paga para: " + email + " | Curso: " + nomeCurso);
-        Usuario usuario = buscarUsuarioPorEmail(email);
-        String token = prepararNovoToken(usuario);
-
-        enviarEmailConfirmacaoMatriculaPaga(usuario, token, nomeCurso);
-    }
-
-    @Transactional
-    public void confirmarMatriculaPagaComToken(String token) {
-        TokenRecuperacao tokenEncontrado = buscarTokenOuFalhar(token);
-        verificarExpiracaoEDeletar(tokenEncontrado, "O código de confirmação de matrícula paga expirou.");
-
-        tokenRepository.delete(tokenEncontrado);
-        logger.info("Matrícula paga confirmada para: " + tokenEncontrado.getUsuario().getEmail());
-    }
-
-    @Transactional
+    @Transactional //crud usuario
     public void salvar(UsuarioRequestDTO data) {
         if (repository.existsByEmail(data.email()))
             throw new RuntimeException("E-mail já cadastrado.");
@@ -136,7 +89,6 @@ public class UsuarioService {
         u.setCargo(data.jobRole());
         u.setCidade(data.userLocation());
         u.setSkills(data.skills());
-
         repository.save(u);
     }
 
@@ -180,7 +132,9 @@ public class UsuarioService {
         tokenRepository.flush();
 
         String token = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        TokenRecuperacao novoToken = new TokenRecuperacao(token, usuario, LocalDateTime.now().plusMinutes(TOKEN_EXPIRACAO_MINUTOS));
+        TokenRecuperacao novoToken = new TokenRecuperacao(
+                token, usuario, LocalDateTime.now().plusMinutes(TOKEN_EXPIRACAO_MINUTOS)
+        );
         tokenRepository.save(novoToken);
         return token;
     }
@@ -192,7 +146,7 @@ public class UsuarioService {
         }
     }
 
-    @Async
+    @Async //emails
     protected void enviarMimeMessage(String para, String assunto, String htmlContent) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -220,31 +174,5 @@ public class UsuarioService {
             </div>
             """, usuario.getName(), token, TOKEN_EXPIRACAO_MINUTOS);
         enviarMimeMessage(usuario.getEmail(), "Recuperação de Senha — Help Academy", html);
-    }
-
-    private void enviarEmailConfirmacaoMatriculaGratuita(Usuario usuario, String token, String nomeCurso) {
-        String html = String.format("""
-            <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
-                <h2 style="color:#a855f7;margin-top:0;">🎓 Confirme sua Matrícula</h2>
-                <p>Curso: <strong>%s</strong></p>
-                <div style="background:#121217;color:#a855f7;padding:16px;font-size:28px;font-weight:bold;text-align:center;border-radius:8px;letter-spacing:6px;">
-                    %s
-                </div>
-            </div>
-            """, nomeCurso, token);
-        enviarMimeMessage(usuario.getEmail(), "Confirme sua Matrícula — Help Academy", html);
-    }
-
-    private void enviarEmailConfirmacaoMatriculaPaga(Usuario usuario, String token, String nomeCurso) {
-        String html = String.format("""
-            <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
-                <h2 style="color:#22c55e;margin-top:0;">✅ Pagamento Confirmado!</h2>
-                <p>Curso: <strong>%s</strong></p>
-                <div style="background:#052e16;color:#4ade80;padding:16px;font-size:28px;font-weight:bold;text-align:center;border-radius:8px;letter-spacing:6px;">
-                    %s
-                </div>
-            </div>
-            """, nomeCurso, token);
-        enviarMimeMessage(usuario.getEmail(), "Acesso Liberado — Help Academy", html);
     }
 }

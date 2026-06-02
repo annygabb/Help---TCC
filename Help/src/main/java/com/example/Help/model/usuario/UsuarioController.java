@@ -1,6 +1,7 @@
 package com.example.Help.model.usuario;
 
 import com.example.Help.Service.UsuarioService;
+import com.example.Help.Service.PagamentoService;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.example.Help.model.recuperacao.DadosTokenJWT;
 import com.example.Help.model.recuperacao.TokenService;
@@ -23,6 +24,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService service;
+
+    @Autowired
+    private PagamentoService pagamentoService;
 
     @Autowired
     private AuthenticationManager manager;
@@ -71,7 +75,7 @@ public class UsuarioController {
         return ResponseEntity.ok(service.listarTodos());
     }
 
-    @PostMapping("/gerar-token")//recuperar senha
+    @PostMapping("/gerar-token") //recuperar senha
     public ResponseEntity<String> solicitarToken(@RequestBody Map<String, String> request) {
         try {
             String email = request.get("email");
@@ -96,13 +100,13 @@ public class UsuarioController {
         }
     }
 
-    @PostMapping("/gerar-token-matricula")//gerar token da matricula
+    @PostMapping("/gerar-token-matricula") //gerar token da matricula
     public ResponseEntity<String> solicitarTokenMatricula(@RequestBody Map<String, Object> request) {
         try {
             String email = (String) request.get("email");
             String nomeCurso = (String) request.get("nomeCurso");
 
-            service.gerarTokenMatricula(email, nomeCurso);
+            pagamentoService.gerarTokenMatricula(email, nomeCurso);
             return ResponseEntity.ok("Token de matrícula enviado ao e-mail!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -113,7 +117,8 @@ public class UsuarioController {
     public ResponseEntity<String> confirmarMatricula(@RequestBody Map<String, String> request) {
         try {
             String token = request.get("token");
-            service.confirmarMatriculaComToken(token);
+
+            pagamentoService.confirmarMatriculaComToken(token);
             return ResponseEntity.ok("Matrícula ativada com sucesso!");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

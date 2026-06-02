@@ -1,6 +1,7 @@
 package com.example.Help.model.curso;
 
 import com.example.Help.Service.UsuarioService;
+import com.example.Help.Service.PagamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +15,14 @@ public class MatriculaController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private PagamentoService pagamentoService;
+
     @PostMapping("/gerar-token")
     public ResponseEntity<?> solicitarTokenMatricula(@RequestBody MatriculaRequestDTO data) {
         try {
-            usuarioService.gerarTokenMatricula(data.email(), data.nomeCurso());
+            // 3. Alterado para chamar o pagamentoService
+            pagamentoService.gerarTokenMatricula(data.email(), data.nomeCurso());
 
             return ResponseEntity.ok(Map.of("message", "Token enviado com sucesso para " + data.email()));
         } catch (Exception e) {
@@ -30,7 +35,7 @@ public class MatriculaController {
         try {
             String token = payload.get("token");
 
-            usuarioService.confirmarMatriculaComToken(token);
+            pagamentoService.confirmarMatriculaComToken(token);
 
             return ResponseEntity.ok(Map.of("message", "Matrícula confirmada com sucesso!"));
         } catch (Exception e) {

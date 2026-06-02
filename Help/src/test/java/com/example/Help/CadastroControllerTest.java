@@ -7,11 +7,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class CadastroControllerTest {
 
     @Autowired
@@ -20,9 +22,11 @@ class CadastroControllerTest {
     @Test
     @DisplayName("Deve validar que a senha de cadastro não pode ser curta")
     void validarSenhaCurta() throws Exception {
-        mockMvc.perform(post("/api/usuarios")
+        String emailUnico = "teste_" + System.currentTimeMillis() + "@gmail.com";//Gera um email único em tempo de execução para não conflitar com dados reais
+
+        mockMvc.perform(post("/api/usuarios/cadastrar")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nome\": \"Anny\", \"email\": \"annygabbyoficial@gmail.com\", \"senha\": \"123\"}"))
-                .andExpect(status().isBadRequest()); //espera retornar o erro 400, pois a senha é de até 12 digitos
+                        .content("{\"nome\": \"Anny\", \"email\": \"" + emailUnico + "\", \"senha\": \"123\"}"))
+                .andExpect(status().isBadRequest());
     }
 }

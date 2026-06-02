@@ -182,8 +182,8 @@ const Vagas = () => {
   return (
     <div className="feed-container">
       {vagaSelecionada && (
-        <div className="modal-overlay" onClick={() => { setVagaSelecionada(null); setEtapaCandidatura('detalhes'); }}>
-          <div className="create-post-modal" onClick={e => e.stopPropagation()} style={{ width: '850px', background: '#121217', border: '1px solid #333', maxHeight: '90vh', borderRadius: '15px', display: 'flex', flexDirection: 'column' }}>
+        <div className="modal-overlay" onClick={() => { setVagaSelecionada(null); setEtapaCandidatura('detalhes'); }} style={{ padding: '20px', boxSizing: 'border-box' }}>
+          <div className="create-post-modal" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '850px', background: '#121217', border: '1px solid #333', maxHeight: '90vh', borderRadius: '15px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
             <div className="modal-header" style={{ borderBottom: '1px solid #333', background: '#1a1a21', padding: '20px', borderTopLeftRadius: '15px', borderTopRightRadius: '15px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -195,7 +195,7 @@ const Vagas = () => {
               <button className="close-button" onClick={() => { setVagaSelecionada(null); setEtapaCandidatura('detalhes'); }}><X size={24} color="white" /></button>
             </div>
 
-            <div className="modal-content" style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
+            <div className="modal-content" style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
               {etapaCandidatura === 'detalhes' && (
                 <div style={{ textAlign: 'left' }}>
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px' }}>

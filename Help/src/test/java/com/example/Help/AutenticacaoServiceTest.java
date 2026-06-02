@@ -2,6 +2,7 @@ package com.example.Help;
 
 import com.example.Help.model.usuario.Usuario;
 import com.example.Help.model.usuario.UsuarioRepository;
+import com.example.Help.model.empresa.EmpresaRepository;
 import com.example.Help.model.recuperacao.AutenticacaoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,8 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import java.util.Optional;
 import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -27,6 +30,9 @@ class AutenticacaoServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private EmpresaRepository empresaRepository;
+
     private Usuario usuarioMock;
 
     @BeforeEach
@@ -39,7 +45,7 @@ class AutenticacaoServiceTest {
     }
 
     @Test
-    @DisplayName("loadUserByUsername - deve retornar UserDetails quando e-mail encontrado")
+    @DisplayName("loadUserByUsername - deve retornar UserDetails quando e-mail de usuário for encontrado")
     void loadUserByUsername_deveRetornarUserDetails_quandoEmailEncontrado() {
         when(usuarioRepository.findByEmail("anny@email.com")).thenReturn(Optional.of(usuarioMock));
 
@@ -51,13 +57,17 @@ class AutenticacaoServiceTest {
     }
 
     @Test
-    @DisplayName("loadUserByUsername - deve lançar UsernameNotFoundException quando e-mail não encontrado")
+    @DisplayName("loadUserByUsername - deve lançar UsernameNotFoundException quando e-mail não for encontrado em nenhum repositório")
     void loadUserByUsername_deveLancarExcecao_quandoEmailNaoEncontrado() {
         when(usuarioRepository.findByEmail("naoexiste@email.com")).thenReturn(Optional.empty());
+        when(empresaRepository.findByEmail("naoexiste@email.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> autenticacaoService.loadUserByUsername("naoexiste@email.com"))
                 .isInstanceOf(UsernameNotFoundException.class)
                 .hasMessageContaining("naoexiste@email.com");
+
+        verify(usuarioRepository, times(1)).findByEmail("naoexiste@email.com");
+        verify(empresaRepository, times(1)).findByEmail("naoexiste@email.com");
     }
 
     @Test

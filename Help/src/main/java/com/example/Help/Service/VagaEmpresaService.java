@@ -15,25 +15,22 @@ import java.util.stream.Collectors;
 public class VagaEmpresaService {
 
     @Autowired
-    private VagaEmpresaRepository repository; // CORREÇÃO: Usando o repositório global e correto
+    private VagaEmpresaRepository repository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository; // Injeção necessária para o Banco de Talentos
+    private UsuarioRepository usuarioRepository; //necessária para o Banco de Talentos
 
-    // CORREÇÃO: Retorna a lista da entidade global pura VagaEmpresa
     public List<VagaEmpresa> listarTodas() { // gerenciamento de vagas
         return repository.findAll();
     }
 
-    // CORREÇÃO: Recebe e retorna os tipos globais e corretos do pacote empresa
     public VagaEmpresa salvarVaga(VagaEmpresaRequestDTO dados) {
         VagaEmpresa novaVaga = new VagaEmpresa();
 
-        // Mapeia os dados vindo do Record Request para a nova Entidade
         novaVaga.setCargo(dados.cargo());
         novaVaga.setSkillsExigidas(dados.skillsExigidas());
         novaVaga.setExperienciaMinima(dados.experienciaMinima());
-        novaVaga.setDataPublicacao(LocalDate.now()); // Define a data de publicação automaticamente
+        novaVaga.setDataPublicacao(LocalDate.now()); //Define a data de publicação automaticamente
 
         return repository.save(novaVaga);
     }

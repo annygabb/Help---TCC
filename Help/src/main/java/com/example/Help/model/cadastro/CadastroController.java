@@ -1,6 +1,7 @@
 package com.example.Help.model.cadastro;
 
 import com.example.Help.Service.UsuarioService;
+import com.example.Help.Service.PagamentoService;
 import com.example.Help.model.recuperacao.TokenService;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,6 +27,9 @@ public class CadastroController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private PagamentoService pagamentoService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -108,7 +112,9 @@ public class CadastroController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "E-mail não encontrado no sistema."));
             }
-            usuarioService.gerarTokenMatricula(email, "Recuperação de Senha");
+
+            pagamentoService.gerarTokenMatricula(email, "Recuperação de Senha");
+
             return ResponseEntity.ok(Map.of("message", "Código enviado com sucesso para " + email));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -47,15 +47,16 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll() //autentificação e cadastro usuários
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll()//autenticar e cadastrar usuario
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/cadastrar").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/empresas/cadastro").permitAll()//autentificação e cadastro empresas
+                        .requestMatchers(HttpMethod.POST, "/api/empresas/cadastro").permitAll()//autenticar e cadastrar empresa
                         .requestMatchers(HttpMethod.POST, "/empresas/cadastro").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/empresas/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/empresas/login").permitAll()
+
 
                         .requestMatchers(HttpMethod.POST, "/auth/esqueci-senha").permitAll()//recuperar senha
                         .requestMatchers(HttpMethod.POST, "/auth/redefinir-senha").permitAll()
@@ -73,19 +74,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/matricula/paga/confirmar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/matricula/paga/confirmar").permitAll()
 
-                        .requestMatchers("/api/banco/**").permitAll() //endpoints publicos
+                        .requestMatchers(HttpMethod.POST, "/api/pagamento/cartao").permitAll()//pagamento cartao e pix
+                        .requestMatchers(HttpMethod.POST, "/api/pagamento/pix").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/pagamento/pix/status/**").permitAll()
+                        .requestMatchers("/api/pagamento/**").permitAll()
+                        .requestMatchers("/pagamento/**").permitAll()
+
+                        .requestMatchers("/api/banco/**").permitAll()//publicos
                         .requestMatchers("/api/matricula/**").permitAll()
                         .requestMatchers("/matricula/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/vagas").permitAll()//vagas e talentos
-                        .requestMatchers(HttpMethod.POST, "/api/vagas").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/vagas").permitAll()//vaga e talento
+                        .requestMatchers(HttpMethod.POST,   "/api/vagas").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/vagas/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/vagas/talentos").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/vagas/talentos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/vagas/talentos").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/vagas/talentos/**").permitAll()
 
-                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/**").authenticated()//rotas de autentificação
+                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/**").authenticated()//rotas autenticada
                         .requestMatchers(HttpMethod.PUT, "/usuarios/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/usuarios/**").authenticated()
