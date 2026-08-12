@@ -5,15 +5,18 @@ import {
   Share2, ThumbsUp, MessageCircle, Image, Video, MapPin, Users
 } from 'lucide-react';
 import './Feed.css';
+import './Badges.css';
 import logoImg from '../assets/logo.png';
 import nttLogo from '../assets/ntt-logo.jpg';
 import userProfileImg from '../assets/fotoperfil.png';
 import CriarPublicacao from './CriarPublicacao';
+import useUnreadCounts from './useUnreadCounts';
 
 const Feed = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const naoLidas = useUnreadCounts();
 
   const [isSeguidorDoAutor] = useState(true);
 
@@ -104,8 +107,20 @@ const Feed = () => {
               <Briefcase size={22} />
               <span>Vagas</span>
             </Link>
-            <div className="nav-item"><MessageSquare size={22} /><span>Mensagens</span></div>
-            <div className="nav-item"><Bell size={22} /><span>Notificações</span></div>
+            <Link to="/mensagens" className={`nav-item ${location.pathname === '/mensagens' ? 'active' : ''}`}>
+              <div className="nav-icon-wrapper">
+                <MessageSquare size={22} />
+                {naoLidas.mensagens > 0 && <span className="nav-badge">{naoLidas.mensagens}</span>}
+              </div>
+              <span>Mensagens</span>
+            </Link>
+            <Link to="/notificacoes" className={`nav-item ${location.pathname === '/notificacoes' ? 'active' : ''}`}>
+              <div className="nav-icon-wrapper">
+                <Bell size={22} />
+                {naoLidas.notificacoes > 0 && <span className="nav-badge">{naoLidas.notificacoes}</span>}
+              </div>
+              <span>Notificações</span>
+            </Link>
           </div>
         </div>
       </nav>
