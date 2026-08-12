@@ -4,13 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, Search, MessageSquare, Bell, Plus,
   User, Mail, MapPin, Save, Building2, AlignLeft, FileText, Trash2,
-  Camera, Calendar, GraduationCap, Clock, FileUp, CheckCircle, Pencil, X
+  Camera, Calendar, GraduationCap, Clock, FileUp, CheckCircle, Pencil, X,
+  Users, UserPlus, UserMinus, Compass
 } from 'lucide-react';
 
 import './ConfigPerfil.css';
+import './Badges.css';
 import logoImg from '../assets/logo.png';
 import logoImgperfil from '../assets/fotoperfil.png';
 import api from '../services/api';
+import useUnreadCounts from './useUnreadCounts';
 
 const ConfigPerfil = () => {
   const navigate = useNavigate();
@@ -32,6 +35,15 @@ const ConfigPerfil = () => {
   const [experiencias, setExperiencias] = useState([]);
   const [cursos, setCursos] = useState([]);
   const [previewFile, setPreviewFile] = useState(null);
+
+  const naoLidas = useUnreadCounts();
+  const [abaConexoes, setAbaConexoes] = useState('seguindo');
+  const [seguindoLista, setSeguindoLista] = useState([]);
+  const [seguidoresLista, setSeguidoresLista] = useState([]);
+  const [descobrirLista, setDescobrirLista] = useState([]);
+  const [contagemConexoes, setContagemConexoes] = useState({ seguidores: 0, seguindo: 0 });
+  const [carregandoConexoes, setCarregandoConexoes] = useState(false);
+  const [buscaConexao, setBuscaConexao] = useState('');
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -133,6 +145,88 @@ const ConfigPerfil = () => {
     }
   };
 
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem('token') || userData.token}`
+  });
+
+  const carregarConexoes = async () => {
+    if (!userData.id) return;
+    setCarregandoConexoes(true);
+    try {
+      const headers = getAuthHeaders();
+      const [resSeguindo, resSeguidores, resContagem] = await Promise.all([
+        api.get('/seguidores/seguindo', { headers }),
+        api.get('/seguidores/meus-seguidores', { headers }),
+        api.get(`/seguidores/contagem/${userData.id}`, { headers })
+      ]);
+      setSeguindoLista(resSeguindo.data || []);
+      setSeguidoresLista(resSeguidores.data || []);
+      setContagemConexoes(resContagem.data || { seguidores: 0, seguindo: 0 });
+    } catch (error) {
+      console.error('Erro ao carregar conexões:', error);
+    } finally {
+      setCarregandoConexoes(false);
+    }
+  };
+
+  //lista todo mundo marcando quem eu ja sigo
+  const carregarDescobrir = async () => {
+    if (!userData.id) return;
+    setCarregandoConexoes(true);
+    try {
+      const resUsuarios = await api.get('/usuarios', { headers: getAuthHeaders() });
+      const idsSeguindo = new Set(seguindoLista.map(u => u.id));
+
+      setDescobrirLista(
+        (resUsuarios.data || [])
+          .filter(u => u.id !== userData.id)
+          .map(u => ({
+            id: u.id,
+            nome: u.name || u.nome,
+            cargo: u.cargo,
+            localizacao: u.cidade,
+            euSigoEle: idsSeguindo.has(u.id)
+          }))
+      );
+    } catch (error) {
+      console.error('Erro ao carregar usuários para seguir:', error);
+    } finally {
+      setCarregandoConexoes(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userData.id) carregarConexoes();
+  }, [userData.id]);
+
+  useEffect(() => {
+    if (abaConexoes === 'descobrir') carregarDescobrir();
+  }, [abaConexoes, userData.id, seguindoLista]);
+
+  const seguirUsuario = async (usuarioId) => {
+    try {
+      await api.post(`/seguidores/seguir/${usuarioId}`, {}, { headers: getAuthHeaders() });
+      await carregarConexoes();
+    } catch (error) {
+      console.error('Erro ao seguir usuário:', error);
+      alert(error.response?.data || 'Não foi possível seguir este usuário.');
+    }
+  };
+
+  const deixarDeSeguirUsuario = async (usuarioId) => {
+    try {
+      await api.delete(`/seguidores/deixar-de-seguir/${usuarioId}`, { headers: getAuthHeaders() });
+      await carregarConexoes();
+    } catch (error) {
+      console.error('Erro ao deixar de seguir:', error);
+      alert(error.response?.data || 'Não foi possível deixar de seguir este usuário.');
+    }
+  };
+
+  const filtrarPorNome = (lista) => lista.filter(u =>
+    (u.nome || '').toLowerCase().includes(buscaConexao.toLowerCase())
+  );
+
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -199,8 +293,20 @@ const ConfigPerfil = () => {
             <div className="nav-item" onClick={() => navigate('/feed')}><Home size={24} /><span>Início</span></div>
             <div className="nav-item" onClick={() => navigate('/cursos')}><BookOpen size={24} /><span>Cursos</span></div>
             <div className="nav-item" onClick={() => navigate('/vagas')}><Briefcase size={24} /><span>Vagas</span></div>
-            <div className="nav-item" onClick={() => navigate('/mensagens')}><MessageSquare size={24} /><span>Mensagens</span></div>
-            <div className="nav-item" onClick={() => navigate('/notificacoes')}><Bell size={24} /><span>Notificações</span></div>
+            <div className="nav-item" onClick={() => navigate('/mensagens')}>
+              <div className="nav-icon-wrapper">
+                <MessageSquare size={24} />
+                {naoLidas.mensagens > 0 && <span className="nav-badge">{naoLidas.mensagens}</span>}
+              </div>
+              <span>Mensagens</span>
+            </div>
+            <div className="nav-item" onClick={() => navigate('/notificacoes')}>
+              <div className="nav-icon-wrapper">
+                <Bell size={24} />
+                {naoLidas.notificacoes > 0 && <span className="nav-badge">{naoLidas.notificacoes}</span>}
+              </div>
+              <span>Notificações</span>
+            </div>
           </div>
         </div>
       </nav>
@@ -420,6 +526,154 @@ const ConfigPerfil = () => {
               <button type="button" className="add-experience-btn" onClick={adicionarCurso}>
                 <Plus size={18} /> Adicionar curso
               </button>
+            </div>
+
+            <hr className="divider" />
+
+            <div className="form-section">
+              <h3 className="section-title"><Users size={20} /> Conexões</h3>
+
+              <div className="conexoes-contadores">
+                <span><strong>{contagemConexoes.seguidores}</strong> seguidores</span>
+                <span><strong>{contagemConexoes.seguindo}</strong> seguindo</span>
+              </div>
+
+              <div className="conexoes-tabs">
+                <button
+                  type="button"
+                  className={`conexoes-tab ${abaConexoes === 'seguindo' ? 'ativa' : ''}`}
+                  onClick={() => setAbaConexoes('seguindo')}
+                >
+                  <UserMinus size={16} /> Seguindo
+                </button>
+                <button
+                  type="button"
+                  className={`conexoes-tab ${abaConexoes === 'seguidores' ? 'ativa' : ''}`}
+                  onClick={() => setAbaConexoes('seguidores')}
+                >
+                  <Users size={16} /> Seguidores
+                </button>
+                <button
+                  type="button"
+                  className={`conexoes-tab ${abaConexoes === 'descobrir' ? 'ativa' : ''}`}
+                  onClick={() => setAbaConexoes('descobrir')}
+                >
+                  <Compass size={16} /> Descobrir pessoas
+                </button>
+              </div>
+
+              <div className="input-group full-width spacer-bottom">
+                <div className="search-bar conexoes-busca">
+                  <Search size={18} />
+                  <input
+                    type="text"
+                    placeholder="Buscar por nome..."
+                    value={buscaConexao}
+                    onChange={(e) => setBuscaConexao(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {carregandoConexoes ? (
+                <p className="conexoes-vazio">Carregando...</p>
+              ) : (
+                <>
+                  {abaConexoes === 'seguindo' && (
+                    filtrarPorNome(seguindoLista).length === 0 ? (
+                      <p className="conexoes-vazio">Você ainda não está seguindo ninguém.</p>
+                    ) : (
+                      <div className="conexoes-lista">
+                        {filtrarPorNome(seguindoLista).map((pessoa) => (
+                          <div key={pessoa.id} className="conexao-card">
+                            <div className="conexao-avatar">{(pessoa.nome || '?').charAt(0).toUpperCase()}</div>
+                            <div className="conexao-info">
+                              <span className="conexao-nome">{pessoa.nome}</span>
+                              {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
+                            </div>
+                            <button
+                              type="button"
+                              className="conexao-btn deixar-seguir"
+                              onClick={() => deixarDeSeguirUsuario(pessoa.id)}
+                            >
+                              <UserMinus size={16} /> Deixar de seguir
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+
+                  {abaConexoes === 'seguidores' && (
+                    filtrarPorNome(seguidoresLista).length === 0 ? (
+                      <p className="conexoes-vazio">Ninguém está te seguindo ainda.</p>
+                    ) : (
+                      <div className="conexoes-lista">
+                        {filtrarPorNome(seguidoresLista).map((pessoa) => (
+                          <div key={pessoa.id} className="conexao-card">
+                            <div className="conexao-avatar">{(pessoa.nome || '?').charAt(0).toUpperCase()}</div>
+                            <div className="conexao-info">
+                              <span className="conexao-nome">{pessoa.nome}</span>
+                              {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
+                            </div>
+                            {pessoa.euSigoEle ? (
+                              <button
+                                type="button"
+                                className="conexao-btn deixar-seguir"
+                                onClick={() => deixarDeSeguirUsuario(pessoa.id)}
+                              >
+                                <UserMinus size={16} /> Deixar de seguir
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="conexao-btn seguir"
+                                onClick={() => seguirUsuario(pessoa.id)}
+                              >
+                                <UserPlus size={16} /> Seguir de volta
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+
+                  {abaConexoes === 'descobrir' && (
+                    filtrarPorNome(descobrirLista).length === 0 ? (
+                      <p className="conexoes-vazio">Nenhum usuário encontrado.</p>
+                    ) : (
+                      <div className="conexoes-lista">
+                        {filtrarPorNome(descobrirLista).map((pessoa) => (
+                          <div key={pessoa.id} className="conexao-card">
+                            <div className="conexao-avatar">{(pessoa.nome || '?').charAt(0).toUpperCase()}</div>
+                            <div className="conexao-info">
+                              <span className="conexao-nome">{pessoa.nome}</span>
+                              {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
+                            </div>
+                            {pessoa.euSigoEle ? (
+                              <button
+                                type="button"
+                                className="conexao-btn deixar-seguir"
+                                onClick={() => deixarDeSeguirUsuario(pessoa.id)}
+                              >
+                                <UserMinus size={16} /> Deixar de seguir
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="conexao-btn seguir"
+                                onClick={() => seguirUsuario(pessoa.id)}
+                              >
+                                <UserPlus size={16} /> Seguir
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </>
+              )}
             </div>
 
             <div className="form-actions mt-20">

@@ -10,6 +10,8 @@ import Cursos from '../pages/Cursos.jsx';
 import DashboardRH from '../pages/DashboardRH.jsx';
 import CadastroEmpresa from '../pages/CadastroEmpresa.jsx';
 import CriarPublicacao from '../pages/CriarPublicacao.jsx';
+import Mensagens from '../pages/Mensagens.jsx';
+import Notificacoes from '../pages/Notificacoes.jsx';
 
 // 📂 Arquivos soltos na raiz do projeto (fora da pasta src)
 import Login from '../pages/Login.jsx';
@@ -84,6 +86,24 @@ function App() {
           element={
             <ProtectedRoute>
               <Vagas />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/mensagens"
+          element={
+            <ProtectedRoute>
+              <Mensagens />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notificacoes"
+          element={
+            <ProtectedRoute>
+              <Notificacoes />
             </ProtectedRoute>
           }
         />
