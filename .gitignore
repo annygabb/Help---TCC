@@ -1,0 +1,10 @@
+.idea/
+data/
+**/.vite/
+**/.vscode/
+**/node_modules/
+**/target/
+**/.env
+*.mv.db
+*.lock.db
+*.trace.db
