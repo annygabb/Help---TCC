@@ -19,8 +19,6 @@ O repositório contém:
 - envio de e-mails por **SMTP/Gmail**;
 - pagamentos de teste por **Mercado Pago**, com cartão e PIX.
 
-> Projeto acadêmico em desenvolvimento. Antes de uma implantação real, consulte [Cuidados para produção](#cuidados-para-produção).
-
 ## Sumário
 
 - [Objetivo](#objetivo)
@@ -30,16 +28,12 @@ O repositório contém:
 - [Estrutura do repositório](#estrutura-do-repositório)
 - [Pré-requisitos](#pré-requisitos)
 - [Execução rápida com H2](#execução-rápida-com-h2)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
-- [Banco H2](#banco-h2)
 - [PostgreSQL](#postgresql)
 - [Autenticação e segurança](#autenticação-e-segurança)
 - [Configuração de e-mail](#configuração-de-e-mail)
 - [Mercado Pago](#mercado-pago)
 - [Principais rotas](#principais-rotas)
 - [Testes](#testes)
-- [Solução de problemas](#solução-de-problemas)
-- [Cuidados para produção](#cuidados-para-produção)
 - [Autoria](#autoria)
 
 ## Objetivo
@@ -250,85 +244,6 @@ http://localhost:5173/#/feed
 http://localhost:5173/#/cursos
 ```
 
-## Variáveis de ambiente
-
-Nunca publique credenciais reais no GitHub. Configure-as na IDE, no sistema operacional ou na hospedagem.
-
-| Variável | Quando usar | Finalidade |
-|---|---|---|
-| `SPRING_PROFILES_ACTIVE` | Opcional | Perfil; padrão `local` |
-| `SPRING_DATASOURCE_URL` | PostgreSQL | URL do banco |
-| `SPRING_DATASOURCE_USERNAME` | PostgreSQL | Usuário do banco |
-| `SPRING_DATASOURCE_PASSWORD` | PostgreSQL | Senha do banco |
-| `SPRING_MAIL_HOST` | E-mail | Servidor SMTP |
-| `SPRING_MAIL_PORT` | E-mail | Porta SMTP |
-| `SPRING_MAIL_USERNAME` | E-mail | Conta remetente |
-| `SPRING_MAIL_PASSWORD` | E-mail | Senha de aplicativo |
-| `JWT_SECRET` | Produção | Assinatura dos JWTs |
-| `MERCADOPAGO_ACCESS_TOKEN` | Pagamentos | Credencial privada |
-
-O modelo sem segredos está em `Help/.env.example`.
-
-### IntelliJ IDEA
-
-```text
-Run → Edit Configurations → HelpApplication → Environment variables
-```
-
-Exemplo:
-
-```text
-SPRING_MAIL_USERNAME=seu-email@gmail.com;SPRING_MAIL_PASSWORD=SENHA_DE_APP;JWT_SECRET=CHAVE_SEGURA;MERCADOPAGO_ACCESS_TOKEN=ACCESS_TOKEN
-```
-
-### PowerShell
-
-```powershell
-$env:SPRING_MAIL_USERNAME="seu-email@gmail.com"
-$env:SPRING_MAIL_PASSWORD="senha-de-aplicativo"
-$env:JWT_SECRET="uma-chave-longa-e-segura"
-$env:MERCADOPAGO_ACCESS_TOKEN="credencial-do-mercado-pago"
-mvn spring-boot:run
-```
-
-## Banco H2
-
-O H2 é o banco padrão para desenvolvimento e apresentação acadêmica.
-
-```text
-URL: jdbc:h2:file:./data/helpdb
-Usuário: sa
-Senha: vazia
-```
-
-### Console
-
-Com o backend em execução:
-
-```text
-http://localhost:8080/h2-console
-```
-
-| Campo | Valor |
-|---|---|
-| Driver Class | `org.h2.Driver` |
-| JDBC URL | `jdbc:h2:file:./data/helpdb` |
-| User Name | `sa` |
-| Password | vazio |
-
-Os registros permanecem depois que a aplicação é fechada. Os arquivos são criados na pasta `data` relativa ao diretório de execução.
-
-A pasta `data` e os arquivos `*.mv.db`, `*.lock.db` e `*.trace.db` não devem ser enviados ao GitHub.
-
-### H2 online
-
-O H2 pode atender diferentes usuários em uma única instância do backend. Entretanto:
-
-- o servidor precisa de disco persistente;
-- várias réplicas não devem compartilhar o mesmo arquivo H2;
-- hospedagens com disco temporário podem apagar o banco;
-- para produção, prefira PostgreSQL.
-
 ## PostgreSQL
 
 Para usar PostgreSQL, defina um perfil diferente de `local`:
@@ -468,95 +383,6 @@ npm install
 npm run build
 ```
 
-## Solução de problemas
-
-### `Cannot resolve symbol TokenService`
-
-Confirme `Help/src/main/java/com/example/Help/model/recuperacao/TokenService.java` e o import no controller.
-
-### `illegal character: '\ufeff'`
-
-O arquivo contém BOM UTF-8. No IntelliJ, abra o arquivo, clique na codificação no canto inferior direito, selecione UTF-8, remova/converta o BOM e reconstrua o projeto.
-
-### `Cannot find module '@tailwindcss/postcss'`
-
-```bash
-cd Help/frontend
-npm install
-npm install -D @tailwindcss/postcss
-npm run dev
-```
-
-### `authorization value not present`
-
-Verifique `MERCADOPAGO_ACCESS_TOKEN`, reinicie completamente o backend e confirme que Public Key e Access Token pertencem à mesma aplicação.
-
-### Pagamento `rejected`
-
-Consulte `statusDetail`. Para aprovação simulada, use `APRO` e os dados oficiais de teste.
-
-### E-mail `Authentication failed`
-
-- use senha de aplicativo do Google;
-- confirme usuário e senha;
-- remova espaços da senha;
-- confira se o remetente corresponde à conta autenticada;
-- reinicie o backend.
-
-### Token informado como enviado, mas e-mail não chega
-
-Verifique o log. Uma falha SMTP significa que o envio não foi concluído, mesmo que a interface tenha avançado. Confira também o spam.
-
-### Porta 8080 ocupada
-
-```powershell
-netstat -ano | findstr :8080
-taskkill /PID NUMERO_DO_PID /F
-```
-
-### Frontend não acessa o backend
-
-Confirme o backend em `localhost:8080`, a origem permitida no CORS, a URL usada no frontend e o JWT nas rotas protegidas.
-
-## Cuidados para produção
-
-Antes de publicar o sistema:
-
-- utilize PostgreSQL gerenciado;
-- substitua segredos de desenvolvimento;
-- configure `JWT_SECRET` forte;
-- desabilite/restrinja o console H2;
-- configure CORS apenas para o domínio real;
-- valide preços e cursos no backend;
-- não aceite livremente o preço enviado pelo frontend;
-- restrinja os endpoints de matrícula;
-- implemente idempotência e webhooks assinados;
-- gere o token de matrícula apenas uma vez;
-- não confirme envio de e-mail quando o SMTP falhar;
-- use migrations;
-- evite dados sensíveis nos logs;
-- configure HTTPS, limites de requisição, monitoramento e backups.
-
-### Limitações atuais
-
-- H2 é voltado principalmente ao desenvolvimento;
-- algumas URLs do frontend usam `localhost` diretamente;
-- o CORS está direcionado ao ambiente local;
-- pagamentos precisam de reforços antes de produção;
-- e-mail depende de serviço SMTP externo;
-- o projeto continua em evolução.
-
-## Contribuição
-
-```bash
-git checkout -b minha-alteracao
-git add .
-git commit -m "Descrição objetiva da alteração"
-git push -u origin minha-alteracao
-```
-
-Antes do commit, execute os testes e confirme que não há credenciais.
-
 ## Autoria
 
 Projeto acadêmico desenvolvido por **Anny Gabrielly** e colaboradores.
@@ -564,7 +390,3 @@ Projeto acadêmico desenvolvido por **Anny Gabrielly** e colaboradores.
 - GitHub: [@annygabb](https://github.com/annygabb)
 - LinkedIn: [Anny Gabrielly](https://www.linkedin.com/in/annygabrielly/)
 - Portfólio: [portfolioanny.vercel.app](https://portfolioanny.vercel.app/)
-
-## Licença
-
-O repositório ainda não possui um arquivo de licença específico. Antes de reutilizar ou distribuir o código, defina uma licença na raiz do projeto.
