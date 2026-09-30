@@ -1,5 +1,6 @@
 package com.example.Help;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,16 +85,15 @@ class CadastroControllerTest {
     void validarEmailDuplicado() throws Exception {
         String emailUnico = "duplicado_" + System.currentTimeMillis() + "@gmail.com";
 
-        // Primeiro cadastro
+        
         mockMvc.perform(post("/api/usuarios/cadastrar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"Mariana Silva\", \"email\": \"" + emailUnico + "\", \"senha\": \"SenhaSegura@123\", \"cpf\": \"52998224725\"}"))
                 .andExpect(status().isCreated());
 
-        // Segundo cadastro com mesmo e-mail
         mockMvc.perform(post("/api/usuarios/cadastrar")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nome\": \"Mariana Silva 2\", \"email\": \"" + emailUnico + "\", \"senha\": \"SenhaSegura@123\", \"cpf\": \"82998224733\"}"))
+                        .content("{\"nome\": \"Mariana Silva 2\", \"email\": \"" + emailUnico + "\", \"senha\": \"SenhaSegura@123\", \"cpf\": \"11144477735\"}"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.campo").value("email"));
     }
@@ -101,7 +101,24 @@ class CadastroControllerTest {
     @Test
     @DisplayName("Listar usuários não deve expor senhas/hashes na resposta")
     void validarListarUsuariosNaoExpoeSenha() throws Exception {
-        mockMvc.perform(get("/api/usuarios/listar"))
+       
+        String email = "listar_" + System.currentTimeMillis() + "@gmail.com";
+
+        mockMvc.perform(post("/api/usuarios/cadastrar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\": \"Lia Souza\", \"email\": \"" + email + "\", \"senha\": \"SenhaSegura@123\", \"cpf\": \"52998224725\"}"))
+                .andExpect(status().isCreated());
+
+        String respostaLogin = mockMvc.perform(post("/api/usuarios/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\": \"" + email + "\", \"password\": \"SenhaSegura@123\"}"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String token = JsonPath.read(respostaLogin, "$.token");
+
+        mockMvc.perform(get("/api/usuarios/listar").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].email").isNotEmpty())
                 .andExpect(jsonPath("$[*].password").doesNotExist())
                 .andExpect(jsonPath("$[*].senha").doesNotExist());
     }

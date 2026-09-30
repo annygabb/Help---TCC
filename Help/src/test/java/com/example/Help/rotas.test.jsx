@@ -1,93 +1,169 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import Mensagens from '../../pages/Mensagens.jsx';
-import Notificacoes from '../../pages/Notificacoes.jsx';
-import api from '../../services/api';
+vi.mock('../pages/Home.jsx', () => ({ default: () => <div>TELA HOME</div> }));
+vi.mock('../pages/Login.jsx', () => ({ default: () => <div>TELA LOGIN</div> }));
+vi.mock('../pages/Cadastro.jsx', () => ({ default: () => <div>TELA CADASTRO</div> }));
+vi.mock('../pages/Feed.jsx', () => ({ default: () => <div>TELA FEED</div> }));
+vi.mock('../pages/ConfigPerfil.jsx', () => ({ default: () => <div>TELA PERFIL</div> }));
+vi.mock('../pages/Cursos.jsx', () => ({ default: () => <div>TELA CURSOS</div> }));
+vi.mock('../pages/Vagas.jsx', () => ({ default: () => <div>TELA VAGAS</div> }));
+vi.mock('../pages/Talentos.jsx', () => ({ default: () => <div>TELA TALENTOS</div> }));
+vi.mock('../pages/DashboardRH.jsx', () => ({ default: () => <div>TELA RH</div> }));
+vi.mock('../pages/CadastroEmpresa.jsx', () => ({ default: () => <div>TELA CAD EMPRESA</div> }));
+vi.mock('../pages/LoginEmpresa.jsx', () => ({ default: () => <div>TELA LOGIN EMPRESA</div> }));
+vi.mock('../pages/RecuperarSenha.jsx', () => ({ default: () => <div>TELA RECUPERAR</div> }));
+vi.mock('../pages/CriarPublicacao.jsx', () => ({ default: () => <div>TELA PUBLICACAO</div> }));
+vi.mock('../pages/Mensagens.jsx', () => ({ default: () => <div>TELA MENSAGENS</div> }));
+vi.mock('../pages/Notificacoes.jsx', () => ({ default: () => <div>TELA NOTIFICACOES</div> }));
 
-vi.mock('../../services/api', () => ({
-  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
-}));
+import App from '../src/App.jsx';
 
-const ProtectedRoute = ({ children }) => {
-  const usuarioLogado = localStorage.getItem('usuarioLogado');
-  if (!usuarioLogado) return <Navigate to="/login" replace />;
-  return children;
-};
 
-function renderRotas(rotaInicial) {
-  return render(
-    <MemoryRouter initialEntries={[rotaInicial]}>
-      <Routes>
-        <Route path="/login" element={<h1>Tela de Login</h1>} />
-        <Route
-          path="/mensagens"
-          element={
-            <ProtectedRoute>
-              <Mensagens />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notificacoes"
-          element={
-            <ProtectedRoute>
-              <Notificacoes />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </MemoryRouter>
-  );
+function irPara(rota) {
+  window.location.hash = rota;
 }
 
-describe('Rotas protegidas de Mensagens e Notificacoes', () => {
+describe('Protecao de rotas do front-end', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    api.get.mockResolvedValue({ data: [] });
+    localStorage.clear();
+    irPara('#/');
   });
 
-  it('redireciona para o login ao acessar /mensagens sem estar logado', async () => {
-    renderRotas('/mensagens');
+  // --- ROTAS PUBLICAS ---
 
-    expect(await screen.findByText('Tela de Login')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /^mensagens$/i })).not.toBeInTheDocument();
+  it('a home abre sem login', async () => {
+    irPara('#/');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA HOME')).toBeInTheDocument());
   });
 
-  it('redireciona para o login ao acessar /notificacoes sem estar logado', async () => {
-    renderRotas('/notificacoes');
-
-    expect(await screen.findByText('Tela de Login')).toBeInTheDocument();
+  it('a tela de login abre sem login', async () => {
+    irPara('#/login');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA LOGIN')).toBeInTheDocument());
   });
 
-  it('permite acessar /mensagens quando existe usuário logado', async () => {
-    localStorage.setItem('usuarioLogado', JSON.stringify({ id: 'user-1', nome: 'Anny' }));
-    localStorage.setItem('token', 'fake-token');
-
-    renderRotas('/mensagens');
-
-    expect(await screen.findByRole('heading', { name: /^mensagens$/i })).toBeInTheDocument();
-    expect(screen.queryByText('Tela de Login')).not.toBeInTheDocument();
+  it('a tela de cadastro abre sem login', async () => {
+    irPara('#/cadastro');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA CADASTRO')).toBeInTheDocument());
   });
 
-  it('permite acessar /notificacoes quando existe usuário logado', async () => {
-    localStorage.setItem('usuarioLogado', JSON.stringify({ id: 'user-1', nome: 'Anny' }));
-    localStorage.setItem('token', 'fake-token');
+  // ----- ROTAS PROTEGIDAS SEM SESSAO ----
 
-    renderRotas('/notificacoes');
-
-    expect(await screen.findByRole('heading', { name: /^notificações$/i })).toBeInTheDocument();
+  it('SEM sessao, /feed redireciona para o login', async () => {
+    irPara('#/feed');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA LOGIN')).toBeInTheDocument());
+    expect(screen.queryByText('TELA FEED')).not.toBeInTheDocument();
   });
 
-  it('não dispara chamadas autenticadas à API quando o acesso é bloqueado', async () => {
-    renderRotas('/mensagens');
+  it('SEM sessao, /configuracao-perfil redireciona para o login', async () => {
+    irPara('#/configuracao-perfil');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA LOGIN')).toBeInTheDocument());
+    expect(screen.queryByText('TELA PERFIL')).not.toBeInTheDocument();
+  });
 
-    await screen.findByText('Tela de Login');
+  it('SEM sessao, /cursos redireciona para o login', async () => {
+    irPara('#/cursos');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA LOGIN')).toBeInTheDocument());
+    expect(screen.queryByText('TELA CURSOS')).not.toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(api.get).not.toHaveBeenCalledWith('/mensagens/conversas', expect.anything());
-    });
+  it('SEM sessao, /vagas redireciona para o login', async () => {
+    irPara('#/vagas');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA LOGIN')).toBeInTheDocument());
+    expect(screen.queryByText('TELA VAGAS')).not.toBeInTheDocument();
+  });
+
+  it('SEM sessao, /dashboard-rh redireciona para a home', async () => {
+    irPara('#/dashboard-rh');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA HOME')).toBeInTheDocument());
+    expect(screen.queryByText('TELA RH')).not.toBeInTheDocument();
+  });
+
+  it('SEM sessao, /talentos redireciona para a home', async () => {
+    irPara('#/talentos');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA HOME')).toBeInTheDocument());
+    expect(screen.queryByText('TELA TALENTOS')).not.toBeInTheDocument();
+  });
+
+  // --- ROTAS PROTEGIDAS COM SESSAO ----
+
+  it('COM sessao de candidato, /feed abre normalmente', async () => {
+    localStorage.setItem('usuarioLogado', JSON.stringify({ id: '1', nome: 'Teste' }));
+    irPara('#/feed');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA FEED')).toBeInTheDocument());
+  });
+
+  it('COM sessao de candidato, /cursos abre normalmente', async () => {
+    localStorage.setItem('usuarioLogado', JSON.stringify({ id: '1', nome: 'Teste' }));
+    irPara('#/cursos');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA CURSOS')).toBeInTheDocument());
+  });
+
+  it('COM token de empresa, /dashboard-rh abre normalmente', async () => {
+    localStorage.setItem('token', 'jwt-da-empresa');
+    irPara('#/dashboard-rh');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA RH')).toBeInTheDocument());
+  });
+
+  // ------ ROTA INEXISTENTE -----
+
+  it('uma rota que nao existe cai na home', async () => {
+    irPara('#/rota-que-nao-existe-123');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA HOME')).toBeInTheDocument());
+  });
+
+  // ---------- ACHADOS DE SEGURANCA ----------
+  // ATENCAO: os testes abaixo PASSAM hoje. E por isso
+  // que eles sao achados. Eles documentam que a protecao de rota
+  // aceita qualquer conteudo na gaveta do navegador.
+
+  it('ACHADO P-04: um objeto vazio no localStorage ja libera o /feed', async () => {
+    localStorage.setItem('usuarioLogado', '{}');
+    irPara('#/feed');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA FEED')).toBeInTheDocument());
+  });
+
+  it('ACHADO P-04: ate a palavra "qualquer-coisa" libera o /mensagens', async () => {
+
+    localStorage.setItem('usuarioLogado', 'qualquer-coisa');
+    irPara('#/mensagens');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA MENSAGENS')).toBeInTheDocument());
+  });
+
+  it('ACHADO P-05: um token qualquer libera a area de RH', async () => {
+    localStorage.setItem('token', 'token-inventado-sem-assinatura');
+    irPara('#/dashboard-rh');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA RH')).toBeInTheDocument());
+  });
+
+  it('ACHADO P-05: sessao de CANDIDATO tambem abre a area de RH', async () => {
+  
+    localStorage.setItem('usuarioLogado', JSON.stringify({ id: '1', nome: 'Candidato' }));
+    irPara('#/dashboard-rh');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA RH')).toBeInTheDocument());
+  });
+
+  it('ACHADO: /anunciar nao tem protecao nenhuma', async () => {
+    localStorage.clear();
+    irPara('#/anunciar');
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('TELA CAD EMPRESA')).toBeInTheDocument());
   });
 });

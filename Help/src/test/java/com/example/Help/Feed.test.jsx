@@ -71,7 +71,7 @@ describe('Feed - badges de nao lidas no cabecalho', () => {
     renderFeed();
 
     await waitFor(() => {
-      expect(within(itemMenu('Notificacoes')).getByText('4')).toBeInTheDocument();
+      expect(within(itemMenu('Notificações')).getByText('4')).toBeInTheDocument();
     });
   });
 
@@ -95,7 +95,7 @@ describe('Feed - badges de nao lidas no cabecalho', () => {
 
     await waitFor(() => expect(api.get).toHaveBeenCalled());
 
-    expect(screen.getByRole('link', { name: /inicio/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /início/i })).toBeInTheDocument();
     expect(document.querySelectorAll('.nav-badge')).toHaveLength(0);
   });
 
@@ -106,7 +106,7 @@ describe('Feed - badges de nao lidas no cabecalho', () => {
 
     await waitFor(() => expect(api.get).toHaveBeenCalled());
 
-    expect(itemMenu('Inicio')).toHaveClass('active');
+    expect(itemMenu('Início')).toHaveClass('active');
     expect(itemMenu('Mensagens')).not.toHaveClass('active');
   });
 
@@ -115,6 +115,7 @@ describe('Feed - badges de nao lidas no cabecalho', () => {
 
     renderFeed();
 
-    expect(await screen.findByText(/Anny Gabrielly/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Vitor Hugo/)).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/Anny Gabrielly/)).toHaveLength(0);
   });
 });

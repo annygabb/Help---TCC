@@ -68,7 +68,6 @@ class TokenServiceTest {
     @Test
     @DisplayName("getSubject - deve retornar null quando token inválido")
     void getSubject_deveRetornarNull_quandoTokenInvalido() {
-        // Sem stubbing aqui! Evita o UnnecessaryStubbingException
         String subject = tokenService.getSubject("token.invalido.aqui");
         assertThat(subject).isNull();
     }
@@ -93,28 +92,19 @@ class TokenServiceTest {
     }
 
     @Test
-    @DisplayName("dataExpiracao - deve retornar data aproximadamente 30 minutos no futuro")
-    void dataExpiracao_deveRetornar30MinutosNaFrente() {
-        long segundosEsperados = 30 * 60;
-        long margemErroFuso = 15;
+    @DisplayName("dataExpiracao - deve retornar data 2 horas no futuro")
+    void dataExpiracao_deveRetornar2HorasNaFrente() {
+    
+        long segundosEsperados = 2 * 60 * 60;
+        long margem = 15;
 
-        Instant expiracao = tokenService.dataExpiracao();
-        long expiracaoEpoch = expiracao.getEpochSecond();
-        long agoraEpoch = Instant.now().getEpochSecond();
+        long diferenca = tokenService.dataExpiracao().getEpochSecond() - Instant.now().getEpochSecond();
 
-        long diferencaSegundos = expiracaoEpoch - agoraEpoch;
-
-        if (diferencaSegundos > 5400) {
-            long horasEmSegundos = Math.round((double) diferencaSegundos / 3600) * 3600;
-            if (horasEmSegundos > segundosEsperados) {
-                diferencaSegundos = diferencaSegundos - (horasEmSegundos - segundosEsperados);
-            }
-        }
-
-        assertThat(diferencaSegundos)
-                .withFailMessage("A expiração deveria ser de 30 minutos, mas a diferença líquida foi de %d segundos", diferencaSegundos)
-                .isGreaterThanOrEqualTo(segundosEsperados - margemErroFuso)
-                .isLessThanOrEqualTo(segundosEsperados + margemErroFuso);
+        assertThat(diferenca)
+                .withFailMessage("A expiração deveria ser de 2 horas (7200 s), mas foi de %d s. "
+                        + "Perto de 18000 s significa que a máquina não está no fuso -03:00: "
+                        + "o TokenService aplica um fuso fixo sobre o relógio local.", diferenca)
+                .isBetween(segundosEsperados - margem, segundosEsperados + margem);
     }
 
     @Test
