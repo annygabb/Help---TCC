@@ -12,8 +12,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Adicionado em 25/09/2026: desde 16/09 o perfil padrao e "local" (H2 em ARQUIVO,
-// ./data/helpdb). Sem esta anotacao, o teste roda no banco de desenvolvimento.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -29,8 +27,7 @@ class MatriculaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"email-invalido\", \"nomeCurso\": \"Java Spring\"}"))
                 .andExpect(status().isBadRequest())
-                // O 400 vem da busca do usuario, nao de validacao de formato: a DTO
-                // nao tem @Email. Um e-mail bem formado e nao cadastrado tambem recebe 400.
+               
                 .andExpect(jsonPath("$.error").value("Usuário não encontrado."));
     }
 }
