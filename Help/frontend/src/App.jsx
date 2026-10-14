@@ -20,6 +20,14 @@ import RecuperarSenha from '../pages/RecuperarSenha.jsx';
 import Talentos from '../pages/Talentos.jsx';
 import Vagas from '../pages/Vagas.jsx';
 
+import AdminRoute from '../pages/admin/AdminRoute.jsx';
+import AdminLayout from '../pages/admin/AdminLayout.jsx';
+import AdminHome from '../pages/admin/AdminHome.jsx';
+import AdminUsuarios from '../pages/admin/AdminUsuarios.jsx';
+import AdminUsuarioDetalhe from '../pages/admin/AdminUsuarioDetalhe.jsx';
+import AdminEmpresas from '../pages/admin/AdminEmpresas.jsx';
+import AdminEmpresaDetalhe from '../pages/admin/AdminEmpresaDetalhe.jsx';
+
 const ProtectedRoute = ({ children }) => {
   const usuarioLogado = localStorage.getItem('usuarioLogado');
 
@@ -144,6 +152,21 @@ function App() {
             </ProtectedRouteDupla>
           }
         />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<AdminHome />} />
+          <Route path="usuarios" element={<AdminUsuarios />} />
+          <Route path="usuarios/:id" element={<AdminUsuarioDetalhe />} />
+          <Route path="empresas" element={<AdminEmpresas />} />
+          <Route path="empresas/:id" element={<AdminEmpresaDetalhe />} />
+        </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
