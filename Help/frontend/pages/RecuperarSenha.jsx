@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle, Lock, Key } from 'lucide-react';
 import './Login.css';
 import logoImg from '../assets/logo.png';
+import { buildApiUrl } from '../services/apiConfig';
 
 function RecuperarSenha() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const handlePedirCodigo = async (e) => {
     e.preventDefault();
     setCarregando(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/usuarios/gerar-token`, {
+      const response = await fetch(buildApiUrl('/api/usuarios/gerar-token'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -42,7 +43,7 @@ const handlePedirCodigo = async (e) => {
     e.preventDefault();
     setCarregando(true);
     try {
-      const response = await fetch(`http://localhost:8080/usuarios/redefinir-senha`, {
+      const response = await fetch(buildApiUrl('/usuarios/redefinir-senha'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

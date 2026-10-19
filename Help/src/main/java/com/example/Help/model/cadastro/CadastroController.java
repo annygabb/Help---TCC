@@ -21,7 +21,6 @@ import com.example.Help.model.empresa.EmpresaRepository;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class CadastroController {
 
     @Autowired

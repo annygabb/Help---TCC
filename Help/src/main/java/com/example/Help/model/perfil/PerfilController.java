@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/perfis")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}, allowedHeaders = "*", allowCredentials = "true")
 public class PerfilController {
 
     private static final List<Perfil> bancoEmMemoria = new ArrayList<>();

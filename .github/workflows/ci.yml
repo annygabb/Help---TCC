@@ -1,0 +1,43 @@
+name: Validar HELP
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend Java 21
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Help
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - run: mvn -B test
+
+  frontend:
+    name: Frontend Vite
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Help/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Help/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run test:config
+      - run: npm run build
+        env:
+          VITE_API_URL: https://help-api.example.com
+          VITE_MERCADOPAGO_PUBLIC_KEY: TEST-EXAMPLE
+

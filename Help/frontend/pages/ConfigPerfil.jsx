@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -255,7 +254,7 @@ const ConfigPerfil = () => {
 
     try {
           console.log("Token enviado:", tokenEnvio);
-          await axios.put(`http://localhost:8080/api/usuarios/${userData.id}`, formData, {
+          await api.put(`/api/usuarios/${userData.id}`, formData, {
             headers: {
               Authorization: `Bearer ${tokenEnvio}`,
               "Content-Type": "multipart/form-data"

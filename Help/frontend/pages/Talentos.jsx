@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import {
     Calendar,
     CheckCircle,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react';
 import './Talentos.css';
 import { analisarTalentoIA } from './matchIA';
+import api from '../services/api';
 
 const senioridades = ['Estagiário', 'Júnior', 'Pleno', 'Sênior'];
 const areas = ['Todos', 'Devs', 'Designers', 'Favoritos'];
@@ -85,7 +85,7 @@ const Talentos = () => {
                 if (token && token !== "null" && token !== "undefined") {
                     config.headers = { Authorization: `Bearer ${token}` };
                 }
-                const response = await axios.get('http://localhost:8080/api/vagas/talentos', config);
+                const response = await api.get('/api/vagas/talentos', config);
                 setTalentosDB(response.data);
             } catch (error) {
                 console.error("Erro ao carregar talentos:", error);
