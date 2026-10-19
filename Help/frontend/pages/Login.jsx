@@ -23,7 +23,7 @@ function Login() {
     };
 
     try {
-      const response = await api.post('http://localhost:8080/api/usuarios/login', dados);
+      const response = await api.post('/api/usuarios/login', dados);
 
       console.log("Resposta da API:", response.data);
 

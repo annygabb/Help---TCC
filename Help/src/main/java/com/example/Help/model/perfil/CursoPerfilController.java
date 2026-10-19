@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cursos")
-@CrossOrigin(origins = "*") //permite que o React acesse a API
 public class CursoPerfilController {
 
     @Autowired

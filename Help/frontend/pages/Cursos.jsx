@@ -9,8 +9,10 @@ import logoImg from '../assets/logo.png';
 import nttLogo from '../assets/ntt-logo.jpg';
 import logoImgperfil from '../assets/fotoperfil.png';
 import qrCodePix from '../assets/qrcode-pix.png';
+import { buildApiUrl } from '../services/apiConfig';
 
-const MP_PUBLIC_KEY = 'TEST-15a6874e-0b27-41d1-8b04-407f5068e780'; //MERCADO PAGO
+const MP_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY
+  || 'TEST-15a6874e-0b27-41d1-8b04-407f5068e780';
 
 const validarCPF = (cpf) => {
   if (!cpf) return false;
@@ -171,7 +173,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
         const lastName = nomeParts.slice(1).join(' ') || 'Academy';
         const cpfLimpo = (dados.cpf || '').replace(/[^0-9]/g, '');
 
-        const response = await fetch('http://localhost:8080/api/pagamento/pix', {
+        const response = await fetch(buildApiUrl('/api/pagamento/pix'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -285,7 +287,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
   const dispararGeracaoToken = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/matricula/gerar-token', {
+      const response = await fetch(buildApiUrl('/api/matricula/gerar-token'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: dados.email, nomeCurso: curso.titulo }),
@@ -354,7 +356,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
 
         const valorTotal = parseFloat(opcoes[parseInt(parcelas) - 1]?.total || extrairValorNumerico(curso.preco));
 
-        const response = await fetch('http://localhost:8080/api/pagamento/cartao', {
+        const response = await fetch(buildApiUrl('/api/pagamento/cartao'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -400,7 +402,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/pagamento/pix/status/${pixData.id}`);
+        const response = await fetch(buildApiUrl(`/api/pagamento/pix/status/${pixData.id}`));
         const result = await response.json();
 
         if (result.status === 'approved') {
@@ -423,7 +425,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
   const handleAtivarMatricula = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/matricula/confirmar', {
+      const response = await fetch(buildApiUrl('/api/matricula/confirmar'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenInput }),

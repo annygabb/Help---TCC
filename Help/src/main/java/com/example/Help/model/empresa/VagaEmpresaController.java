@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/vagas")
-@CrossOrigin(origins = "*")
 public class VagaEmpresaController {
 
     @Autowired

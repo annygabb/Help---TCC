@@ -29,6 +29,7 @@ O repositório contém:
 - [Pré-requisitos](#pré-requisitos)
 - [Execução rápida com H2](#execução-rápida-com-h2)
 - [PostgreSQL](#postgresql)
+- [Publicação online](#publicação-online)
 - [Autenticação e segurança](#autenticação-e-segurança)
 - [Configuração de e-mail](#configuração-de-e-mail)
 - [Mercado Pago](#mercado-pago)
@@ -256,6 +257,66 @@ SPRING_DATASOURCE_PASSWORD=SENHA
 ```
 
 O Hibernate está configurado com `spring.jpa.hibernate.ddl-auto=update`. Para produção, considere migrations com Flyway ou Liquibase.
+
+## Publicação online
+
+A publicação utiliza três partes conectadas:
+
+```mermaid
+flowchart LR
+    A[Usuários] --> B[Frontend Vite na Vercel]
+    B --> C[Backend Spring Boot]
+    C --> D[(PostgreSQL online)]
+```
+
+### Frontend na Vercel
+
+Ao importar este repositório na Vercel, configure o diretório raiz como:
+
+```text
+Help/frontend
+```
+
+O arquivo `frontend/vercel.json` já informa o comando de build e o diretório de saída. Cadastre as seguintes variáveis no projeto da Vercel:
+
+```text
+VITE_API_URL=https://URL-PUBLICA-DO-BACKEND
+VITE_MERCADOPAGO_PUBLIC_KEY=PUBLIC-KEY-DA-APLICACAO
+```
+
+`VITE_API_URL` deve ser informada sem uma barra no final. Quando a variável não existe, o frontend continua usando `http://localhost:8080`, preservando o desenvolvimento local.
+
+### Backend Spring Boot
+
+O backend pode ser publicado em um serviço compatível com Java 21 ou contêiner Docker. O arquivo `Help/Dockerfile` prepara o build e a execução da API.
+
+Configure no serviço do backend:
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+SPRING_DATASOURCE_URL=jdbc:postgresql://HOST:5432/BANCO?sslmode=require
+SPRING_DATASOURCE_USERNAME=USUARIO
+SPRING_DATASOURCE_PASSWORD=SENHA
+CORS_ALLOWED_ORIGINS=https://SEU-PROJETO.vercel.app
+JWT_SECRET=CHAVE-LONGA-E-SEGURA
+SPRING_MAIL_USERNAME=CONTA-DE-EMAIL
+SPRING_MAIL_PASSWORD=SENHA-DE-APLICATIVO
+MERCADOPAGO_ACCESS_TOKEN=ACCESS-TOKEN
+```
+
+O serviço pode fornecer a variável `PORT` automaticamente. Quando isso não acontecer, o backend usa a porta `8080`.
+
+O perfil `prod` utiliza PostgreSQL, desativa o console H2 e reconhece os cabeçalhos encaminhados pelo provedor. O H2 permanece disponível apenas no perfil local.
+
+### Ordem recomendada
+
+1. Criar o PostgreSQL online.
+2. Publicar o backend e cadastrar as variáveis acima.
+3. Copiar a URL pública do backend.
+4. Publicar `Help/frontend` na Vercel.
+5. Cadastrar `VITE_API_URL` na Vercel.
+6. Informar a URL final da Vercel em `CORS_ALLOWED_ORIGINS` no backend.
+7. Reiniciar o backend e testar duas contas em navegadores diferentes.
 
 ## Autenticação e segurança
 

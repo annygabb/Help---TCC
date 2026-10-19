@@ -1,6 +1,6 @@
-import axios from 'axios';
+import api from '../services/api';
 
-const API_URL = "http://localhost:8080/api/vagas";
+const API_URL = '/api/vagas';
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');
@@ -11,15 +11,15 @@ const getAuthHeader = () => {
 };
 
 export const vagaService = {
-    listarTodas: () => axios.get(API_URL, {
+    listarTodas: () => api.get(API_URL, {
         headers: getAuthHeader()
     }),
 
-    criar: (vaga) => axios.post(API_URL, vaga, {
+    criar: (vaga) => api.post(API_URL, vaga, {
         headers: getAuthHeader()
     }),
 
-    deletar: (id) => axios.delete(`${API_URL}/${id}`, {
+    deletar: (id) => api.delete(`${API_URL}/${id}`, {
         headers: getAuthHeader()
     })
 };

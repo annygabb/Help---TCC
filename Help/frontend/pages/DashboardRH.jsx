@@ -11,11 +11,7 @@ import './DashboardRH.css';
 import Talentos from './Talentos';
 import VagasRH from './VagasRH';
 import { calcularMatchIA } from './matchIA';
-import axios from 'axios';
-
-const api = axios.create({
-    baseURL: 'http://localhost:8080'
-});
+import api from '../services/api';
 
 const DashboardRH = () => {
     const [busca, setBusca] = useState('');

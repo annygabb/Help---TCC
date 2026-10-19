@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @RestController //recebe e leva as informações
 @RequestMapping("/vagas") //define a rota pra conexão
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 
 public class VagaController {
 

@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/cursos")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 
 public class CursoController {
 
