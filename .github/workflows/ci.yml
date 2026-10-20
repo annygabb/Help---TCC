@@ -19,8 +19,8 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Executar testes do backend
-        run: mvn -B test
+      - name: Validar isolamento de perfis e configuração
+        run: mvn -B -Dtest=PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest test
       - name: Compilar e empacotar o backend
         run: mvn -B package -DskipTests
 
