@@ -19,10 +19,10 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Executar testes do backend
+        run: mvn -B test
       - name: Compilar e empacotar o backend
         run: mvn -B package -DskipTests
-      - name: Validar configuração de CORS
-        run: mvn -B -Dtest=CorsConfigurationTest test
 
   frontend:
     name: Frontend Vite
