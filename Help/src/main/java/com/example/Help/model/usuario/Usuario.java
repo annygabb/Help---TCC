@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -29,14 +32,14 @@ public class Usuario implements UserDetails {
     @Column(name = "nome", nullable = false)
     private String name;
 
-    @Column(unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "cpf", unique = true, length = 14)
     private String cpf;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(name = "senha")
+    @Column(name = "senha", nullable = false)
     private String senha;
 
     @JsonProperty("cargo")
@@ -54,15 +57,55 @@ public class Usuario implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_conta", length = 20)
+    private TipoConta tipoConta = TipoConta.CANDIDATO;
+
+    @Column(name = "ativo")
+    private Boolean ativo = true;
+
+    @CreationTimestamp
+    @Column(name = "criado_em", updatable = false)
+    private LocalDateTime criadoEm;
+
+    @Column(name = "motivo_status", length = 500)
+    private String motivoStatus;
+
     public Usuario(UsuarioRequestDTO data) {
         this.name = data.name();
-        this.email = data.email();
+        this.email = normalizarEmail(data.email());
         this.senha = data.password();
         this.jobRole = data.jobRole();
         this.location = data.userLocation();
         this.formacao = data.formacao();
         this.skills = data.skills();
         this.bio = data.userBio();
+        this.tipoConta = TipoConta.CANDIDATO;
+        this.ativo = true;
+    }
+
+    @PrePersist
+    @PreUpdate
+    void normalizarAntesDeSalvar() {
+        this.email = normalizarEmail(this.email);
+        if (this.tipoConta == null) this.tipoConta = TipoConta.CANDIDATO;
+        if (this.ativo == null) this.ativo = true;
+    }
+
+    public static String normalizarEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase();
+    }
+
+    public TipoConta getTipoConta() {
+        return tipoConta == null ? TipoConta.CANDIDATO : tipoConta;
+    }
+
+    public boolean isAtivo() {
+        return ativo == null || ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 
     public String getCargo() {
@@ -82,21 +125,21 @@ public class Usuario implements UserDetails {
     }
 
     public String getTelefone() {
-        return null; //Retorna null ou String vazia para não quebrar o Service
+        return null;
     }
 
     public void setTelefone(String telefone) {
     }
 
     public String getEstado() {
-        return ""; //Retorna valor padrão para o Service
+        return "";
     }
 
     public void setEstado(String estado) {
     }
 
     public String getCurriculo() {
-        return this.bio; //Redireciona para o campo de bio/texto
+        return this.bio;
     }
 
     public void setCurriculo(String curriculo) {
@@ -104,7 +147,7 @@ public class Usuario implements UserDetails {
     }
 
     public Double getSalarioBase() {
-        return 0.0; //Retorna valor numérico para evitar NullPointerException no Service
+        return 0.0;
     }
 
     public void setSalarioBase(Double salarioBase) {
@@ -112,7 +155,8 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        String role = getTipoConta() == TipoConta.ADMIN ? "ROLE_ADMIN" : "ROLE_USER";
+        return List.of(new SimpleGrantedAuthority(role));
     }
 
     @Override
@@ -126,7 +170,7 @@ public class Usuario implements UserDetails {
     }
 
     @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isAccountNonLocked() { return isAtivo(); }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override public boolean isEnabled() { return isAtivo(); }
 }
