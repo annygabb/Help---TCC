@@ -48,25 +48,50 @@ const ConfigPerfil = () => {
     const savedUser = localStorage.getItem('usuarioLogado');
     const tokenDireto = localStorage.getItem('token');
 
-    if (savedUser) {
-      const parsed = JSON.parse(savedUser);
+    if (!savedUser || !tokenDireto) {
+      navigate('/login');
+      return;
+    }
+
+    const parsed = JSON.parse(savedUser);
+    setUserData((anterior) => ({
+      ...anterior,
+      id: parsed.id || parsed.idUsuario || parsed.uuid || '',
+      nome: parsed.nome || parsed.name || '',
+      email: parsed.email || '',
+      token: tokenDireto
+    }));
+
+    let ativo = true;
+    api.get('/perfis/me', {
+      headers: { Authorization: `Bearer ${tokenDireto}` }
+    }).then(({ data }) => {
+      if (!ativo) return;
 
       setUserData({
-        id: parsed.id || parsed.idUsuario || parsed.uuid || '',
-        nome: parsed.nome || parsed.name || '',
-        cargo: parsed.cargo || parsed.cargoAtual || '',
-        localidade: parsed.localidade || '',
-        email: parsed.email || '',
-        bio: parsed.bio || '',
-        token: tokenDireto || parsed.token || '',
-        fotoPerfil: parsed.fotoPerfil || null
+        id: data.usuarioId || parsed.id || '',
+        nome: data.nome || '',
+        cargo: data.cargo || '',
+        localidade: data.localidade || '',
+        email: data.email || parsed.email || '',
+        bio: data.bio || '',
+        token: tokenDireto,
+        fotoPerfil: data.fotoUrl || null
       });
+      setExperiencias(data.experiencias || []);
+      setCursos((data.cursos || []).map((curso) => ({
+        ...curso,
+        certificadoPdf: curso.certificadoUrl || null,
+        nomeArquivo: curso.certificadoUrl ? 'Certificado salvo' : '',
+        arquivoReal: null
+      })));
+    }).catch((error) => {
+      console.error('Erro ao carregar o perfil individual:', error);
+    });
 
-      if (parsed.experiencias) setExperiencias(parsed.experiencias);
-      if (parsed.cursos) setCursos(parsed.cursos);
-    } else {
-      navigate('/login');
-    }
+    return () => {
+      ativo = false;
+    };
   }, [navigate]);
 
   const handlePhotoChange = (e) => {
@@ -230,50 +255,65 @@ const ConfigPerfil = () => {
     e.preventDefault();
 
     const tokenEnvio = localStorage.getItem('token') || userData.token;
-
-    if (!userData.id) {
-      console.error("ID ausente no userData:", userData);
-      alert("Erro: ID do usuário não encontrado. Tente fazer login novamente.");
+    if (!tokenEnvio) {
+      navigate('/login');
       return;
     }
 
-    const formData = new FormData();
-
     const perfilDados = {
-      name: userData.nome,
+      nome: userData.nome,
+      cargo: userData.cargo,
+      localidade: userData.localidade,
       bio: userData.bio,
-      cargoAtual: userData.cargo,
-      usuario: { id: userData.id },
-      experiencias: experiencias,
-      cursos: cursos.map(({ arquivoReal, certificadoPdf, ...c }) => c)
+      fotoUrl: userData.fotoPerfil,
+      experiencias: experiencias.map(({ id, ...experiencia }) => experiencia),
+      cursos: cursos.map(({ id, arquivoReal, certificadoPdf, nomeArquivo, ...curso }) => ({
+        ...curso,
+        certificadoUrl: certificadoPdf || curso.certificadoUrl || null
+      }))
     };
 
-    formData.append("dados", JSON.stringify(perfilDados));
-
-    if (fotoFile) formData.append("foto", fotoFile);
-
     try {
-          console.log("Token enviado:", tokenEnvio);
-          await api.put(`/api/usuarios/${userData.id}`, formData, {
-            headers: {
-              Authorization: `Bearer ${tokenEnvio}`,
-              "Content-Type": "multipart/form-data"
-            }
-          });
+      const response = await api.put('/perfis/me', perfilDados, {
+        headers: { Authorization: `Bearer ${tokenEnvio}` }
+      });
+      const perfilSalvo = response.data;
 
-          alert("Perfil atualizado com sucesso!");
+      setUserData((anterior) => ({
+        ...anterior,
+        id: perfilSalvo.usuarioId,
+        nome: perfilSalvo.nome || '',
+        cargo: perfilSalvo.cargo || '',
+        localidade: perfilSalvo.localidade || '',
+        email: perfilSalvo.email || anterior.email,
+        bio: perfilSalvo.bio || '',
+        fotoPerfil: perfilSalvo.fotoUrl || null
+      }));
+      setExperiencias(perfilSalvo.experiencias || []);
+      setCursos((perfilSalvo.cursos || []).map((curso) => ({
+        ...curso,
+        certificadoPdf: curso.certificadoUrl || null,
+        nomeArquivo: curso.certificadoUrl ? 'Certificado salvo' : '',
+        arquivoReal: null
+      })));
 
-          localStorage.setItem('usuarioLogado', JSON.stringify({
-            ...userData,
-            experiencias,
-            cursos
-          }));
+      const sessao = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+      localStorage.setItem('usuarioLogado', JSON.stringify({
+        ...sessao,
+        id: perfilSalvo.usuarioId,
+        nome: perfilSalvo.nome,
+        cargo: perfilSalvo.cargo,
+        localidade: perfilSalvo.localidade,
+        email: perfilSalvo.email,
+        fotoPerfil: perfilSalvo.fotoUrl
+      }));
 
-        } catch (error) {
-          console.error("Erro no Update:", error.response);
-          alert("Erro ao salvar alterações.");
-        }
-      };
+      alert('Perfil atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar o perfil individual:', error.response || error);
+      alert(error.response?.data?.message || 'Erro ao salvar alterações.');
+    }
+  };
 
       return (
         <div className="config-container">
@@ -341,7 +381,8 @@ const ConfigPerfil = () => {
                   <input
                     type="email"
                     value={userData.email || ""}
-                    onChange={(e) => setUserData({...userData, email: e.target.value})}
+                    readOnly
+                    title="O e-mail da conta não é alterado pelo perfil"
                   />
                 </div>
                 <div className="input-group">
