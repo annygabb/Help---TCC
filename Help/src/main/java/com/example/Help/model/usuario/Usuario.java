@@ -26,6 +26,7 @@ public class Usuario implements UserDetails {
     private UUID id;
 
     @JsonProperty("nome")
+    @Column(name = "nome", nullable = false)
     private String name;
 
     @Column(unique = true)

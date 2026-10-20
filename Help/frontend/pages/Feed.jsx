@@ -7,10 +7,10 @@ import {
 import './Feed.css';
 import './Badges.css';
 import logoImg from '../assets/logo.png';
-import nttLogo from '../assets/ntt-logo.jpg';
-import userProfileImg from '../assets/fotoperfil.png';
+import defaultProfileImg from '../assets/fotoperfil.png';
 import CriarPublicacao from './CriarPublicacao';
 import useUnreadCounts from './useUnreadCounts';
+import api from '../services/api';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -21,10 +21,11 @@ const Feed = () => {
   const [isSeguidorDoAutor] = useState(true);
 
   const [user, setUser] = useState({
-    name: "Anny Gabrielly Gonçalves de Oliveira",
-    role: "Analista de Sistemas",
-    company: "NTT DATA",
-    location: "Silvânia, Goiás"
+    name: '',
+    role: '',
+    company: '',
+    location: '',
+    photoUrl: null
   });
 
   const [posts, setPosts] = useState([
@@ -41,16 +42,44 @@ const Feed = () => {
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser({
-        name: parsedUser.nome || user.name,
-        role: parsedUser.cargo || user.role,
-        company: parsedUser.empresa || user.company,
-        location: parsedUser.localidade || user.location
-      });
+    const token = localStorage.getItem('token');
+
+    if (!savedUser || !token) {
+      navigate('/login');
+      return;
     }
-  }, [user.name, user.role, user.company, user.location]);
+
+    const parsedUser = JSON.parse(savedUser);
+    setUser({
+      name: parsedUser.nome || parsedUser.name || '',
+      role: parsedUser.cargo || '',
+      company: '',
+      location: parsedUser.localidade || '',
+      photoUrl: parsedUser.fotoPerfil || null
+    });
+
+    let ativo = true;
+    api.get('/perfis/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(({ data }) => {
+      if (!ativo) return;
+      const empregoAtual = (data.experiencias || []).find((experiencia) => experiencia.trabalhaAtualmente);
+
+      setUser({
+        name: data.nome || '',
+        role: data.cargo || '',
+        company: empregoAtual?.empresa || '',
+        location: data.localidade || '',
+        photoUrl: data.fotoUrl || null
+      });
+    }).catch((error) => {
+      console.error('Erro ao carregar perfil no feed:', error);
+    });
+
+    return () => {
+      ativo = false;
+    };
+  }, [navigate]);
 
   const formatTimeAgo = (dateString) => {
     const now = new Date();
@@ -68,7 +97,7 @@ const Feed = () => {
     const newPost = {
       id: Date.now(),
       author: user.name,
-      role: `${user.role} na ${user.company}`,
+      role: user.company ? `${user.role} na ${user.company}` : user.role,
       content: texto,
       midia: midia,
       timestamp: new Date().toISOString(),
@@ -82,6 +111,8 @@ const Feed = () => {
   };
 
   const avatarStyle = { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' };
+  const profileImage = user.photoUrl || defaultProfileImg;
+  const displayName = user.name?.trim() || 'Usuário';
 
   return (
     <div className="feed-container">
@@ -154,7 +185,7 @@ const Feed = () => {
         }}></div>
 
         <img
-          src={userProfileImg}
+          src={profileImage}
           alt="Perfil"
           style={{
             width: '100%',
@@ -170,10 +201,10 @@ const Feed = () => {
 
       <div className="user-details-text">
         <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>
-          {user.name.split(' ')[0]} {user.name.split(' ')[1]}
+          {displayName}
         </h3>
         <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0' }}>
-          {user.role} | Engenharia de Software
+          {user.role || 'Perfil profissional'}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <MapPin size={12} color="#9ca3af" />
@@ -182,25 +213,17 @@ const Feed = () => {
       </div>
     </div>
 
-    <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
-
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <div style={{
-        width: '40px',
-        height: '40px',
-        background: 'white',
-        borderRadius: '8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '5px'
-      }}>
-        <img src={nttLogo} alt="NTT DATA" style={{ width: '100%', objectFit: 'contain' }} />
-      </div>
-      <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>
-        {user.company}
-      </span>
-    </div>
+    {user.company && (
+      <>
+        <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Briefcase size={22} color="#a755f7" aria-hidden="true" />
+          <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>
+            {user.company}
+          </span>
+        </div>
+      </>
+    )}
   </div>
 </aside>
 
@@ -208,7 +231,7 @@ const Feed = () => {
           <div className="create-post-container">
             <div className="post-input-row">
               <div className="avatar-mini">
-                <img src={userProfileImg} alt="Eu" style={avatarStyle} />
+                <img src={profileImage} alt="Eu" style={avatarStyle} />
               </div>
               <button className="post-input-field-trigger" onClick={() => setIsModalOpen(true)}>
                 Começar publicação
@@ -233,7 +256,7 @@ const Feed = () => {
               <div className="post" key={post.id}>
                 <div className="post-header">
                   <div className="avatar-mini">
-                    <img src={post.isPromoted ? logoImg : userProfileImg} alt="Autor" style={avatarStyle} />
+                    <img src={post.isPromoted ? logoImg : profileImage} alt="Autor" style={avatarStyle} />
                   </div>
                   <div className="post-info">
                     <h4>{post.author}</h4>
@@ -283,8 +306,8 @@ const Feed = () => {
           onClose={() => setIsModalOpen(false)}
           onPublish={handleNewPost}
           user={{
-            nome: user.name,
-            fotoPerfil: userProfileImg
+            nome: displayName,
+            fotoPerfil: profileImage
           }}
         />
       )}
