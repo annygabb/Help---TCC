@@ -1,0 +1,1948 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R 24 0 R 26 0 R 28 0 R 30 0 R 32 0 R 34 0 R 36 0 R] /Count 16 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 728 >>
+stream
+0.16 0.05 0.28 rg
+0 0 595.28 841.89 re f
+0.56 0.28 0.91 rg
+0 823.89 595.28 18 re f
+1 1 1 rg
+BT /F2 29 Tf 1 0 0 1 52 650 Tm (Documentação do) Tj ET
+BT /F2 29 Tf 1 0 0 1 52 610 Tm (Frontend Administrativo) Tj ET
+0.80 0.69 0.93 rg
+BT /F2 18 Tf 1 0 0 1 52 565 Tm (Projeto HELP) Tj ET
+0.93 0.90 0.97 rg
+BT /F1 11 Tf 1 0 0 1 52 500 Tm (Estado atual, pendências, prioridades e critérios de conclusão.) Tj ET
+BT /F1 10 Tf 1 0 0 1 52 470 Tm (Atualizado em 20 de outubro de 2026.) Tj ET
+0.56 0.28 0.91 rg
+52 170 491.28 2 re f
+0.86 0.80 0.94 rg
+BT /F1 9 Tf 1 0 0 1 52 145 Tm (github.com/annygabb/Help---TCC) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (1) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 854 >>
+stream
+0.16 0.05 0.28 rg
+0 0 595.28 841.89 re f
+0.56 0.28 0.91 rg
+0 823.89 595.28 18 re f
+1 1 1 rg
+BT /F2 29 Tf 1 0 0 1 52 650 Tm (Documentação do) Tj ET
+BT /F2 29 Tf 1 0 0 1 52 610 Tm (Frontend Administrativo) Tj ET
+0.80 0.69 0.93 rg
+BT /F2 18 Tf 1 0 0 1 52 565 Tm (Projeto HELP) Tj ET
+0.93 0.90 0.97 rg
+BT /F1 11 Tf 1 0 0 1 52 500 Tm (Estado atual, pendências, prioridades e critérios de conclusão.) Tj ET
+BT /F1 10 Tf 1 0 0 1 52 470 Tm (Atualizado em 20 de outubro de 2026.) Tj ET
+0.56 0.28 0.91 rg
+52 170 491.28 2 re f
+0.86 0.80 0.94 rg
+BT /F1 9 Tf 1 0 0 1 52 145 Tm (github.com/annygabb/Help---TCC) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (1) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (1) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 4843 >>
+stream
+0.43 0.19 0.73 rg
+52 775.9 4 26 re f
+0.22 0.08 0.38 rg
+BT /F2 20 Tf 1 0 0 1 64.0 782.9 Tm (Guia de leitura) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 750.9 Tm (Este PDF apresenta, de forma humana e organizada, como o painel administrativo está hoje, o) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 736.7 Tm (que já funciona e quais partes ainda precisam ser implementadas para o uso real.) Tj ET
+0.43 0.19 0.73 rg
+52 705.2 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 710.5 Tm (Conteúdo principal) Tj ET
+0.43 0.19 0.73 rg
+52 682.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 684.7 Tm (Estrutura atual e recursos prontos) Tj ET
+0.43 0.19 0.73 rg
+52 668.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 670.7 Tm (Pendências detalhadas do frontend) Tj ET
+0.43 0.19 0.73 rg
+52 654.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 656.7 Tm (Módulos administrativos futuros) Tj ET
+0.43 0.19 0.73 rg
+52 640.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 642.7 Tm (Contratos esperados da API) Tj ET
+0.43 0.19 0.73 rg
+52 626.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 628.7 Tm (Prioridades, fluxos e checklist final) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 614.7399999999999 m 543.28 614.7399999999999 l S
+0.43 0.19 0.73 rg
+52 586.7 4 26 re f
+0.22 0.08 0.38 rg
+BT /F2 20 Tf 1 0 0 1 64.0 593.7 Tm (Pendências do Frontend Administrativo — HELP) Tj ET
+0.43 0.19 0.73 rg
+52 549.5 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 554.7 Tm (Objetivo) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 529.0 Tm (Este documento descreve somente a parte visual e de experiência do painel administrativo do) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 514.8 Tm (HELP.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 495.6 Tm (Ele mostra:) Tj ET
+0.43 0.19 0.73 rg
+52 474.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 476.4 Tm (o que já existe no frontend;) Tj ET
+0.43 0.19 0.73 rg
+52 460.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 462.4 Tm (como cada tela funciona hoje;) Tj ET
+0.43 0.19 0.73 rg
+52 446.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 448.4 Tm (o que ainda precisa ser acrescentado;) Tj ET
+0.43 0.19 0.73 rg
+52 432.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 434.4 Tm (o que depende do backend para funcionar;) Tj ET
+0.43 0.19 0.73 rg
+52 418.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 420.4 Tm (como o fluxo deve ficar quando estiver completo;) Tj ET
+0.43 0.19 0.73 rg
+52 404.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 406.4 Tm (a ordem recomendada para desenvolver as próximas etapas.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 392.4 Tm (Nenhuma tela foi modificada durante a criação deste documento. Ele serve como guia para as) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 378.2 Tm (próximas implementações.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 358.9899999999999 m 543.28 358.9899999999999 l S
+0.43 0.19 0.73 rg
+52 332.7 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 338.0 Tm (Resumo humano) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 312.2 Tm (O painel administrativo já tem uma boa base visual. Ele possui menu lateral, página inicial) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 298.0 Tm (com indicadores, listagem de usuários, listagem de empresas, filtros, paginação, telas de) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 283.8 Tm (detalhes e botões para ativar ou desativar contas.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 264.6 Tm (A maior parte das telas já está desenhada para receber dados reais. O que falta é completar os) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 250.4 Tm (comportamentos da interface, melhorar o retorno ao administrador e conectar tudo aos endpoints) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 236.2 Tm (administrativos do backend.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 217.0 Tm (Hoje o painel é parecido com uma recepção pronta, com balcão, placas e formulários, mas ainda) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 202.8 Tm (aguardando alguns serviços internos. As páginas existem, porém ações como consultar uma conta) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 188.6 Tm (administrativa real, desativar uma pessoa com justificativa e visualizar um histórico) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 174.4 Tm (confiável dependem do backend.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 155.24 m 543.28 155.24 l S
+0.43 0.19 0.73 rg
+52 129.0 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 134.2 Tm (Estrutura atual do frontend) Tj ET
+0.975 0.97 0.985 rg
+52 76.49000000000001 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 108.5 Tm (Arquivo: AdminRoute.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 96.0 Tm (Responsabilidade atual: Verifica se existe token e se a conta retornada por /auth/me é do tipo ADMIN) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (2) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 5545 >>
+stream
+0.975 0.97 0.985 rg
+52 757.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 789.9 Tm (Arquivo: AdminLayout.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 777.4 Tm (Responsabilidade atual: Exibe menu lateral, cabeçalho, identificação do administrador e botão de saída) Tj ET
+0.975 0.97 0.985 rg
+52 725.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 757.9 Tm (Arquivo: AdminHome.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 745.4 Tm (Responsabilidade atual: Exibe cartões com os números gerais da plataforma) Tj ET
+0.975 0.97 0.985 rg
+52 693.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 725.9 Tm (Arquivo: AdminUsuarios.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 713.4 Tm (Responsabilidade atual: Lista usuários, aplica busca e filtros, pagina e altera status) Tj ET
+0.975 0.97 0.985 rg
+52 661.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 693.9 Tm (Arquivo: AdminUsuarioDetalhe.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 681.4 Tm (Responsabilidade atual: Mostra perfil, conexões e histórico de uma conta) Tj ET
+0.975 0.97 0.985 rg
+52 629.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 661.9 Tm (Arquivo: AdminEmpresas.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 649.4 Tm (Responsabilidade atual: Lista empresas, aplica busca e filtro de status, pagina e altera status) Tj ET
+0.975 0.97 0.985 rg
+52 597.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 629.9 Tm (Arquivo: AdminEmpresaDetalhe.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 617.4 Tm (Responsabilidade atual: Mostra dados corporativos e histórico da empresa) Tj ET
+0.975 0.97 0.985 rg
+52 565.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 597.9 Tm (Arquivo: adminComponentes.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 585.4 Tm (Responsabilidade atual: Reúne badges, paginação, avisos, formatação de dados e debounce) Tj ET
+0.975 0.97 0.985 rg
+52 533.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 565.9 Tm (Arquivo: adminService.js) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 553.4 Tm (Responsabilidade atual: Centraliza as chamadas da API administrativa) Tj ET
+0.975 0.97 0.985 rg
+52 501.89 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 533.9 Tm (Arquivo: Admin.css) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 521.4 Tm (Responsabilidade atual: Controla o visual e a responsividade do painel) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 501.89 m 543.28 501.89 l S
+0.43 0.19 0.73 rg
+52 475.6 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 480.9 Tm (O que já está pronto) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 448.1 Tm (Navegação administrativa) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 426.1 Tm (O painel já possui:) Tj ET
+0.43 0.19 0.73 rg
+52 404.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 406.9 Tm (rota principal /admin;) Tj ET
+0.43 0.19 0.73 rg
+52 390.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 392.9 Tm (rota de usuários;) Tj ET
+0.43 0.19 0.73 rg
+52 376.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 378.9 Tm (rota de detalhes do usuário;) Tj ET
+0.43 0.19 0.73 rg
+52 362.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 364.9 Tm (rota de empresas;) Tj ET
+0.43 0.19 0.73 rg
+52 348.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 350.9 Tm (rota de detalhes da empresa;) Tj ET
+0.43 0.19 0.73 rg
+52 334.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 336.9 Tm (menu lateral responsivo;) Tj ET
+0.43 0.19 0.73 rg
+52 320.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 322.9 Tm (identificação da conta administrativa;) Tj ET
+0.43 0.19 0.73 rg
+52 306.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 308.9 Tm (encerramento da sessão.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 287.9 Tm (Verificação inicial de acesso) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 265.9 Tm (O componente AdminRoute já:) Tj ET
+0.43 0.19 0.73 rg
+52 244.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 246.7 Tm (1. verifica se há token no navegador;) Tj ET
+0.43 0.19 0.73 rg
+52 230.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 232.7 Tm (2. consulta GET /auth/me;) Tj ET
+0.43 0.19 0.73 rg
+52 216.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 218.7 Tm (3. libera o painel quando tipoConta é ADMIN;) Tj ET
+0.43 0.19 0.73 rg
+52 202.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 204.7 Tm (4. redireciona para o login quando não existe sessão;) Tj ET
+0.43 0.19 0.73 rg
+52 188.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 190.7 Tm (5. impede visualmente a entrada de contas sem permissão.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 176.7 Tm (Essa verificação melhora a experiência, mas a segurança definitiva precisa continuar no) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 162.5 Tm (backend.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 136.3 Tm (Visão geral) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 114.3 Tm (A página inicial já tem cartões preparados para:) Tj ET
+0.43 0.19 0.73 rg
+52 93.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 95.1 Tm (contas de pessoas;) Tj ET
+0.43 0.19 0.73 rg
+52 79.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 81.1 Tm (candidatos;) Tj ET
+0.43 0.19 0.73 rg
+52 65.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 67.1 Tm (administradores;) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (3) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 15 0 R >>
+endobj
+15 0 obj
+<< /Length 5321 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (empresas;) Tj ET
+0.43 0.19 0.73 rg
+52 773.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 775.9 Tm (contas desativadas;) Tj ET
+0.43 0.19 0.73 rg
+52 759.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 761.9 Tm (empresas desativadas.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 740.9 Tm (Gestão de usuários) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 718.9 Tm (A tela já oferece:) Tj ET
+0.43 0.19 0.73 rg
+52 697.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 699.7 Tm (busca por nome ou e-mail;) Tj ET
+0.43 0.19 0.73 rg
+52 683.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 685.7 Tm (filtro por candidato ou administrador;) Tj ET
+0.43 0.19 0.73 rg
+52 669.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 671.7 Tm (filtro por conta ativa ou desativada;) Tj ET
+0.43 0.19 0.73 rg
+52 655.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 657.7 Tm (debounce para evitar requisições a cada tecla;) Tj ET
+0.43 0.19 0.73 rg
+52 641.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 643.7 Tm (paginação;) Tj ET
+0.43 0.19 0.73 rg
+52 627.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 629.7 Tm (botão de detalhes;) Tj ET
+0.43 0.19 0.73 rg
+52 613.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 615.7 Tm (botão de ativação ou desativação;) Tj ET
+0.43 0.19 0.73 rg
+52 599.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 601.7 Tm (bloqueio visual para a própria conta;) Tj ET
+0.43 0.19 0.73 rg
+52 585.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 587.7 Tm (mensagens de sucesso e falha;) Tj ET
+0.43 0.19 0.73 rg
+52 571.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 573.7 Tm (estados de carregamento e lista vazia.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 552.7 Tm (Gestão de empresas) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 530.7 Tm (A tela já oferece:) Tj ET
+0.43 0.19 0.73 rg
+52 509.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 511.5 Tm (busca por razão social, CNPJ ou e-mail;) Tj ET
+0.43 0.19 0.73 rg
+52 495.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 497.5 Tm (filtro de status;) Tj ET
+0.43 0.19 0.73 rg
+52 481.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 483.5 Tm (paginação;) Tj ET
+0.43 0.19 0.73 rg
+52 467.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 469.5 Tm (botão de detalhes;) Tj ET
+0.43 0.19 0.73 rg
+52 453.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 455.5 Tm (ativação e desativação;) Tj ET
+0.43 0.19 0.73 rg
+52 439.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 441.5 Tm (mensagens de retorno;) Tj ET
+0.43 0.19 0.73 rg
+52 425.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 427.5 Tm (estado vazio e carregamento.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 406.5 Tm (Telas de detalhes) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 384.5 Tm (O detalhe do usuário já está preparado para receber:) Tj ET
+0.43 0.19 0.73 rg
+52 363.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 365.3 Tm (nome;) Tj ET
+0.43 0.19 0.73 rg
+52 349.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 351.3 Tm (e-mail;) Tj ET
+0.43 0.19 0.73 rg
+52 335.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 337.3 Tm (tipo da conta;) Tj ET
+0.43 0.19 0.73 rg
+52 321.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 323.3 Tm (status;) Tj ET
+0.43 0.19 0.73 rg
+52 307.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 309.3 Tm (cargo;) Tj ET
+0.43 0.19 0.73 rg
+52 293.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 295.3 Tm (localização;) Tj ET
+0.43 0.19 0.73 rg
+52 279.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 281.3 Tm (CPF mascarado;) Tj ET
+0.43 0.19 0.73 rg
+52 265.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 267.3 Tm (data de cadastro;) Tj ET
+0.43 0.19 0.73 rg
+52 251.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 253.3 Tm (número de seguidores;) Tj ET
+0.43 0.19 0.73 rg
+52 237.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 239.3 Tm (número de pessoas seguidas;) Tj ET
+0.43 0.19 0.73 rg
+52 223.3 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 225.3 Tm (histórico administrativo.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 211.3 Tm (O detalhe da empresa já está preparado para receber:) Tj ET
+0.43 0.19 0.73 rg
+52 190.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 192.1 Tm (razão social;) Tj ET
+0.43 0.19 0.73 rg
+52 176.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 178.1 Tm (CNPJ;) Tj ET
+0.43 0.19 0.73 rg
+52 162.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 164.1 Tm (e-mail;) Tj ET
+0.43 0.19 0.73 rg
+52 148.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 150.1 Tm (status;) Tj ET
+0.43 0.19 0.73 rg
+52 134.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 136.1 Tm (data de cadastro;) Tj ET
+0.43 0.19 0.73 rg
+52 120.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 122.1 Tm (histórico administrativo.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 108.08999999999992 m 543.28 108.08999999999992 l S
+0.43 0.19 0.73 rg
+52 81.8 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 87.1 Tm (O que falta no frontend) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (4) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 17 0 R >>
+endobj
+17 0 obj
+<< /Length 4236 >>
+stream
+0.43 0.19 0.73 rg
+52 777.6 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 782.9 Tm (1. Página própria de acesso negado) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 750.1 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 728.1 Tm (Quando uma pessoa autenticada não é administradora, ela é redirecionada para a página inicial.) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 713.9 Tm (A interface não explica o motivo.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 687.7 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 665.7 Tm (Criar uma página como /acesso-negado contendo:) Tj ET
+0.43 0.19 0.73 rg
+52 644.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 646.5 Tm (título informando que a área é restrita;) Tj ET
+0.43 0.19 0.73 rg
+52 630.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 632.5 Tm (explicação curta;) Tj ET
+0.43 0.19 0.73 rg
+52 616.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 618.5 Tm (botão para voltar ao sistema;) Tj ET
+0.43 0.19 0.73 rg
+52 602.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 604.5 Tm (botão para entrar com outra conta;) Tj ET
+0.43 0.19 0.73 rg
+52 588.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 590.5 Tm (identificação visual consistente com o painel.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 569.5 Tm (Benefício) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 547.5 Tm (A pessoa entende o que aconteceu e não interpreta o redirecionamento como erro do site.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 528.3399999999998 m 543.28 528.3399999999998 l S
+0.43 0.19 0.73 rg
+52 502.1 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 507.3 Tm (2. Tratamento global de sessão expirada) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 474.6 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 452.6 Tm (Cada tela trata a falha da API separadamente. Uma resposta 401 pode apenas exibir uma) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 438.4 Tm (mensagem, sem encerrar a sessão inválida.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 412.2 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 390.2 Tm (Criar um tratamento central no serviço da API:) Tj ET
+0.43 0.19 0.73 rg
+52 369.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 371.0 Tm (1. detectar 401;) Tj ET
+0.43 0.19 0.73 rg
+52 355.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 357.0 Tm (2. remover token e dados locais;) Tj ET
+0.43 0.19 0.73 rg
+52 341.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 343.0 Tm (3. informar que a sessão expirou;) Tj ET
+0.43 0.19 0.73 rg
+52 327.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 329.0 Tm (4. encaminhar para o login;) Tj ET
+0.43 0.19 0.73 rg
+52 313.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 315.0 Tm (5. preservar, quando possível, a rota para retorno após nova autenticação.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 301.0 Tm (Para 403, o frontend deve encaminhar à página de acesso negado sem apagar uma sessão válida.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 274.8 Tm (Benefício) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 252.8 Tm (Evita que o administrador permaneça em uma tela que não consegue mais carregar dados.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 233.58999999999986 m 543.28 233.58999999999986 l S
+0.43 0.19 0.73 rg
+52 207.3 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 212.6 Tm (3. Modal de ativação e desativação) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 179.8 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 157.8 Tm (As telas usam window.confirm. Essa confirmação não coleta justificativa, tem pouca informação) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 143.6 Tm (e não acompanha o padrão visual do sistema.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 117.4 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 95.4 Tm (Criar um componente reutilizável, por exemplo AdminStatusDialog, com:) Tj ET
+0.43 0.19 0.73 rg
+52 74.2 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 76.2 Tm (nome da conta ou empresa;) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (5) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 19 0 R >>
+endobj
+19 0 obj
+<< /Length 4000 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (ação que será executada;) Tj ET
+0.43 0.19 0.73 rg
+52 773.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 775.9 Tm (resumo do impacto;) Tj ET
+0.43 0.19 0.73 rg
+52 759.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 761.9 Tm (campo obrigatório de justificativa;) Tj ET
+0.43 0.19 0.73 rg
+52 745.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 747.9 Tm (botão cancelar;) Tj ET
+0.43 0.19 0.73 rg
+52 731.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 733.9 Tm (botão confirmar;) Tj ET
+0.43 0.19 0.73 rg
+52 717.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 719.9 Tm (bloqueio enquanto a solicitação estiver em andamento;) Tj ET
+0.43 0.19 0.73 rg
+52 703.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 705.9 Tm (foco controlado para teclado;) Tj ET
+0.43 0.19 0.73 rg
+52 689.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 691.9 Tm (mensagem clara se a API recusar a ação.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 670.9 Tm (Dados esperados) Tj ET
+0.96 0.95 0.98 rg
+52 590.89 491.28 62 re f
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 639.9 Tm ({) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 627.9 Tm ("ativo": false,) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 615.9 Tm ("motivo": "Solicitação do responsável pela conta") Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 603.9 Tm (}) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 580.9 Tm (Benefício) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 558.9 Tm (A ação fica mais segura, compreensível e preparada para auditoria.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 539.6899999999999 m 543.28 539.6899999999999 l S
+0.43 0.19 0.73 rg
+52 513.4 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 518.7 Tm (4. Filtros preservados na URL) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 485.9 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 463.9 Tm (Busca, tipo, status e página ficam somente no estado do componente. Ao atualizar a página ou) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 449.7 Tm (voltar dos detalhes, os filtros podem ser perdidos.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 423.5 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 401.5 Tm (Usar parâmetros na URL.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 382.3 Tm (Exemplo:) Tj ET
+0.96 0.95 0.98 rg
+52 341.14 491.28 26 re f
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 354.1 Tm (#/admin/usuarios?busca=anny&tipo=CANDIDATO&status=ativo&page=0) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 338.1 Tm (Para empresas:) Tj ET
+0.96 0.95 0.98 rg
+52 296.94 491.28 26 re f
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 309.9 Tm (#/admin/empresas?busca=tecnologia&status=ativo&page=1) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 286.9 Tm (Benefício) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 264.9 Tm (O administrador pode atualizar a página, voltar dos detalhes e compartilhar uma consulta sem) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 250.7 Tm (perder o contexto.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 231.54000000000002 m 543.28 231.54000000000002 l S
+0.43 0.19 0.73 rg
+52 205.3 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 210.5 Tm (5. Ordenação das tabelas) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 177.8 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 155.8 Tm (As tabelas não mostram controle de ordenação.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 129.6 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 107.6 Tm (Permitir ordenar por:) Tj ET
+0.43 0.19 0.73 rg
+52 86.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 88.4 Tm (nome ou razão social;) Tj ET
+0.43 0.19 0.73 rg
+52 72.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 74.4 Tm (data de cadastro;) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (6) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 21 0 R >>
+endobj
+21 0 obj
+<< /Length 3737 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (status;) Tj ET
+0.43 0.19 0.73 rg
+52 773.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 775.9 Tm (tipo de conta, quando aplicável.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 761.9 Tm (O cabeçalho deve indicar visualmente a direção crescente ou decrescente.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 735.7 Tm (Dependência) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 713.7 Tm (O backend precisa aceitar parâmetros como:) Tj ET
+0.96 0.95 0.98 rg
+52 660.4899999999999 491.28 38 re f
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 685.5 Tm (sort=nome,asc) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 673.5 Tm (sort=criadoEm,desc) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 657.4899999999999 m 543.28 657.4899999999999 l S
+0.43 0.19 0.73 rg
+52 631.2 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 636.5 Tm (6. Botão de tentar novamente) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 603.7 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 581.7 Tm (Quando ocorre uma falha de rede, a tela apresenta uma mensagem, mas o administrador precisa) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 567.5 Tm (atualizar a página manualmente.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 541.3 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 519.3 Tm (Os avisos de falha devem incluir um botão Tentar novamente que repita somente a requisição) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 505.1 Tm (necessária.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 478.9 Tm (Benefício) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 456.9 Tm (Melhora a recuperação de falhas temporárias do Railway, internet ou banco.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 437.73999999999984 m 543.28 437.73999999999984 l S
+0.43 0.19 0.73 rg
+52 411.5 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 416.7 Tm (7. Carregamento visual estável) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 384.0 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 362.0 Tm (As tabelas mostram apenas o texto Carregando....) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 335.8 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 313.8 Tm (Usar linhas de carregamento no mesmo tamanho da tabela final, mantendo:) Tj ET
+0.43 0.19 0.73 rg
+52 292.6 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 294.6 Tm (cabeçalho visível;) Tj ET
+0.43 0.19 0.73 rg
+52 278.6 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 280.6 Tm (espaço reservado;) Tj ET
+0.43 0.19 0.73 rg
+52 264.6 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 266.6 Tm (quantidade aproximada de linhas;) Tj ET
+0.43 0.19 0.73 rg
+52 250.6 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 252.6 Tm (botões temporariamente indisponíveis.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 231.6 Tm (Benefício) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 209.6 Tm (Evita mudanças bruscas no layout e deixa a interface mais profissional.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 190.38999999999987 m 543.28 190.38999999999987 l S
+0.43 0.19 0.73 rg
+52 164.1 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 169.4 Tm (8. Mensagens padronizadas) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 136.6 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 114.6 Tm (Existem mensagens de erro e sucesso, mas elas aparecem de formas diferentes dependendo da) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 100.4 Tm (tela.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 74.2 Tm (Como deve ficar) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (7) Tj ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 23 0 R >>
+endobj
+23 0 obj
+<< /Length 4874 >>
+stream
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 789.9 Tm (Criar um padrão único com:) Tj ET
+0.43 0.19 0.73 rg
+52 768.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 770.7 Tm (sucesso;) Tj ET
+0.43 0.19 0.73 rg
+52 754.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 756.7 Tm (atenção;) Tj ET
+0.43 0.19 0.73 rg
+52 740.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 742.7 Tm (erro;) Tj ET
+0.43 0.19 0.73 rg
+52 726.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 728.7 Tm (informação;) Tj ET
+0.43 0.19 0.73 rg
+52 712.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 714.7 Tm (opção de fechar;) Tj ET
+0.43 0.19 0.73 rg
+52 698.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 700.7 Tm (desaparecimento automático somente para mensagens não críticas;) Tj ET
+0.43 0.19 0.73 rg
+52 684.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 686.7 Tm (aria-live para leitores de tela.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 665.7 Tm (Exemplos) Tj ET
+0.43 0.19 0.73 rg
+52 641.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 643.7 Tm (“Conta desativada com sucesso.”) Tj ET
+0.43 0.19 0.73 rg
+52 627.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 629.7 Tm (“A empresa continua ativa porque a operação não foi concluída.”) Tj ET
+0.43 0.19 0.73 rg
+52 613.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 615.7 Tm (“Sua sessão expirou. Entre novamente.”) Tj ET
+0.43 0.19 0.73 rg
+52 599.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 601.7 Tm (“Você não possui permissão para realizar esta ação.”) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 587.6899999999999 m 543.28 587.6899999999999 l S
+0.43 0.19 0.73 rg
+52 561.4 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 566.7 Tm (9. Detalhes completos do usuário) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 533.9 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 511.9 Tm (A tela mostra informações básicas, conexões e histórico.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 485.7 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 463.7 Tm (Acrescentar, quando o backend disponibilizar:) Tj ET
+0.43 0.19 0.73 rg
+52 442.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 444.5 Tm (foto de perfil;) Tj ET
+0.43 0.19 0.73 rg
+52 428.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 430.5 Tm (biografia;) Tj ET
+0.43 0.19 0.73 rg
+52 414.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 416.5 Tm (cargo atual;) Tj ET
+0.43 0.19 0.73 rg
+52 400.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 402.5 Tm (experiências profissionais;) Tj ET
+0.43 0.19 0.73 rg
+52 386.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 388.5 Tm (cursos e certificações;) Tj ET
+0.43 0.19 0.73 rg
+52 372.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 374.5 Tm (data da última atividade;) Tj ET
+0.43 0.19 0.73 rg
+52 358.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 360.5 Tm (quantidade de publicações;) Tj ET
+0.43 0.19 0.73 rg
+52 344.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 346.5 Tm (quantidade de mensagens ou denúncias apenas quando houver justificativa administrativa;) Tj ET
+0.43 0.19 0.73 rg
+52 330.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 332.5 Tm (situação da conta;) Tj ET
+0.43 0.19 0.73 rg
+52 316.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 318.5 Tm (motivo da última desativação.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 304.5 Tm (Os dados devem ser apenas para consulta. O administrador não deve editar o perfil fingindo ser) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 290.3 Tm (o usuário.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 271.14 m 543.28 271.14 l S
+0.43 0.19 0.73 rg
+52 244.9 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 250.1 Tm (10. Detalhes completos da empresa) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 217.4 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 195.4 Tm (A tela mostra razão social, CNPJ, e-mail, cadastro, status e histórico.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 169.2 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 147.2 Tm (Acrescentar:) Tj ET
+0.43 0.19 0.73 rg
+52 126.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 128.0 Tm (nome do responsável;) Tj ET
+0.43 0.19 0.73 rg
+52 112.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 114.0 Tm (telefone de contato, quando permitido;) Tj ET
+0.43 0.19 0.73 rg
+52 98.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 100.0 Tm (quantidade de vagas;) Tj ET
+0.43 0.19 0.73 rg
+52 84.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 86.0 Tm (vagas ativas;) Tj ET
+0.43 0.19 0.73 rg
+52 70.0 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 72.0 Tm (vagas encerradas;) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (8) Tj ET
+endstream
+endobj
+24 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 25 0 R >>
+endobj
+25 0 obj
+<< /Length 4594 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (última atividade;) Tj ET
+0.43 0.19 0.73 rg
+52 773.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 775.9 Tm (motivo da última desativação;) Tj ET
+0.43 0.19 0.73 rg
+52 759.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 761.9 Tm (impacto da desativação nas vagas publicadas.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 747.9 Tm (A interface deve explicar se desativar uma empresa também oculta suas vagas.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 728.6899999999999 m 543.28 728.6899999999999 l S
+0.43 0.19 0.73 rg
+52 702.4 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 707.7 Tm (11. Prevenção de ações perigosas) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 681.9 Tm (O frontend deve bloquear visualmente:) Tj ET
+0.43 0.19 0.73 rg
+52 660.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 662.7 Tm (desativação da própria conta;) Tj ET
+0.43 0.19 0.73 rg
+52 646.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 648.7 Tm (desativação do último administrador ativo;) Tj ET
+0.43 0.19 0.73 rg
+52 632.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 634.7 Tm (cliques repetidos;) Tj ET
+0.43 0.19 0.73 rg
+52 618.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 620.7 Tm (envio sem justificativa;) Tj ET
+0.43 0.19 0.73 rg
+52 604.7 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 606.7 Tm (nova tentativa enquanto a anterior ainda está em andamento.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 592.7 Tm (Mesmo com esses bloqueios no frontend, o backend precisa repetir todas as validações.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 573.5399999999998 m 543.28 573.5399999999998 l S
+0.43 0.19 0.73 rg
+52 547.3 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 552.5 Tm (12. Atualização dos indicadores) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 519.8 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 497.8 Tm (Os cartões da visão geral são carregados quando a página abre.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 471.6 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 449.6 Tm (Adicionar:) Tj ET
+0.43 0.19 0.73 rg
+52 428.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 430.4 Tm (horário da última atualização;) Tj ET
+0.43 0.19 0.73 rg
+52 414.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 416.4 Tm (botão para atualizar;) Tj ET
+0.43 0.19 0.73 rg
+52 400.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 402.4 Tm (carregamento individual dos cartões;) Tj ET
+0.43 0.19 0.73 rg
+52 386.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 388.4 Tm (mensagem quando algum indicador estiver indisponível;) Tj ET
+0.43 0.19 0.73 rg
+52 372.4 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 374.4 Tm (período de referência quando futuramente houver filtros por data.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 360.3899999999999 m 543.28 360.3899999999999 l S
+0.43 0.19 0.73 rg
+52 334.1 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 339.4 Tm (13. Estado vazio mais orientativo) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 306.6 Tm (Como está hoje) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 284.6 Tm (As telas informam que nenhum registro foi encontrado.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 258.4 Tm (Como deve ficar) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 236.4 Tm (Diferenciar:) Tj ET
+0.43 0.19 0.73 rg
+52 215.2 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 217.2 Tm (banco sem registros;) Tj ET
+0.43 0.19 0.73 rg
+52 201.2 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 203.2 Tm (filtro sem resultado;) Tj ET
+0.43 0.19 0.73 rg
+52 187.2 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 189.2 Tm (busca sem correspondência;) Tj ET
+0.43 0.19 0.73 rg
+52 173.2 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 175.2 Tm (falha de carregamento.) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 161.2 Tm (Exemplo de busca vazia:) Tj ET
+0.35 0.28 0.42 rg
+BT /F1 9.5 Tf 1 0 0 1 66.0 142.0 Tm (Nenhuma conta corresponde aos filtros escolhidos. Limpe os filtros ou tente outro termo.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 123.0399999999999 m 543.28 123.0399999999999 l S
+0.43 0.19 0.73 rg
+52 96.8 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 102.0 Tm (14. Responsividade e acessibilidade) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 76.3 Tm (Antes de considerar o painel pronto, revisar:) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (9) Tj ET
+endstream
+endobj
+26 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 27 0 R >>
+endobj
+27 0 obj
+<< /Length 5305 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (tabela no celular;) Tj ET
+0.43 0.19 0.73 rg
+52 773.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 775.9 Tm (rolagem horizontal restrita somente ao conteúdo necessário;) Tj ET
+0.43 0.19 0.73 rg
+52 759.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 761.9 Tm (tamanho mínimo dos botões;) Tj ET
+0.43 0.19 0.73 rg
+52 745.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 747.9 Tm (foco visível;) Tj ET
+0.43 0.19 0.73 rg
+52 731.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 733.9 Tm (navegação completa por teclado;) Tj ET
+0.43 0.19 0.73 rg
+52 717.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 719.9 Tm (fechamento do modal pela tecla Esc;) Tj ET
+0.43 0.19 0.73 rg
+52 703.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 705.9 Tm (retorno do foco ao botão que abriu o modal;) Tj ET
+0.43 0.19 0.73 rg
+52 689.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 691.9 Tm (rótulos em todos os campos;) Tj ET
+0.43 0.19 0.73 rg
+52 675.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 677.9 Tm (contraste de badges e mensagens;) Tj ET
+0.43 0.19 0.73 rg
+52 661.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 663.9 Tm (aria-live nos avisos;) Tj ET
+0.43 0.19 0.73 rg
+52 647.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 649.9 Tm (títulos em ordem correta;) Tj ET
+0.43 0.19 0.73 rg
+52 633.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 635.9 Tm (respeito a prefers-reduced-motion.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 621.89 m 543.28 621.89 l S
+0.43 0.19 0.73 rg
+52 595.6 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 600.9 Tm (15. Testes do frontend administrativo) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 575.1 Tm (Devem existir testes para:) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 548.9 Tm (Controle de acesso) Tj ET
+0.43 0.19 0.73 rg
+52 524.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 526.9 Tm (sem token;) Tj ET
+0.43 0.19 0.73 rg
+52 510.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 512.9 Tm (token expirado;) Tj ET
+0.43 0.19 0.73 rg
+52 496.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 498.9 Tm (usuário comum;) Tj ET
+0.43 0.19 0.73 rg
+52 482.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 484.9 Tm (empresa;) Tj ET
+0.43 0.19 0.73 rg
+52 468.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 470.9 Tm (administrador;) Tj ET
+0.43 0.19 0.73 rg
+52 454.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 456.9 Tm (resposta 401;) Tj ET
+0.43 0.19 0.73 rg
+52 440.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 442.9 Tm (resposta 403.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 421.9 Tm (Listagens) Tj ET
+0.43 0.19 0.73 rg
+52 397.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 399.9 Tm (carregamento;) Tj ET
+0.43 0.19 0.73 rg
+52 383.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 385.9 Tm (lista vazia;) Tj ET
+0.43 0.19 0.73 rg
+52 369.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 371.9 Tm (busca;) Tj ET
+0.43 0.19 0.73 rg
+52 355.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 357.9 Tm (filtros;) Tj ET
+0.43 0.19 0.73 rg
+52 341.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 343.9 Tm (paginação;) Tj ET
+0.43 0.19 0.73 rg
+52 327.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 329.9 Tm (ordenação;) Tj ET
+0.43 0.19 0.73 rg
+52 313.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 315.9 Tm (restauração dos filtros pela URL;) Tj ET
+0.43 0.19 0.73 rg
+52 299.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 301.9 Tm (falha e nova tentativa.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 280.9 Tm (Alteração de status) Tj ET
+0.43 0.19 0.73 rg
+52 256.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 258.9 Tm (abertura do modal;) Tj ET
+0.43 0.19 0.73 rg
+52 242.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 244.9 Tm (justificativa obrigatória;) Tj ET
+0.43 0.19 0.73 rg
+52 228.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 230.9 Tm (cancelamento;) Tj ET
+0.43 0.19 0.73 rg
+52 214.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 216.9 Tm (confirmação;) Tj ET
+0.43 0.19 0.73 rg
+52 200.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 202.9 Tm (bloqueio da própria conta;) Tj ET
+0.43 0.19 0.73 rg
+52 186.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 188.9 Tm (sucesso;) Tj ET
+0.43 0.19 0.73 rg
+52 172.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 174.9 Tm (falha;) Tj ET
+0.43 0.19 0.73 rg
+52 158.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 160.9 Tm (prevenção de clique repetido.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 139.9 Tm (Detalhes) Tj ET
+0.43 0.19 0.73 rg
+52 115.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 117.9 Tm (registro existente;) Tj ET
+0.43 0.19 0.73 rg
+52 101.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 103.9 Tm (registro inexistente;) Tj ET
+0.43 0.19 0.73 rg
+52 87.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 89.9 Tm (histórico vazio;) Tj ET
+0.43 0.19 0.73 rg
+52 73.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 75.9 Tm (histórico preenchido;) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (10) Tj ET
+endstream
+endobj
+28 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 29 0 R >>
+endobj
+29 0 obj
+<< /Length 5024 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (campos opcionais ausentes.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 775.89 m 543.28 775.89 l S
+0.43 0.19 0.73 rg
+52 749.6 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 754.9 Tm (Novos módulos administrativos ainda não existentes) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 729.1 Tm (As telas atuais cobrem somente visão geral, usuários e empresas. Futuramente podem ser criadas) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 714.9 Tm (áreas para:) Tj ET
+0.975 0.97 0.985 rg
+52 663.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 695.7 Tm (Módulo: Vagas) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 683.2 Tm (Funções principais: Consultar, suspender, encerrar e revisar vagas) Tj ET
+0.975 0.97 0.985 rg
+52 631.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 663.7 Tm (Módulo: Cursos) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 651.2 Tm (Funções principais: Criar, editar, publicar, desativar e acompanhar matrículas) Tj ET
+0.975 0.97 0.985 rg
+52 599.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 631.7 Tm (Módulo: Matrículas) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 619.2 Tm (Funções principais: Consultar status, token, curso e situação do acesso) Tj ET
+0.975 0.97 0.985 rg
+52 567.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 599.7 Tm (Módulo: Pagamentos) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 587.2 Tm (Funções principais: Consultar transações, status, falhas e estornos) Tj ET
+0.975 0.97 0.985 rg
+52 535.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 567.7 Tm (Módulo: Publicações) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 555.2 Tm (Funções principais: Moderar conteúdos denunciados) Tj ET
+0.975 0.97 0.985 rg
+52 503.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 535.7 Tm (Módulo: Denúncias) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 523.2 Tm (Funções principais: Analisar motivo, evidências, responsável e decisão) Tj ET
+0.975 0.97 0.985 rg
+52 471.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 503.7 Tm (Módulo: E-mails) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 491.2 Tm (Funções principais: Acompanhar falhas de SMTP e reenvios) Tj ET
+0.975 0.97 0.985 rg
+52 439.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 471.7 Tm (Módulo: Auditoria) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 459.2 Tm (Funções principais: Consultar todas as ações administrativas) Tj ET
+0.975 0.97 0.985 rg
+52 407.7399999999999 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 439.7 Tm (Módulo: Configurações) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 427.2 Tm (Funções principais: Regras gerais da plataforma e integrações) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 407.7 Tm (Esses módulos não devem ser apenas telas vazias. Cada um precisa de endpoints, permissões e) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 393.5 Tm (regras definidas no backend.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 374.3399999999999 m 543.28 374.3399999999999 l S
+0.43 0.19 0.73 rg
+52 348.1 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 353.3 Tm (Contratos que o frontend já espera) Tj ET
+0.975 0.97 0.985 rg
+52 279.5899999999999 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 327.6 Tm (Método: GET) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 315.1 Tm (Endpoint: /auth/me) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 302.6 Tm (Uso: Validar a conta administrativa) Tj ET
+0.975 0.97 0.985 rg
+52 235.08999999999992 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 283.1 Tm (Método: GET) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 270.6 Tm (Endpoint: /admin/resumo) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 258.1 Tm (Uso: Carregar os indicadores) Tj ET
+0.975 0.97 0.985 rg
+52 190.58999999999992 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 238.6 Tm (Método: GET) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 226.1 Tm (Endpoint: /admin/contas) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 213.6 Tm (Uso: Listar usuários) Tj ET
+0.975 0.97 0.985 rg
+52 146.08999999999992 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 194.1 Tm (Método: GET) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 181.6 Tm (Endpoint: /admin/contas/{id}) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 169.1 Tm (Uso: Abrir detalhes do usuário) Tj ET
+0.975 0.97 0.985 rg
+52 101.58999999999992 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 149.6 Tm (Método: PATCH) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 137.1 Tm (Endpoint: /admin/contas/{id}/status) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 124.6 Tm (Uso: Ativar ou desativar usuário) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (11) Tj ET
+endstream
+endobj
+30 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 31 0 R >>
+endobj
+31 0 obj
+<< /Length 4631 >>
+stream
+0.975 0.97 0.985 rg
+52 741.89 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 789.9 Tm (Método: GET) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 777.4 Tm (Endpoint: /admin/empresas) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 764.9 Tm (Uso: Listar empresas) Tj ET
+0.975 0.97 0.985 rg
+52 697.39 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 745.4 Tm (Método: GET) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 732.9 Tm (Endpoint: /admin/empresas/{id}) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 720.4 Tm (Uso: Abrir detalhes da empresa) Tj ET
+0.975 0.97 0.985 rg
+52 652.89 491.28 48 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 700.9 Tm (Método: PATCH) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 688.4 Tm (Endpoint: /admin/empresas/{id}/status) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 675.9 Tm (Uso: Ativar ou desativar empresa) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 649.4 Tm (Formato esperado para paginação) Tj ET
+0.96 0.95 0.98 rg
+52 545.39 491.28 86 re f
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 618.4 Tm ({) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 606.4 Tm ("content": [],) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 594.4 Tm ("number": 0,) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 582.4 Tm ("totalPages": 1,) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 570.4 Tm ("totalElements": 0) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 558.4 Tm (}) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 535.4 Tm (Formato recomendado para erros) Tj ET
+0.96 0.95 0.98 rg
+52 455.39 491.28 62 re f
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 504.4 Tm ({) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 492.4 Tm ("codigo": "CONTA_NAO_ENCONTRADA",) Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 480.4 Tm ("mensagem": "A conta solicitada não foi encontrada.") Tj ET
+0.20 0.16 0.25 rg
+BT /F3 8.2 Tf 1 0 0 1 62.0 468.4 Tm (}) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 452.39 m 543.28 452.39 l S
+0.43 0.19 0.73 rg
+52 426.1 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 431.4 Tm (Arquivos sugeridos para a próxima implementação) Tj ET
+0.975 0.97 0.985 rg
+52 373.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 405.6 Tm (Arquivo sugerido: AdminAccessDenied.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 393.1 Tm (Finalidade: Página de acesso negado) Tj ET
+0.975 0.97 0.985 rg
+52 341.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 373.6 Tm (Arquivo sugerido: AdminStatusDialog.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 361.1 Tm (Finalidade: Modal de ativação e desativação) Tj ET
+0.975 0.97 0.985 rg
+52 309.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 341.6 Tm (Arquivo sugerido: AdminFeedback.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 329.1 Tm (Finalidade: Avisos padronizados) Tj ET
+0.975 0.97 0.985 rg
+52 277.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 309.6 Tm (Arquivo sugerido: AdminTableSkeleton.jsx) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 297.1 Tm (Finalidade: Carregamento das tabelas) Tj ET
+0.975 0.97 0.985 rg
+52 245.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 277.6 Tm (Arquivo sugerido: useAdminQueryParams.js) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 265.1 Tm (Finalidade: Sincronização de filtros com a URL) Tj ET
+0.975 0.97 0.985 rg
+52 213.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 245.6 Tm (Arquivo sugerido: useAdminSession.js) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 233.1 Tm (Finalidade: Tratamento de sessão e permissões) Tj ET
+0.975 0.97 0.985 rg
+52 181.64 491.28 32 re f
+0.18 0.14 0.22 rg
+BT /F2 8.7 Tf 1 0 0 1 61.0 213.6 Tm (Arquivo sugerido: adminApiInterceptor.js) Tj ET
+0.18 0.14 0.22 rg
+BT /F1 8.7 Tf 1 0 0 1 61.0 201.1 Tm (Finalidade: Respostas globais 401 e 403) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 181.6 Tm (Os nomes são sugestões. A implementação deve seguir o padrão de organização que já existe no) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 167.4 Tm (projeto.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 148.24 m 543.28 148.24 l S
+0.43 0.19 0.73 rg
+52 122.0 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 127.2 Tm (Prioridades recomendadas) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 94.5 Tm (Prioridade 0 — necessária para uso real) Tj ET
+0.43 0.19 0.73 rg
+52 70.5 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 72.5 Tm (página de acesso negado;) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (12) Tj ET
+endstream
+endobj
+32 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 33 0 R >>
+endobj
+33 0 obj
+<< /Length 5559 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (sessão expirada;) Tj ET
+0.43 0.19 0.73 rg
+52 773.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 775.9 Tm (endpoints administrativos funcionando;) Tj ET
+0.43 0.19 0.73 rg
+52 759.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 761.9 Tm (autorização validada pelo backend;) Tj ET
+0.43 0.19 0.73 rg
+52 745.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 747.9 Tm (modal com justificativa;) Tj ET
+0.43 0.19 0.73 rg
+52 731.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 733.9 Tm (bloqueio de ações repetidas;) Tj ET
+0.43 0.19 0.73 rg
+52 717.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 719.9 Tm (mensagens consistentes.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 698.9 Tm (Prioridade 1 — operação diária) Tj ET
+0.43 0.19 0.73 rg
+52 674.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 676.9 Tm (filtros na URL;) Tj ET
+0.43 0.19 0.73 rg
+52 660.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 662.9 Tm (botão tentar novamente;) Tj ET
+0.43 0.19 0.73 rg
+52 646.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 648.9 Tm (ordenação;) Tj ET
+0.43 0.19 0.73 rg
+52 632.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 634.9 Tm (carregamento estável;) Tj ET
+0.43 0.19 0.73 rg
+52 618.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 620.9 Tm (detalhes completos;) Tj ET
+0.43 0.19 0.73 rg
+52 604.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 606.9 Tm (última atualização dos indicadores;) Tj ET
+0.43 0.19 0.73 rg
+52 590.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 592.9 Tm (testes dos fluxos principais.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 571.9 Tm (Prioridade 2 — expansão) Tj ET
+0.43 0.19 0.73 rg
+52 547.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 549.9 Tm (vagas;) Tj ET
+0.43 0.19 0.73 rg
+52 533.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 535.9 Tm (cursos;) Tj ET
+0.43 0.19 0.73 rg
+52 519.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 521.9 Tm (matrículas;) Tj ET
+0.43 0.19 0.73 rg
+52 505.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 507.9 Tm (pagamentos;) Tj ET
+0.43 0.19 0.73 rg
+52 491.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 493.9 Tm (denúncias;) Tj ET
+0.43 0.19 0.73 rg
+52 477.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 479.9 Tm (moderação;) Tj ET
+0.43 0.19 0.73 rg
+52 463.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 465.9 Tm (auditoria geral;) Tj ET
+0.43 0.19 0.73 rg
+52 449.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 451.9 Tm (configurações.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 437.89 m 543.28 437.89 l S
+0.43 0.19 0.73 rg
+52 411.6 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 416.9 Tm (Como o fluxo deve funcionar no final) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 384.1 Tm (Entrada no painel) Tj ET
+0.43 0.19 0.73 rg
+52 360.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 362.1 Tm (1. A pessoa abre /admin.) Tj ET
+0.43 0.19 0.73 rg
+52 346.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 348.1 Tm (2. O frontend verifica a sessão.) Tj ET
+0.43 0.19 0.73 rg
+52 332.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 334.1 Tm (3. O backend confirma identidade, tipo e status.) Tj ET
+0.43 0.19 0.73 rg
+52 318.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 320.1 Tm (4. Administrador ativo entra.) Tj ET
+0.43 0.19 0.73 rg
+52 304.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 306.1 Tm (5. Conta sem permissão vê a página de acesso negado.) Tj ET
+0.43 0.19 0.73 rg
+52 290.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 292.1 Tm (6. Sessão expirada volta ao login com mensagem explicativa.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 271.1 Tm (Desativação de conta) Tj ET
+0.43 0.19 0.73 rg
+52 247.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 249.1 Tm (1. O administrador localiza a conta.) Tj ET
+0.43 0.19 0.73 rg
+52 233.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 235.1 Tm (2. Abre a confirmação.) Tj ET
+0.43 0.19 0.73 rg
+52 219.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 221.1 Tm (3. Lê o impacto.) Tj ET
+0.43 0.19 0.73 rg
+52 205.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 207.1 Tm (4. Informa a justificativa.) Tj ET
+0.43 0.19 0.73 rg
+52 191.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 193.1 Tm (5. Confirma.) Tj ET
+0.43 0.19 0.73 rg
+52 177.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 179.1 Tm (6. O botão entra em carregamento.) Tj ET
+0.43 0.19 0.73 rg
+52 163.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 165.1 Tm (7. O backend valida a permissão e executa a ação.) Tj ET
+0.43 0.19 0.73 rg
+52 149.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 151.1 Tm (8. A interface atualiza a linha.) Tj ET
+0.43 0.19 0.73 rg
+52 135.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 137.1 Tm (9. O histórico mostra responsável, data, ação e motivo.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 116.1 Tm (Retorno dos detalhes) Tj ET
+0.43 0.19 0.73 rg
+52 92.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 94.1 Tm (1. O administrador abre um registro.) Tj ET
+0.43 0.19 0.73 rg
+52 78.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 80.1 Tm (2. Consulta os dados.) Tj ET
+0.43 0.19 0.73 rg
+52 64.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 66.1 Tm (3. Volta para a listagem.) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (13) Tj ET
+endstream
+endobj
+34 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 35 0 R >>
+endobj
+35 0 obj
+<< /Length 4994 >>
+stream
+0.43 0.19 0.73 rg
+52 787.9 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 789.9 Tm (4. Busca, filtros, página e ordenação permanecem iguais.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 775.89 m 543.28 775.89 l S
+0.43 0.19 0.73 rg
+52 749.6 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 754.9 Tm (Checklist de conclusão do frontend) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 722.1 Tm (Acesso) Tj ET
+0.43 0.19 0.73 rg
+52 698.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 700.1 Tm ([ ] Existe página de acesso negado.) Tj ET
+0.43 0.19 0.73 rg
+52 684.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 686.1 Tm ([ ] 401 encerra a sessão inválida.) Tj ET
+0.43 0.19 0.73 rg
+52 670.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 672.1 Tm ([ ] 403 mantém a sessão e mostra falta de permissão.) Tj ET
+0.43 0.19 0.73 rg
+52 656.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 658.1 Tm ([ ] Conta desativada recebe orientação clara.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 637.1 Tm (Navegação) Tj ET
+0.43 0.19 0.73 rg
+52 613.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 615.1 Tm ([ ] Filtros permanecem na URL.) Tj ET
+0.43 0.19 0.73 rg
+52 599.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 601.1 Tm ([ ] Voltar dos detalhes preserva a consulta.) Tj ET
+0.43 0.19 0.73 rg
+52 585.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 587.1 Tm ([ ] Menu funciona por teclado e celular.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 566.1 Tm (Ações) Tj ET
+0.43 0.19 0.73 rg
+52 542.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 544.1 Tm ([ ] Ativação e desativação usam modal.) Tj ET
+0.43 0.19 0.73 rg
+52 528.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 530.1 Tm ([ ] Justificativa é obrigatória.) Tj ET
+0.43 0.19 0.73 rg
+52 514.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 516.1 Tm ([ ] O impacto da ação fica visível.) Tj ET
+0.43 0.19 0.73 rg
+52 500.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 502.1 Tm ([ ] O botão bloqueia durante o envio.) Tj ET
+0.43 0.19 0.73 rg
+52 486.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 488.1 Tm ([ ] Não há envio duplicado.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 467.1 Tm (Listagens) Tj ET
+0.43 0.19 0.73 rg
+52 443.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 445.1 Tm ([ ] Busca funciona.) Tj ET
+0.43 0.19 0.73 rg
+52 429.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 431.1 Tm ([ ] Filtros funcionam.) Tj ET
+0.43 0.19 0.73 rg
+52 415.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 417.1 Tm ([ ] Paginação funciona.) Tj ET
+0.43 0.19 0.73 rg
+52 401.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 403.1 Tm ([ ] Ordenação funciona.) Tj ET
+0.43 0.19 0.73 rg
+52 387.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 389.1 Tm ([ ] Existe botão para tentar novamente.) Tj ET
+0.43 0.19 0.73 rg
+52 373.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 375.1 Tm ([ ] Carregamento não desloca o layout.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 354.1 Tm (Detalhes) Tj ET
+0.43 0.19 0.73 rg
+52 330.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 332.1 Tm ([ ] Usuário possui visão completa.) Tj ET
+0.43 0.19 0.73 rg
+52 316.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 318.1 Tm ([ ] Empresa mostra vagas e responsável.) Tj ET
+0.43 0.19 0.73 rg
+52 302.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 304.1 Tm ([ ] Histórico possui autor, data, ação e motivo.) Tj ET
+0.43 0.19 0.73 rg
+52 288.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 290.1 Tm ([ ] Dados sensíveis continuam protegidos.) Tj ET
+0.30 0.13 0.50 rg
+BT /F2 12 Tf 1 0 0 1 52.0 269.1 Tm (Qualidade) Tj ET
+0.43 0.19 0.73 rg
+52 245.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 247.1 Tm ([ ] Fluxos principais possuem testes.) Tj ET
+0.43 0.19 0.73 rg
+52 231.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 233.1 Tm ([ ] Interface funciona por teclado.) Tj ET
+0.43 0.19 0.73 rg
+52 217.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 219.1 Tm ([ ] Mensagens são acessíveis.) Tj ET
+0.43 0.19 0.73 rg
+52 203.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 205.1 Tm ([ ] Layout funciona no celular.) Tj ET
+0.43 0.19 0.73 rg
+52 189.1 4 4 re f
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 64.0 191.1 Tm ([ ] Não há dados administrativos fixos no código.) Tj ET
+0.82 0.79 0.87 RG 0.6 w
+52 177.14 m 543.28 177.14 l S
+0.43 0.19 0.73 rg
+52 150.9 4 21 re f
+0.30 0.13 0.50 rg
+BT /F2 15 Tf 1 0 0 1 64.0 156.1 Tm (Resultado esperado) Tj ET
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 130.4 Tm (Quando essas etapas forem concluídas, o painel deixará de ser apenas uma estrutura visual) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 116.2 Tm (preparada e se tornará uma área administrativa completa, compreensível e segura para o uso) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 102.0 Tm (diário.) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (14) Tj ET
+endstream
+endobj
+36 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 37 0 R >>
+endobj
+37 0 obj
+<< /Length 486 >>
+stream
+0.14 0.12 0.18 rg
+BT /F1 10 Tf 1 0 0 1 52.0 789.9 Tm (O administrador conseguirá entender o estado da plataforma, localizar contas, analisar) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 775.7 Tm (informações, executar ações justificadas e acompanhar tudo pelo histórico, sem precisar) Tj ET
+BT /F1 10 Tf 1 0 0 1 52.0 761.5 Tm (acessar diretamente o banco de dados.) Tj ET
+0.45 0.42 0.52 rg
+BT /F1 8 Tf 1 0 0 1 52 27 Tm (HELP — Frontend Administrativo) Tj ET
+BT /F1 8 Tf 1 0 0 1 525 27 Tm (15) Tj ET
+endstream
+endobj
+xref
+0 38
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000226 00000 n 
+0000000323 00000 n 
+0000000425 00000 n 
+0000000520 00000 n 
+0000000672 00000 n 
+0000001451 00000 n 
+0000001603 00000 n 
+0000002508 00000 n 
+0000002662 00000 n 
+0000007558 00000 n 
+0000007712 00000 n 
+0000013310 00000 n 
+0000013464 00000 n 
+0000018838 00000 n 
+0000018992 00000 n 
+0000023281 00000 n 
+0000023435 00000 n 
+0000027488 00000 n 
+0000027642 00000 n 
+0000031432 00000 n 
+0000031586 00000 n 
+0000036513 00000 n 
+0000036667 00000 n 
+0000041314 00000 n 
+0000041468 00000 n 
+0000046826 00000 n 
+0000046980 00000 n 
+0000052057 00000 n 
+0000052211 00000 n 
+0000056895 00000 n 
+0000057049 00000 n 
+0000062661 00000 n 
+0000062815 00000 n 
+0000067862 00000 n 
+0000068016 00000 n 
+trailer
+<< /Size 38 /Root 1 0 R >>
+startxref
+68554
+%%EOF
