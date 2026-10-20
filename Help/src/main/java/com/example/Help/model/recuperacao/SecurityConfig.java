@@ -94,8 +94,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/vagas").permitAll()
                         .requestMatchers(HttpMethod.GET, "/vagas/**").permitAll()
 
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/empresas/me", "/api/empresas/me").hasRole("EMPRESA")
+
                         // Criação e exclusão de vagas restritas a empresas autenticadas
                         .requestMatchers(HttpMethod.POST, "/api/vagas").hasAnyRole("EMPRESA", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/vagas/minhas").hasRole("EMPRESA")
                         .requestMatchers(HttpMethod.DELETE, "/api/vagas/**").hasAnyRole("EMPRESA", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/vagas/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/vagas/**").authenticated()

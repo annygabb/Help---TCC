@@ -3,9 +3,11 @@ package com.example.Help.Service;
 import com.example.Help.model.empresa.VagaEmpresa;
 import com.example.Help.model.empresa.VagaEmpresaRequestDTO;
 import com.example.Help.model.empresa.VagaEmpresaRepository;
+import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.usuario.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -14,32 +16,39 @@ import java.util.stream.Collectors;
 @Service
 public class VagaEmpresaService {
 
-    @Autowired
-    private VagaEmpresaRepository repository;
+    private final VagaEmpresaRepository repository;
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository; //necessária para o Banco de Talentos
+    public VagaEmpresaService(VagaEmpresaRepository repository, UsuarioRepository usuarioRepository) {
+        this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
+    }
 
     public List<VagaEmpresa> listarTodas() { // gerenciamento de vagas
         return repository.findAll();
     }
 
-    public VagaEmpresa salvarVaga(VagaEmpresaRequestDTO dados) {
+    public List<VagaEmpresa> listarDaEmpresa(UUID empresaId) {
+        return repository.findByEmpresaIdOrderByDataPublicacaoDesc(empresaId);
+    }
+
+    public VagaEmpresa salvarVaga(Empresa empresa, VagaEmpresaRequestDTO dados) {
         VagaEmpresa novaVaga = new VagaEmpresa();
 
         novaVaga.setCargo(dados.cargo());
         novaVaga.setSkillsExigidas(dados.skillsExigidas());
         novaVaga.setExperienciaMinima(dados.experienciaMinima());
+        novaVaga.setSalarioBase(dados.salarioBase());
         novaVaga.setDataPublicacao(LocalDate.now()); //Define a data de publicação automaticamente
+        novaVaga.setEmpresa(empresa);
 
         return repository.save(novaVaga);
     }
 
-    public void deletarVaga(UUID id) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Vaga não encontrada com o ID: " + id);
-        }
-        repository.deleteById(id);
+    public void deletarVaga(UUID id, UUID empresaId) {
+        VagaEmpresa vaga = repository.findByIdAndEmpresaId(id, empresaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vaga não encontrada."));
+        repository.delete(vaga);
     }
 
     public List<Object> listarCandidatosDisponiveis() { // busca todos os candidatos

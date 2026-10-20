@@ -1,6 +1,7 @@
 package com.example.Help.model.empresa;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,15 @@ public class VagaEmpresa {
 
     @Column(name = "experiencia_minima")
     private Integer experienciaMinima;
+
+    @Column(name = "salario_base")
+    private Double salarioBase;
+
+    // nullable durante a migração: vagas antigas continuam legíveis, mas novas vagas sempre recebem dona.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id")
+    @JsonIgnore
+    private Empresa empresa;
 
     @ElementCollection
     @CollectionTable(name = "vaga_skills", joinColumns = @JoinColumn(name = "vaga_id"))

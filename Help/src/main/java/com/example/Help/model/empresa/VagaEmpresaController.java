@@ -1,10 +1,11 @@
 package com.example.Help.model.empresa;
 
 import com.example.Help.Service.VagaEmpresaService;
+import com.example.Help.Service.EmpresaAutenticadaService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
@@ -13,8 +14,16 @@ import java.util.UUID;
 @RequestMapping("/api/vagas")
 public class VagaEmpresaController {
 
-    @Autowired
-    private VagaEmpresaService service;
+    private final VagaEmpresaService service;
+    private final EmpresaAutenticadaService empresaAutenticadaService;
+
+    public VagaEmpresaController(
+            VagaEmpresaService service,
+            EmpresaAutenticadaService empresaAutenticadaService
+    ) {
+        this.service = service;
+        this.empresaAutenticadaService = empresaAutenticadaService;
+    }
 
     @GetMapping //lista todas as vagas cadastradas pelas empresas
     public ResponseEntity<List<VagaEmpresa>> listar() {
@@ -22,15 +31,24 @@ public class VagaEmpresaController {
     }
 
     @PostMapping //cria uma nova vaga
-    public ResponseEntity<VagaEmpresa> criar(@RequestBody @Valid VagaEmpresaRequestDTO dados) {
-        // CORREÇÃO: Removido o 'service' duplicado da chamada anterior
-        VagaEmpresa vagaSalva = service.salvarVaga(dados);
+    public ResponseEntity<VagaEmpresa> criar(
+            @RequestBody @Valid VagaEmpresaRequestDTO dados,
+            Authentication authentication
+    ) {
+        VagaEmpresa vagaSalva = service.salvarVaga(empresaAutenticadaService.obter(authentication), dados);
         return ResponseEntity.status(HttpStatus.CREATED).body(vagaSalva);
     }
 
+    @GetMapping("/minhas")
+    public ResponseEntity<List<VagaEmpresa>> listarMinhas(Authentication authentication) {
+        var empresa = empresaAutenticadaService.obter(authentication);
+        return ResponseEntity.ok(service.listarDaEmpresa(empresa.getId()));
+    }
+
     @DeleteMapping("/{id}") //remove vaga
-    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        service.deletarVaga(id);
+    public ResponseEntity<Void> deletar(@PathVariable UUID id, Authentication authentication) {
+        var empresa = empresaAutenticadaService.obter(authentication);
+        service.deletarVaga(id, empresa.getId());
         return ResponseEntity.noContent().build();
     }
 

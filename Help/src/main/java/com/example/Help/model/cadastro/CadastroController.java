@@ -2,6 +2,7 @@ package com.example.Help.model.cadastro;
 
 import com.example.Help.Service.AdminAccountService;
 import com.example.Help.Service.PagamentoService;
+import com.example.Help.Service.UsuarioAutenticadoService;
 import com.example.Help.model.empresa.EmpresaRepository;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.example.Help.model.recuperacao.TokenService;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +33,7 @@ public class CadastroController {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final AdminAccountService adminAccountService;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     public CadastroController(
             UsuarioRepository repository,
@@ -38,7 +41,8 @@ public class CadastroController {
             PagamentoService pagamentoService,
             PasswordEncoder passwordEncoder,
             TokenService tokenService,
-            AdminAccountService adminAccountService
+            AdminAccountService adminAccountService,
+            UsuarioAutenticadoService usuarioAutenticadoService
     ) {
         this.repository = repository;
         this.empresaRepository = empresaRepository;
@@ -46,6 +50,7 @@ public class CadastroController {
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.adminAccountService = adminAccountService;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
     }
 
     @PostMapping("/login")
@@ -114,9 +119,14 @@ public class CadastroController {
     public ResponseEntity<?> atualizarPerfil(
             @PathVariable UUID id,
             @RequestPart("dados") String dadosJson,
-            @RequestPart(value = "foto", required = false) MultipartFile foto) {
+            @RequestPart(value = "foto", required = false) MultipartFile foto,
+            Authentication authentication) {
 
         try {
+            if (!usuarioAutenticadoService.obterId(authentication).equals(id)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Você só pode alterar o próprio perfil.");
+            }
             Usuario usuario = repository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
