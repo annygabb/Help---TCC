@@ -64,6 +64,8 @@ class PerfilServiceIsolationTest {
         assertEquals("Desenvolvedor", perfilTeste.getCargoAtual());
         assertEquals("Anny Gabrielly", perfilAnny.getName());
         assertEquals("Analista", perfilAnny.getCargoAtual());
+        verify(usuarioRepository).findById(idTeste);
+        verify(perfilRepository).findByUsuarioId(idTeste);
         verify(perfilRepository).save(perfilTeste);
         verify(usuarioRepository).save(teste);
         verifyNoMoreInteractions(perfilRepository, usuarioRepository);
