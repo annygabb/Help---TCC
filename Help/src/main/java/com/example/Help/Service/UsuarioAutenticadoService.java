@@ -26,9 +26,8 @@ public class UsuarioAutenticadoService {
             return usuario;
         }
 
-        //o login passa pelo Cadastro, entao busca o Usuario pelo email (mesma tabela)
         if (principal instanceof UserDetails userDetails) {
-            return usuarioRepository.findByEmail(userDetails.getUsername())
+            return usuarioRepository.findByEmailIgnoreCase(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException(
                             "Este recurso está disponível apenas para contas de candidato."));
         }

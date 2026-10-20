@@ -1,54 +1,58 @@
 package com.example.Help.model.empresa;
 
+import com.example.Help.model.recuperacao.TokenService;
+import com.example.Help.model.usuario.UsuarioRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.example.Help.model.cadastro.CadastroRepository;
-import com.example.Help.model.recuperacao.TokenService;
-import org.springframework.http.HttpStatus;
+
 import java.util.Map;
 
 @RestController
 @RequestMapping({"/empresas", "/api/empresas"})
 public class EmpresaController {
 
-    @Autowired
-    private EmpresaRepository repository;
+    private final EmpresaRepository repository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager manager;
+    private final TokenService tokenService;
 
-    @Autowired
-    private CadastroRepository cadastroRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager manager;
-
-    @Autowired
-    private TokenService tokenService;
+    public EmpresaController(
+            EmpresaRepository repository,
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager manager,
+            TokenService tokenService
+    ) {
+        this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.manager = manager;
+        this.tokenService = tokenService;
+    }
 
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrarEmpresa(@RequestBody @Valid EmpresaRequestDTO dados) {
-        String email = dados.email().trim().toLowerCase();
+        String email = Empresa.normalizarEmail(dados.email());
 
-        if (repository.existsByEmail(email) || cadastroRepository.existsByEmail(email)) {
+        if (repository.existsByEmailIgnoreCase(email) || usuarioRepository.existsByEmailIgnoreCase(email)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("campo", "email", "mensagem", "E-mail já cadastrado no sistema."));
         }
 
         String cnpjLimpo = dados.cnpj().replaceAll("\\D", "");
-        if (repository.existsByCnpj(dados.cnpj()) || repository.existsByCnpj(cnpjLimpo)) {
+        if (repository.existsByCnpj(cnpjLimpo)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("campo", "cnpj", "mensagem", "CNPJ já cadastrado no sistema."));
         }
 
         String senhaPura = dados.password() != null ? dados.password() : dados.senha();
-
         if (senhaPura == null || senhaPura.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("campo", "senha", "mensagem", "A senha é obrigatória."));
@@ -59,14 +63,12 @@ public class EmpresaController {
                     .body(Map.of("campo", "senha", "mensagem", "A senha deve ter no mínimo 8 caracteres."));
         }
 
-        String senhaCriptografada = passwordEncoder.encode(senhaPura);
-
         Empresa novaEmpresa = new Empresa();
-        novaEmpresa.setCorporateName(dados.corporateName());
+        novaEmpresa.setCorporateName(dados.corporateName().trim());
         novaEmpresa.setEmail(email);
         novaEmpresa.setCnpj(cnpjLimpo);
-        novaEmpresa.setPassword(senhaCriptografada);
-        novaEmpresa.setSenha(senhaCriptografada);
+        novaEmpresa.setPassword(passwordEncoder.encode(senhaPura));
+        novaEmpresa.setAtivo(true);
 
         repository.save(novaEmpresa);
 
@@ -77,21 +79,42 @@ public class EmpresaController {
     @PostMapping("/login")
     public ResponseEntity<?> efetuarLogin(@RequestBody @Valid EmpresaLoginDTO dados) {
         try {
-            String senhaLogin = dados.password() != null ? dados.password() : dados.senha();//Captura usando a sintaxe de Record
-
+            String senhaLogin = dados.password() != null ? dados.password() : dados.senha();
             if (senhaLogin == null || senhaLogin.isBlank()) {
                 return ResponseEntity.badRequest().body("A senha é obrigatória.");
             }
 
-            var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), senhaLogin);
+            var authenticationToken = new UsernamePasswordAuthenticationToken(
+                    Empresa.normalizarEmail(dados.email()),
+                    senhaLogin
+            );
+            Authentication authentication = manager.authenticate(authenticationToken);
+            Empresa empresa = (Empresa) authentication.getPrincipal();
 
-            Authentication authentication = manager.authenticate(authenticationToken);//Dispara a validação cruzada do Spring Security
+            if (!empresa.isAtivo()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
+            }
 
-            var tokenJWT = tokenService.gerarToken((Empresa) authentication.getPrincipal());//Se as credenciais estiverem corretas, gera o Token de acesso
-
-            return ResponseEntity.ok(new TokenDadosEmpresaDTO(tokenJWT));//Retorna o token
+            var tokenJWT = tokenService.gerarToken(empresa);
+            return ResponseEntity.ok(new TokenDadosEmpresaDTO(tokenJWT));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("E-mail ou senha inválidos.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<EmpresaAtualDTO> minhaEmpresa(Authentication authentication) {
+        if (!(authentication.getPrincipal() instanceof Empresa empresa)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok(new EmpresaAtualDTO(
+                empresa.getId(),
+                empresa.getCorporateName(),
+                empresa.getEmail(),
+                empresa.getCnpj(),
+                "EMPRESA",
+                empresa.isAtivo()
+        ));
     }
 }

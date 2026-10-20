@@ -4,6 +4,7 @@ import com.example.Help.model.usuario.*;
 import com.example.Help.model.recuperacao.TokenRecuperacao;
 import com.example.Help.model.recuperacao.TokenRecuperacaoRepository;
 import com.example.Help.model.login.LoginRequestDTO;
+import com.example.Help.model.empresa.EmpresaRepository;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,6 +28,9 @@ public class UsuarioService {
     private UsuarioRepository repository;
 
     @Autowired
+    private EmpresaRepository empresaRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -36,7 +40,7 @@ public class UsuarioService {
     private JavaMailSender mailSender;
 
     public UsuarioResponseDTO realizarLogin(LoginRequestDTO data) { //login
-        Usuario usuario = repository.findByEmail(data.email())
+        Usuario usuario = repository.findByEmailIgnoreCase(Usuario.normalizarEmail(data.email()))
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
         if (passwordEncoder.matches(data.password(), usuario.getPassword())) {
@@ -79,12 +83,13 @@ public class UsuarioService {
 
     @Transactional //crud usuario
     public void salvar(UsuarioRequestDTO data) {
-        if (repository.existsByEmail(data.email()))
+        String email = Usuario.normalizarEmail(data.email());
+        if (repository.existsByEmailIgnoreCase(email) || empresaRepository.existsByEmailIgnoreCase(email))
             throw new RuntimeException("E-mail já cadastrado.");
 
         Usuario u = new Usuario();
         u.setName(data.name());
-        u.setEmail(data.email());
+        u.setEmail(email);
         u.setSenha(passwordEncoder.encode(data.password()));
         u.setCargo(data.jobRole());
         u.setCidade(data.userLocation());
@@ -118,7 +123,7 @@ public class UsuarioService {
     }
 
     private Usuario buscarUsuarioPorEmail(String email) {
-        return repository.findByEmail(email)
+        return repository.findByEmailIgnoreCase(Usuario.normalizarEmail(email))
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
     }
 

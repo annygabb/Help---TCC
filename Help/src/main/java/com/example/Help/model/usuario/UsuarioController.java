@@ -2,6 +2,7 @@ package com.example.Help.model.usuario;
 
 import com.example.Help.Service.UsuarioService;
 import com.example.Help.Service.PagamentoService;
+import com.example.Help.Service.UsuarioAutenticadoService;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.example.Help.model.recuperacao.DadosTokenJWT;
 import com.example.Help.model.recuperacao.TokenService;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,9 @@ public class UsuarioController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private UsuarioAutenticadoService usuarioAutenticadoService;
 
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrar(@RequestBody @Valid UsuarioRequestDTO data) {
@@ -60,8 +65,16 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarPerfil(@PathVariable UUID id, @RequestBody @Valid UsuarioRequestDTO data) {
+    public ResponseEntity<?> atualizarPerfil(
+            @PathVariable UUID id,
+            @RequestBody @Valid UsuarioRequestDTO data,
+            Authentication authentication
+    ) {
         try {
+            if (!usuarioAutenticadoService.obterId(authentication).equals(id)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Você só pode alterar o próprio perfil.");
+            }
             service.atualizarPerfil(id, data);
             return ResponseEntity.ok("Perfil atualizado com sucesso!");
         } catch (RuntimeException e) {
