@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,12 @@ public class RequestsExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)//captura quando um id não é encontrado
     public ResponseEntity<?> tratarErro404() {
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> tratarStatusDaRegra(ResponseStatusException ex) {
+        String mensagem = ex.getReason() != null ? ex.getReason() : "Não foi possível concluir a operação.";
+        return ResponseEntity.status(ex.getStatusCode()).body(Map.of("error", mensagem));
     }
 
     @ExceptionHandler(RuntimeException.class)//captura erros genericos de lógica
