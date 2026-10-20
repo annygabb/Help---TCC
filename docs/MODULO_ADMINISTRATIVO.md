@@ -4,6 +4,8 @@
 
 Este documento registra de forma direta o que já existe no painel administrativo, o que foi ajustado nos perfis e o que ainda falta para a administração funcionar de ponta a ponta com segurança.
 
+> A análise detalhada exclusivamente do frontend administrativo está em [PENDENCIAS_FRONTEND_ADMIN.md](./PENDENCIAS_FRONTEND_ADMIN.md).
+
 ## Perfis de usuários: como era antes
 
 O cadastro, a área social e a tela de perfil usavam caminhos diferentes para acessar a mesma pessoa.
