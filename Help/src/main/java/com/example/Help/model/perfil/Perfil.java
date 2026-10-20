@@ -31,6 +31,7 @@ public class Perfil {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(columnDefinition = "TEXT")
     private String fotoUrl;
 
     private String curriculoUrl;
@@ -42,7 +43,7 @@ public class Perfil {
     private String cargoAtual;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = false, unique = true)
     private Usuario usuario;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
