@@ -41,6 +41,8 @@ class NotificacaoServiceSocialTest {
 
         service.criarOuAtualizar(empresa, TipoNotificacao.NOVA_MENSAGEM, "Nova", "Atual", origem);
 
+        verify(repository).encontrarNaoLida(null, empresa.getId(), origem.getId(),
+                TipoParticipante.USUARIO, TipoNotificacao.NOVA_MENSAGEM);
         verify(repository, times(1)).save(existente);
         verifyNoMoreInteractions(repository);
     }
