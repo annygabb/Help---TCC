@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.example.Help.model.social.ParticipanteSocial;
+import com.example.Help.model.social.TipoParticipante;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -17,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Empresa implements UserDetails {
+public class Empresa implements UserDetails, ParticipanteSocial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -66,6 +68,16 @@ public class Empresa implements UserDetails {
 
     public boolean isAtivo() {
         return ativo == null || ativo;
+    }
+
+    @Override
+    public TipoParticipante getTipoParticipante() {
+        return TipoParticipante.EMPRESA;
+    }
+
+    @Override
+    public String getNomeSocial() {
+        return this.corporateName;
     }
 
     public void setAtivo(boolean ativo) {

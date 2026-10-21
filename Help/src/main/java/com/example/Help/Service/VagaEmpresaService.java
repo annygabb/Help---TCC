@@ -18,10 +18,15 @@ public class VagaEmpresaService {
 
     private final VagaEmpresaRepository repository;
     private final UsuarioRepository usuarioRepository;
+    private final SeguidorService seguidorService;
+    private final NotificacaoService notificacaoService;
 
-    public VagaEmpresaService(VagaEmpresaRepository repository, UsuarioRepository usuarioRepository) {
+    public VagaEmpresaService(VagaEmpresaRepository repository, UsuarioRepository usuarioRepository,
+                              SeguidorService seguidorService, NotificacaoService notificacaoService) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
+        this.seguidorService = seguidorService;
+        this.notificacaoService = notificacaoService;
     }
 
     public List<VagaEmpresa> listarTodas() { // gerenciamento de vagas
@@ -42,7 +47,13 @@ public class VagaEmpresaService {
         novaVaga.setDataPublicacao(LocalDate.now()); //Define a data de publicação automaticamente
         novaVaga.setEmpresa(empresa);
 
-        return repository.save(novaVaga);
+        VagaEmpresa salva = repository.save(novaVaga);
+        seguidorService.listarParticipantesSeguidores(empresa).forEach(destinatario ->
+                notificacaoService.criarOuAtualizar(destinatario,
+                        com.example.Help.model.notificacao.TipoNotificacao.NOVA_VAGA_EMPRESA,
+                        "Nova vaga de " + empresa.getCorporateName(),
+                        "Vaga publicada: " + salva.getCargo(), empresa));
+        return salva;
     }
 
     public void deletarVaga(UUID id, UUID empresaId) {

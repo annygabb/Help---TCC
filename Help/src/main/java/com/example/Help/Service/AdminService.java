@@ -83,8 +83,8 @@ public class AdminService {
         return new AdminDtos.ContaDetalhe(
                 usuario.getId(), usuario.getName(), usuario.getEmail(), usuario.getTipoConta().name(),
                 usuario.isAtivo(), usuario.getJobRole(), usuario.getLocation(), mascararCpf(usuario.getCpf()),
-                usuario.getCriadoEm(), seguidorRepository.countBySeguido_Id(id),
-                seguidorRepository.countBySeguidor_Id(id), historico("USUARIO", id)
+                usuario.getCriadoEm(), seguidorRepository.countBySeguidoUsuario_Id(id),
+                seguidorRepository.countBySeguidorUsuario_Id(id), historico("USUARIO", id)
         );
     }
 

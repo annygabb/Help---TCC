@@ -2,6 +2,7 @@ package com.example.Help.model.notificacao;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import com.example.Help.model.social.TipoParticipante;
 
 public record NotificacaoResponseDTO(
         UUID id,
@@ -9,6 +10,7 @@ public record NotificacaoResponseDTO(
         String titulo,
         String mensagem,
         UUID origemId,
+        TipoParticipante origemTipo,
         String origemNome,
         boolean lida,
         LocalDateTime dataCriacao
@@ -20,6 +22,7 @@ public record NotificacaoResponseDTO(
                 n.getTitulo(),
                 n.getMensagem(),
                 n.getOrigemId(),
+                n.getOrigemTipo(),
                 n.getOrigemNome(),
                 n.isLida(),
                 n.getDataCriacao()

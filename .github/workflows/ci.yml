@@ -19,8 +19,8 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Validar isolamento de perfis e configuração
-        run: mvn -B -Dtest=BackendIdentityIsolationTest,PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest test
+      - name: Validar isolamento, configuração e comunicação social
+        run: mvn -B -Dtest=BackendIdentityIsolationTest,PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest,ParticipanteAutenticadoServiceTest,SocialSchemaMappingTest,SeguidorSocialPersistenceTest,MensagemServiceSocialTest,MensagemControllerCompatibilityTest,NotificacaoServiceSocialTest,SeguidorServiceSocialTest,EmpresaSocialEventsTest test
       - name: Compilar e empacotar o backend
         run: mvn -B package -DskipTests
 
