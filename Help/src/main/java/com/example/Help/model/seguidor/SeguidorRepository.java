@@ -42,12 +42,16 @@ public interface SeguidorRepository extends JpaRepository<Seguidor, UUID> {
             """)
     List<Seguidor> listarSeguidores(@Param("usuarioId") UUID usuarioId, @Param("empresaId") UUID empresaId);
 
-    @Query("""SELECT COUNT(s) FROM Seguidor s WHERE (:usuarioId IS NOT NULL AND s.seguidoUsuario.id = :usuarioId)
-            OR (:empresaId IS NOT NULL AND s.seguidoEmpresa.id = :empresaId)""")
+    @Query("""
+            SELECT COUNT(s) FROM Seguidor s WHERE (:usuarioId IS NOT NULL AND s.seguidoUsuario.id = :usuarioId)
+            OR (:empresaId IS NOT NULL AND s.seguidoEmpresa.id = :empresaId)
+            """)
     long contarSeguidores(@Param("usuarioId") UUID usuarioId, @Param("empresaId") UUID empresaId);
 
-    @Query("""SELECT COUNT(s) FROM Seguidor s WHERE (:usuarioId IS NOT NULL AND s.seguidorUsuario.id = :usuarioId)
-            OR (:empresaId IS NOT NULL AND s.seguidorEmpresa.id = :empresaId)""")
+    @Query("""
+            SELECT COUNT(s) FROM Seguidor s WHERE (:usuarioId IS NOT NULL AND s.seguidorUsuario.id = :usuarioId)
+            OR (:empresaId IS NOT NULL AND s.seguidorEmpresa.id = :empresaId)
+            """)
     long contarSeguindo(@Param("usuarioId") UUID usuarioId, @Param("empresaId") UUID empresaId);
 
     boolean existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(UUID seguidorId, UUID seguidoId);//ja segue?
