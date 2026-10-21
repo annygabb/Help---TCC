@@ -1,13 +1,11 @@
 package com.example.Help.Service;
 
+import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.notificacao.TipoNotificacao;
-import com.example.Help.model.seguidor.ContagemSeguidoresDTO;
-import com.example.Help.model.seguidor.Seguidor;
-import com.example.Help.model.seguidor.SeguidorRepository;
-import com.example.Help.model.seguidor.SeguidorResponseDTO;
+import com.example.Help.model.seguidor.*;
+import com.example.Help.model.social.ParticipanteSocial;
+import com.example.Help.model.social.TipoParticipante;
 import com.example.Help.model.usuario.Usuario;
-import com.example.Help.model.usuario.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,85 +14,78 @@ import java.util.UUID;
 
 @Service
 public class SeguidorService {
+    private final SeguidorRepository repository;
+    private final ParticipanteService participantes;
+    private final NotificacaoService notificacoes;
 
-    @Autowired
-    private SeguidorRepository repository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private NotificacaoService notificacaoService;
+    public SeguidorService(SeguidorRepository repository, ParticipanteService participantes,
+                           NotificacaoService notificacoes) {
+        this.repository = repository;
+        this.participantes = participantes;
+        this.notificacoes = notificacoes;
+    }
 
     @Transactional
-    public void seguir(UUID seguidorId, UUID seguidoId) {
-        if (seguidorId.equals(seguidoId)) {
-            throw new RuntimeException("Você não pode seguir a si mesmo.");
-        }
-
-        if (repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId)) {
-            throw new RuntimeException("Você já está seguindo este usuário.");
-        }
-
-        Usuario seguidor = usuarioRepository.findById(seguidorId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-        Usuario seguido = usuarioRepository.findById(seguidoId)
-                .orElseThrow(() -> new RuntimeException("Usuário a seguir não encontrado."));
+    public void seguir(ParticipanteSocial seguidor, UUID seguidoId, TipoParticipante seguidoTipo) {
+        ParticipanteSocial seguido = participantes.buscarAtivo(seguidoId, seguidoTipo);
+        if (mesmaConta(seguidor, seguido)) throw new RuntimeException("Você não pode seguir a si mesmo.");
+        if (existe(seguidor, seguido)) throw new RuntimeException("Você já está seguindo esta conta.");
 
         repository.save(new Seguidor(seguidor, seguido));
-
-        notificacaoService.criarNotificacao(
-                seguido,
-                TipoNotificacao.NOVO_SEGUIDOR,
-                "Novo seguidor",
-                seguidor.getName() + " começou a seguir você.",
-                seguidor.getId(),
-                seguidor.getName()
-        );
+        notificacoes.criar(seguido, TipoNotificacao.NOVO_SEGUIDOR, "Novo seguidor",
+                seguidor.getNomeSocial() + " começou a seguir você.", seguidor);
     }
 
     @Transactional
-    public void deixarDeSeguir(UUID seguidorId, UUID seguidoId) {
-        if (!repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId)) {
-            throw new RuntimeException("Você não segue este usuário.");
-        }
-        repository.deleteBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId);
+    public void deixarDeSeguir(ParticipanteSocial seguidor, UUID seguidoId, TipoParticipante seguidoTipo) {
+        ParticipanteSocial seguido = participantes.buscarAtivo(seguidoId, seguidoTipo);
+        Seguidor relacao = repository.encontrar(id(seguidor, TipoParticipante.USUARIO),
+                        id(seguidor, TipoParticipante.EMPRESA), id(seguido, TipoParticipante.USUARIO),
+                        id(seguido, TipoParticipante.EMPRESA))
+                .orElseThrow(() -> new RuntimeException("Você não segue esta conta."));
+        repository.delete(relacao);
     }
 
-    public List<SeguidorResponseDTO> listarSeguindo(UUID usuarioId, UUID usuarioLogadoId) {
-        return repository.findBySeguidorUsuario_IdOrderByDataSeguindoDesc(usuarioId)
-                .stream()
-                .map(s -> montarDTO(s.getSeguido(), usuarioLogadoId))
-                .toList();
+    public List<SeguidorResponseDTO> listarSeguindo(ParticipanteSocial atual) {
+        return repository.listarSeguindo(id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA))
+                .stream().map(s -> montarDTO(s.getSeguidoSocial(), atual)).toList();
     }
 
-    public List<SeguidorResponseDTO> listarSeguidores(UUID usuarioId, UUID usuarioLogadoId) {
-        return repository.findBySeguidoUsuario_IdOrderByDataSeguindoDesc(usuarioId)
-                .stream()
-                .map(s -> montarDTO(s.getSeguidor(), usuarioLogadoId))
-                .toList();
+    public List<SeguidorResponseDTO> listarSeguidores(ParticipanteSocial atual) {
+        return repository.listarSeguidores(id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA))
+                .stream().map(s -> montarDTO(s.getSeguidorSocial(), atual)).toList();
     }
 
-    public boolean estaSeguindo(UUID seguidorId, UUID seguidoId) {
-        return repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId);
+    public boolean estaSeguindo(ParticipanteSocial seguidor, UUID seguidoId, TipoParticipante seguidoTipo) {
+        ParticipanteSocial seguido = participantes.buscarAtivo(seguidoId, seguidoTipo);
+        return existe(seguidor, seguido);
     }
 
-    public ContagemSeguidoresDTO contar(UUID usuarioId) {
+    public ContagemSeguidoresDTO contar(UUID contaId, TipoParticipante tipo) {
+        ParticipanteSocial conta = participantes.buscarAtivo(contaId, tipo);
         return new ContagemSeguidoresDTO(
-                repository.countBySeguidoUsuario_Id(usuarioId),
-                repository.countBySeguidorUsuario_Id(usuarioId)
-        );
+                repository.contarSeguidores(id(conta, TipoParticipante.USUARIO), id(conta, TipoParticipante.EMPRESA)),
+                repository.contarSeguindo(id(conta, TipoParticipante.USUARIO), id(conta, TipoParticipante.EMPRESA)));
     }
 
-    private SeguidorResponseDTO montarDTO(Usuario usuario, UUID usuarioLogadoId) {
-        //serve pro botao aparecer como Seguir ou Deixar de seguir
-        boolean euSigoEle = repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(usuarioLogadoId, usuario.getId());
-        return new SeguidorResponseDTO(
-                usuario.getId(),
-                usuario.getName(),
-                usuario.getCargo(),
-                usuario.getCidade(),
-                euSigoEle
-        );
+    private boolean existe(ParticipanteSocial seguidor, ParticipanteSocial seguido) {
+        return repository.existe(id(seguidor, TipoParticipante.USUARIO), id(seguidor, TipoParticipante.EMPRESA),
+                id(seguido, TipoParticipante.USUARIO), id(seguido, TipoParticipante.EMPRESA));
+    }
+
+    private SeguidorResponseDTO montarDTO(ParticipanteSocial conta, ParticipanteSocial atual) {
+        String cargo = conta instanceof Usuario usuario ? usuario.getCargo() : "Empresa";
+        String localizacao = conta instanceof Usuario usuario ? usuario.getCidade()
+                : conta instanceof Empresa empresa ? empresa.getEmail() : null;
+        return new SeguidorResponseDTO(conta.getId(), conta.getTipoParticipante(), conta.getNomeSocial(),
+                cargo, localizacao, existe(atual, conta));
+    }
+
+    private UUID id(ParticipanteSocial p, TipoParticipante tipo) {
+        return p.getTipoParticipante() == tipo ? p.getId() : null;
+    }
+
+    private boolean mesmaConta(ParticipanteSocial a, ParticipanteSocial b) {
+        return a.getTipoParticipante() == b.getTipoParticipante() && a.getId().equals(b.getId());
     }
 }
