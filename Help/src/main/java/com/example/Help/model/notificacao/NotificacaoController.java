@@ -1,7 +1,8 @@
 package com.example.Help.model.notificacao;
 
 import com.example.Help.Service.NotificacaoService;
-import com.example.Help.Service.UsuarioAutenticadoService;
+import com.example.Help.Service.ParticipanteService;
+import com.example.Help.model.social.ParticipanteSocial;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,12 @@ public class NotificacaoController {
     private NotificacaoService service;
 
     @Autowired
-    private UsuarioAutenticadoService usuarioAutenticado;
+    private ParticipanteService participanteService;
 
     @GetMapping
     public ResponseEntity<?> listar(Authentication authentication) {
         try {
-            UUID usuarioId = usuarioAutenticado.obterId(authentication);
-            return ResponseEntity.ok(service.listarPorUsuario(usuarioId));
+            return ResponseEntity.ok(service.listar(participanteService.obterAutenticado(authentication)));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -34,19 +34,17 @@ public class NotificacaoController {
     @GetMapping("/nao-lidas/total")
     public ResponseEntity<Map<String, Long>> contarNaoLidas(Authentication authentication) {
         try {
-            UUID usuarioId = usuarioAutenticado.obterId(authentication);
-            return ResponseEntity.ok(Map.of("total", service.contarNaoLidas(usuarioId)));
+            ParticipanteSocial atual = participanteService.obterAutenticado(authentication);
+            return ResponseEntity.ok(Map.of("total", service.contarNaoLidas(atual)));
         } catch (RuntimeException e) {
-            //empresa logada devolve zero pra nao quebrar o badge
-            return ResponseEntity.ok(Map.of("total", 0L));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("total", 0L));
         }
     }
 
     @PutMapping("/{id}/marcar-lida")
     public ResponseEntity<?> marcarComoLida(@PathVariable UUID id, Authentication authentication) {
         try {
-            UUID usuarioId = usuarioAutenticado.obterId(authentication);
-            service.marcarComoLida(id, usuarioId);
+            service.marcarComoLida(id, participanteService.obterAutenticado(authentication));
             return ResponseEntity.ok("Notificação marcada como lida.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -56,8 +54,7 @@ public class NotificacaoController {
     @PutMapping("/marcar-todas-lidas")
     public ResponseEntity<?> marcarTodasComoLidas(Authentication authentication) {
         try {
-            UUID usuarioId = usuarioAutenticado.obterId(authentication);
-            service.marcarTodasComoLidas(usuarioId);
+            service.marcarTodasComoLidas(participanteService.obterAutenticado(authentication));
             return ResponseEntity.ok("Todas as notificações foram marcadas como lidas.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
