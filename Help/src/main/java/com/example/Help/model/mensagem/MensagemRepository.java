@@ -9,23 +9,40 @@ import java.util.UUID;
 
 public interface MensagemRepository extends JpaRepository<Mensagem, UUID> {
 
-    //pega a conversa nos dois sentidos, quem mandou e quem recebeu
     @Query("""
             SELECT m FROM Mensagem m
-            WHERE (m.remetenteUsuario.id = :usuario1 AND m.destinatarioUsuario.id = :usuario2)
-               OR (m.remetenteUsuario.id = :usuario2 AND m.destinatarioUsuario.id = :usuario1)
+            WHERE (((:u1 IS NOT NULL AND m.remetenteUsuario.id = :u1) OR (:e1 IS NOT NULL AND m.remetenteEmpresa.id = :e1))
+               AND ((:u2 IS NOT NULL AND m.destinatarioUsuario.id = :u2) OR (:e2 IS NOT NULL AND m.destinatarioEmpresa.id = :e2)))
+               OR (((:u2 IS NOT NULL AND m.remetenteUsuario.id = :u2) OR (:e2 IS NOT NULL AND m.remetenteEmpresa.id = :e2))
+               AND ((:u1 IS NOT NULL AND m.destinatarioUsuario.id = :u1) OR (:e1 IS NOT NULL AND m.destinatarioEmpresa.id = :e1)))
             ORDER BY m.dataEnvio ASC
             """)
-    List<Mensagem> buscarConversa(@Param("usuario1") UUID usuario1, @Param("usuario2") UUID usuario2);
+    List<Mensagem> buscarConversa(@Param("u1") UUID usuario1, @Param("e1") UUID empresa1,
+                                  @Param("u2") UUID usuario2, @Param("e2") UUID empresa2);
 
     @Query("""
             SELECT m FROM Mensagem m
-            WHERE m.remetenteUsuario.id = :usuarioId OR m.destinatarioUsuario.id = :usuarioId
+            WHERE (:usuarioId IS NOT NULL AND (m.remetenteUsuario.id = :usuarioId OR m.destinatarioUsuario.id = :usuarioId))
+               OR (:empresaId IS NOT NULL AND (m.remetenteEmpresa.id = :empresaId OR m.destinatarioEmpresa.id = :empresaId))
             ORDER BY m.dataEnvio DESC
             """)
-    List<Mensagem> buscarTodasDoUsuario(@Param("usuarioId") UUID usuarioId);
+    List<Mensagem> buscarTodasDaConta(@Param("usuarioId") UUID usuarioId, @Param("empresaId") UUID empresaId);
 
-    long countByDestinatarioUsuario_IdAndRemetenteUsuario_IdAndLidaFalse(UUID destinatarioId, UUID remetenteId);
+    @Query("""
+            SELECT COUNT(m) FROM Mensagem m
+            WHERE m.lida = false
+              AND ((:destU IS NOT NULL AND m.destinatarioUsuario.id = :destU) OR (:destE IS NOT NULL AND m.destinatarioEmpresa.id = :destE))
+              AND ((:remU IS NOT NULL AND m.remetenteUsuario.id = :remU) OR (:remE IS NOT NULL AND m.remetenteEmpresa.id = :remE))
+            """)
+    long contarNaoLidas(@Param("destU") UUID destinatarioUsuario, @Param("destE") UUID destinatarioEmpresa,
+                        @Param("remU") UUID remetenteUsuario, @Param("remE") UUID remetenteEmpresa);
 
-    List<Mensagem> findByDestinatarioUsuario_IdAndRemetenteUsuario_IdAndLidaFalse(UUID destinatarioId, UUID remetenteId);
+    @Query("""
+            SELECT m FROM Mensagem m
+            WHERE m.lida = false
+              AND ((:destU IS NOT NULL AND m.destinatarioUsuario.id = :destU) OR (:destE IS NOT NULL AND m.destinatarioEmpresa.id = :destE))
+              AND ((:remU IS NOT NULL AND m.remetenteUsuario.id = :remU) OR (:remE IS NOT NULL AND m.remetenteEmpresa.id = :remE))
+            """)
+    List<Mensagem> buscarNaoLidas(@Param("destU") UUID destinatarioUsuario, @Param("destE") UUID destinatarioEmpresa,
+                                  @Param("remU") UUID remetenteUsuario, @Param("remE") UUID remetenteEmpresa);
 }
