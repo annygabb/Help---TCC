@@ -19,5 +19,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Executar teste social
-        run: mvn -B -Dtest=ParticipanteAutenticadoServiceTest test
+      - name: Executar testes sociais
+        run: mvn -B -Dtest=ParticipanteAutenticadoServiceTest,SocialSchemaMappingTest,SeguidorSocialPersistenceTest,MensagemServiceSocialTest,MensagemControllerCompatibilityTest,NotificacaoServiceSocialTest,SeguidorServiceSocialTest,EmpresaSocialEventsTest test
+      - name: Empacotar backend
+        run: mvn -B package -DskipTests
