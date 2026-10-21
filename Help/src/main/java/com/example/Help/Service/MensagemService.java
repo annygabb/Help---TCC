@@ -62,7 +62,7 @@ public class MensagemService {
     @Transactional
     public void marcarConversaComoLida(UUID usuarioLogadoId, UUID outroUsuarioId) {
         List<Mensagem> naoLidas =
-                repository.findByDestinatario_IdAndRemetente_IdAndLidaFalse(usuarioLogadoId, outroUsuarioId);
+                repository.findByDestinatarioUsuario_IdAndRemetenteUsuario_IdAndLidaFalse(usuarioLogadoId, outroUsuarioId);
         naoLidas.forEach(m -> m.setLida(true));
         repository.saveAll(naoLidas);
     }
@@ -92,7 +92,7 @@ public class MensagemService {
                     : ultima.getDestinatario();
 
             long naoLidas = repository
-                    .countByDestinatario_IdAndRemetente_IdAndLidaFalse(usuarioLogadoId, outroId);
+                    .countByDestinatarioUsuario_IdAndRemetenteUsuario_IdAndLidaFalse(usuarioLogadoId, outroId);
 
             resultado.add(new ConversaResponseDTO(
                     outro.getId(),
