@@ -9,7 +9,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "seguidores")
+@Table(name = "seguidores", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_seguidor_uu", columnNames = {"seguidor_id", "seguido_id"}),
+        @UniqueConstraint(name = "uk_seguidor_ue", columnNames = {"seguidor_id", "seguido_empresa_id"}),
+        @UniqueConstraint(name = "uk_seguidor_eu", columnNames = {"seguidor_empresa_id", "seguido_id"}),
+        @UniqueConstraint(name = "uk_seguidor_ee", columnNames = {"seguidor_empresa_id", "seguido_empresa_id"})
+})
 @Entity(name = "Seguidor")
 @Getter
 @Setter
