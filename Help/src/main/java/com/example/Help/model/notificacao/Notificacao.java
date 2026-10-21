@@ -1,5 +1,8 @@
 package com.example.Help.model.notificacao;
 
+import com.example.Help.model.empresa.Empresa;
+import com.example.Help.model.social.ParticipanteSocial;
+import com.example.Help.model.social.TipoParticipante;
 import com.example.Help.model.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +15,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Notificacao {
 
@@ -21,34 +23,63 @@ public class Notificacao {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)//quem recebe a notificação
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id")
+    private Empresa empresa;
 
     @Enumerated(EnumType.STRING)
     private TipoNotificacao tipo;
-
     private String titulo;
 
     @Column(columnDefinition = "TEXT")
     private String mensagem;
 
-    private UUID origemId;//quem gerou a notificação
-
+    private UUID origemId;
     private String origemNome;
 
-    private boolean lida = false;
+    @Enumerated(EnumType.STRING)
+    private TipoParticipante origemTipo;
 
+    private boolean lida;
     private LocalDateTime dataCriacao;
 
     public Notificacao(Usuario usuario, TipoNotificacao tipo, String titulo,
                        String mensagem, UUID origemId, String origemNome) {
-        this.usuario = usuario;
+        this(usuario, tipo, titulo, mensagem, origemId, origemNome, TipoParticipante.USUARIO);
+    }
+
+    public Notificacao(ParticipanteSocial destinatario, TipoNotificacao tipo, String titulo,
+                       String mensagem, UUID origemId, String origemNome, TipoParticipante origemTipo) {
+        atribuirDestinatario(destinatario);
         this.tipo = tipo;
         this.titulo = titulo;
         this.mensagem = mensagem;
         this.origemId = origemId;
         this.origemNome = origemNome;
+        this.origemTipo = origemTipo;
         this.lida = false;
         this.dataCriacao = LocalDateTime.now();
+        validarDestinatario();
+    }
+
+    public ParticipanteSocial getDestinatarioSocial() {
+        return usuario != null ? usuario : empresa;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void validarDestinatario() {
+        if ((usuario == null) == (empresa == null)) {
+            throw new IllegalStateException("A notificacao deve possuir exatamente um destinatario.");
+        }
+    }
+
+    private void atribuirDestinatario(ParticipanteSocial participante) {
+        if (participante instanceof Usuario destinatarioUsuario) usuario = destinatarioUsuario;
+        else if (participante instanceof Empresa destinatarioEmpresa) empresa = destinatarioEmpresa;
+        else throw new IllegalArgumentException("Tipo de destinatario nao suportado.");
     }
 }
