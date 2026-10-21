@@ -1,10 +1,11 @@
 package com.example.Help.Service;
 
+import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.mensagem.*;
 import com.example.Help.model.notificacao.TipoNotificacao;
+import com.example.Help.model.social.ParticipanteSocial;
+import com.example.Help.model.social.TipoParticipante;
 import com.example.Help.model.usuario.Usuario;
-import com.example.Help.model.usuario.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,98 +13,88 @@ import java.util.*;
 
 @Service
 public class MensagemService {
+    private final MensagemRepository repository;
+    private final ParticipanteService participantes;
+    private final NotificacaoService notificacoes;
 
-    @Autowired
-    private MensagemRepository repository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private NotificacaoService notificacaoService;
+    public MensagemService(MensagemRepository repository, ParticipanteService participantes,
+                           NotificacaoService notificacoes) {
+        this.repository = repository;
+        this.participantes = participantes;
+        this.notificacoes = notificacoes;
+    }
 
     @Transactional
-    public MensagemResponseDTO enviar(UUID remetenteId, MensagemRequestDTO data) {
-        if (remetenteId.equals(data.destinatarioId())) {
+    public MensagemResponseDTO enviar(ParticipanteSocial remetente, MensagemRequestDTO data) {
+        String conteudo = data.conteudo() == null ? "" : data.conteudo().trim();
+        if (conteudo.isEmpty()) throw new RuntimeException("O conteúdo da mensagem é obrigatório.");
+
+        ParticipanteSocial destinatario = participantes.buscarAtivo(
+                data.destinatarioId(), data.tipoDestinatarioEfetivo());
+        if (mesmaConta(remetente, destinatario)) {
             throw new RuntimeException("Você não pode enviar uma mensagem para si mesmo.");
         }
 
-        Usuario remetente = usuarioRepository.findById(remetenteId)
-                .orElseThrow(() -> new RuntimeException("Usuário remetente não encontrado."));
-        Usuario destinatario = usuarioRepository.findById(data.destinatarioId())
-                .orElseThrow(() -> new RuntimeException("Usuário destinatário não encontrado."));
-
-        Mensagem mensagem = repository.save(new Mensagem(remetente, destinatario, data.conteudo()));
-
-        String preview = data.conteudo().length() > 80
-                ? data.conteudo().substring(0, 80) + "..."
-                : data.conteudo();
-
-        //varias mensagens seguidas viram so uma notificação
-        notificacaoService.criarOuAtualizarNotificacao(
-                destinatario,
-                TipoNotificacao.NOVA_MENSAGEM,
-                "Nova mensagem de " + remetente.getName(),
-                preview,
-                remetente.getId(),
-                remetente.getName()
-        );
-
-        return MensagemResponseDTO.fromEntity(mensagem);
+        Mensagem salva = repository.save(new Mensagem(remetente, destinatario, conteudo));
+        String preview = conteudo.length() > 80 ? conteudo.substring(0, 80) + "..." : conteudo;
+        notificacoes.criarOuAtualizar(destinatario, TipoNotificacao.NOVA_MENSAGEM,
+                "Nova mensagem de " + remetente.getNomeSocial(), preview, remetente);
+        return MensagemResponseDTO.fromEntity(salva);
     }
 
-    public List<MensagemResponseDTO> buscarConversa(UUID usuarioLogadoId, UUID outroUsuarioId) {
-        return repository.buscarConversa(usuarioLogadoId, outroUsuarioId)
-                .stream()
-                .map(MensagemResponseDTO::fromEntity)
-                .toList();
+    public List<MensagemResponseDTO> buscarConversa(ParticipanteSocial atual, UUID outraId, TipoParticipante outroTipo) {
+        ParticipanteSocial outra = participantes.buscarAtivo(outraId, outroTipo);
+        return repository.buscarConversa(id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA),
+                        id(outra, TipoParticipante.USUARIO), id(outra, TipoParticipante.EMPRESA)).stream()
+                .map(MensagemResponseDTO::fromEntity).toList();
     }
 
     @Transactional
-    public void marcarConversaComoLida(UUID usuarioLogadoId, UUID outroUsuarioId) {
-        List<Mensagem> naoLidas =
-                repository.findByDestinatarioUsuario_IdAndRemetenteUsuario_IdAndLidaFalse(usuarioLogadoId, outroUsuarioId);
-        naoLidas.forEach(m -> m.setLida(true));
-        repository.saveAll(naoLidas);
+    public void marcarConversaComoLida(ParticipanteSocial atual, UUID outraId, TipoParticipante outroTipo) {
+        ParticipanteSocial outra = participantes.buscarAtivo(outraId, outroTipo);
+        List<Mensagem> mensagens = repository.buscarNaoLidas(
+                id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA),
+                id(outra, TipoParticipante.USUARIO), id(outra, TipoParticipante.EMPRESA));
+        mensagens.forEach(m -> m.setLida(true));
+        repository.saveAll(mensagens);
     }
 
-    //monta a lista lateral do chat, uma linha por pessoa
-    public List<ConversaResponseDTO> listarConversas(UUID usuarioLogadoId) {
-        List<Mensagem> todas = repository.buscarTodasDoUsuario(usuarioLogadoId);
-
-        //a query ja vem ordenada por data, entao o putIfAbsent guarda so a mais recente
-        LinkedHashMap<UUID, Mensagem> ultimaPorConversa = new LinkedHashMap<>();
-
-        for (Mensagem m : todas) {
-            Usuario outro = m.getRemetente().getId().equals(usuarioLogadoId)
-                    ? m.getDestinatario()
-                    : m.getRemetente();
-            ultimaPorConversa.putIfAbsent(outro.getId(), m);
+    public List<ConversaResponseDTO> listarConversas(ParticipanteSocial atual) {
+        List<Mensagem> todas = repository.buscarTodasDaConta(
+                id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA));
+        LinkedHashMap<String, Mensagem> ultimas = new LinkedHashMap<>();
+        for (Mensagem mensagem : todas) {
+            ParticipanteSocial outro = mesmaConta(mensagem.getRemetenteSocial(), atual)
+                    ? mensagem.getDestinatarioSocial() : mensagem.getRemetenteSocial();
+            ultimas.putIfAbsent(chave(outro), mensagem);
         }
 
-        List<ConversaResponseDTO> resultado = new ArrayList<>();
-
-        for (Map.Entry<UUID, Mensagem> entry : ultimaPorConversa.entrySet()) {
-            UUID outroId = entry.getKey();
-            Mensagem ultima = entry.getValue();
-
-            Usuario outro = ultima.getRemetente().getId().equals(outroId)
-                    ? ultima.getRemetente()
-                    : ultima.getDestinatario();
-
-            long naoLidas = repository
-                    .countByDestinatarioUsuario_IdAndRemetenteUsuario_IdAndLidaFalse(usuarioLogadoId, outroId);
-
-            resultado.add(new ConversaResponseDTO(
-                    outro.getId(),
-                    outro.getName(),
-                    outro.getCargo(),
-                    ultima.getConteudo(),
-                    ultima.getDataEnvio(),
-                    naoLidas
-            ));
+        List<ConversaResponseDTO> resposta = new ArrayList<>();
+        for (Mensagem ultima : ultimas.values()) {
+            ParticipanteSocial outro = mesmaConta(ultima.getRemetenteSocial(), atual)
+                    ? ultima.getDestinatarioSocial() : ultima.getRemetenteSocial();
+            long naoLidas = repository.contarNaoLidas(
+                    id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA),
+                    id(outro, TipoParticipante.USUARIO), id(outro, TipoParticipante.EMPRESA));
+            resposta.add(new ConversaResponseDTO(outro.getId(), outro.getTipoParticipante(),
+                    outro.getNomeSocial(), subtitulo(outro), ultima.getConteudo(), ultima.getDataEnvio(), naoLidas));
         }
+        return resposta;
+    }
 
-        return resultado;
+    private UUID id(ParticipanteSocial participante, TipoParticipante tipo) {
+        return participante.getTipoParticipante() == tipo ? participante.getId() : null;
+    }
+
+    private boolean mesmaConta(ParticipanteSocial a, ParticipanteSocial b) {
+        return a.getTipoParticipante() == b.getTipoParticipante() && a.getId().equals(b.getId());
+    }
+
+    private String chave(ParticipanteSocial p) { return p.getTipoParticipante() + ":" + p.getId(); }
+
+    private String subtitulo(ParticipanteSocial p) {
+        if (p instanceof Usuario usuario) return usuario.getCargo();
+        if (p instanceof Empresa empresa) return empresa.getEmail();
+        return null;
     }
 }
