@@ -56,6 +56,14 @@ public class SeguidorService {
                 .stream().map(s -> montarDTO(s.getSeguidorSocial(), atual)).toList();
     }
 
+    public List<ParticipanteSocial> listarParticipantesSeguidores(ParticipanteSocial conta) {
+        return repository.listarSeguidores(id(conta, TipoParticipante.USUARIO), id(conta, TipoParticipante.EMPRESA))
+                .stream()
+                .map(Seguidor::getSeguidorSocial)
+                .filter(ParticipanteSocial::isAtivo)
+                .toList();
+    }
+
     public boolean estaSeguindo(ParticipanteSocial seguidor, UUID seguidoId, TipoParticipante seguidoTipo) {
         ParticipanteSocial seguido = participantes.buscarAtivo(seguidoId, seguidoTipo);
         return existe(seguidor, seguido);
