@@ -2,6 +2,9 @@ package com.example.Help.model.empresa;
 
 import com.example.Help.model.recuperacao.TokenService;
 import com.example.Help.model.usuario.UsuarioRepository;
+import com.example.Help.Service.NotificacaoService;
+import com.example.Help.Service.SeguidorService;
+import com.example.Help.model.notificacao.TipoNotificacao;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +25,25 @@ public class EmpresaController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager manager;
     private final TokenService tokenService;
+    private final SeguidorService seguidorService;
+    private final NotificacaoService notificacaoService;
 
     public EmpresaController(
             EmpresaRepository repository,
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager manager,
-            TokenService tokenService
+            TokenService tokenService,
+            SeguidorService seguidorService,
+            NotificacaoService notificacaoService
     ) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.manager = manager;
         this.tokenService = tokenService;
+        this.seguidorService = seguidorService;
+        this.notificacaoService = notificacaoService;
     }
 
     @PostMapping("/cadastro")
@@ -116,5 +125,27 @@ public class EmpresaController {
                 "EMPRESA",
                 empresa.isAtivo()
         ));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<?> atualizarMinhaEmpresa(@RequestBody @Valid EmpresaPerfilRequestDTO dados,
+                                                    Authentication authentication) {
+        if (!(authentication.getPrincipal() instanceof Empresa autenticada)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso permitido apenas para empresa.");
+        }
+        Empresa empresa = repository.findById(autenticada.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada."));
+        String novoNome = dados.corporateName().trim().replaceAll("\\s+", " ");
+        boolean mudou = !novoNome.equals(empresa.getCorporateName());
+        empresa.setCorporateName(novoNome);
+        repository.save(empresa);
+
+        if (mudou) {
+            seguidorService.listarParticipantesSeguidores(empresa).forEach(destinatario ->
+                    notificacaoService.criarOuAtualizar(destinatario, TipoNotificacao.EMPRESA_ATUALIZADA,
+                            "Empresa atualizada", empresa.getCorporateName() + " atualizou o perfil.", empresa));
+        }
+        return ResponseEntity.ok(new EmpresaAtualDTO(empresa.getId(), empresa.getCorporateName(), empresa.getEmail(),
+                empresa.getCnpj(), "EMPRESA", empresa.isAtivo()));
     }
 }
