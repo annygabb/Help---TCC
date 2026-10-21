@@ -8,17 +8,17 @@ import java.util.UUID;
 
 public interface SeguidorRepository extends JpaRepository<Seguidor, UUID> {
 
-    boolean existsBySeguidor_IdAndSeguido_Id(UUID seguidorId, UUID seguidoId);//ja segue?
+    boolean existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(UUID seguidorId, UUID seguidoId);//ja segue?
 
-    Optional<Seguidor> findBySeguidor_IdAndSeguido_Id(UUID seguidorId, UUID seguidoId);
+    Optional<Seguidor> findBySeguidorUsuario_IdAndSeguidoUsuario_Id(UUID seguidorId, UUID seguidoId);
 
-    List<Seguidor> findBySeguidor_IdOrderByDataSeguindoDesc(UUID seguidorId);//quem eu sigo
+    List<Seguidor> findBySeguidorUsuario_IdOrderByDataSeguindoDesc(UUID seguidorId);//quem eu sigo
 
-    List<Seguidor> findBySeguido_IdOrderByDataSeguindoDesc(UUID seguidoId);//quem me segue
+    List<Seguidor> findBySeguidoUsuario_IdOrderByDataSeguindoDesc(UUID seguidoId);//quem me segue
 
-    long countBySeguido_Id(UUID seguidoId);
+    long countBySeguidoUsuario_Id(UUID seguidoId);
 
-    long countBySeguidor_Id(UUID seguidorId);
+    long countBySeguidorUsuario_Id(UUID seguidorId);
 
-    void deleteBySeguidor_IdAndSeguido_Id(UUID seguidorId, UUID seguidoId);
+    void deleteBySeguidorUsuario_IdAndSeguidoUsuario_Id(UUID seguidorId, UUID seguidoId);
 }
