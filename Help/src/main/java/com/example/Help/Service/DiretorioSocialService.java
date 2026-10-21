@@ -12,9 +12,11 @@ import java.util.List;
 public class DiretorioSocialService {
 
     private final ParticipanteService participanteService;
+    private final SeguidorService seguidorService;
 
-    public DiretorioSocialService(ParticipanteService participanteService) {
+    public DiretorioSocialService(ParticipanteService participanteService, SeguidorService seguidorService) {
         this.participanteService = participanteService;
+        this.seguidorService = seguidorService;
     }
 
     public List<ParticipanteResumoDTO> listarContatos(
@@ -28,7 +30,7 @@ public class DiretorioSocialService {
                         p.getTipoParticipante(),
                         p.getNomeSocial(),
                         subtitulo(p),
-                        false
+                        seguidorService.estaSeguindo(atual, p.getId(), p.getTipoParticipante())
                 ))
                 .toList();
     }
