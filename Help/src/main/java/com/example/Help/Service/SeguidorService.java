@@ -32,7 +32,7 @@ public class SeguidorService {
             throw new RuntimeException("Você não pode seguir a si mesmo.");
         }
 
-        if (repository.existsBySeguidor_IdAndSeguido_Id(seguidorId, seguidoId)) {
+        if (repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId)) {
             throw new RuntimeException("Você já está seguindo este usuário.");
         }
 
@@ -55,40 +55,40 @@ public class SeguidorService {
 
     @Transactional
     public void deixarDeSeguir(UUID seguidorId, UUID seguidoId) {
-        if (!repository.existsBySeguidor_IdAndSeguido_Id(seguidorId, seguidoId)) {
+        if (!repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId)) {
             throw new RuntimeException("Você não segue este usuário.");
         }
-        repository.deleteBySeguidor_IdAndSeguido_Id(seguidorId, seguidoId);
+        repository.deleteBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId);
     }
 
     public List<SeguidorResponseDTO> listarSeguindo(UUID usuarioId, UUID usuarioLogadoId) {
-        return repository.findBySeguidor_IdOrderByDataSeguindoDesc(usuarioId)
+        return repository.findBySeguidorUsuario_IdOrderByDataSeguindoDesc(usuarioId)
                 .stream()
                 .map(s -> montarDTO(s.getSeguido(), usuarioLogadoId))
                 .toList();
     }
 
     public List<SeguidorResponseDTO> listarSeguidores(UUID usuarioId, UUID usuarioLogadoId) {
-        return repository.findBySeguido_IdOrderByDataSeguindoDesc(usuarioId)
+        return repository.findBySeguidoUsuario_IdOrderByDataSeguindoDesc(usuarioId)
                 .stream()
                 .map(s -> montarDTO(s.getSeguidor(), usuarioLogadoId))
                 .toList();
     }
 
     public boolean estaSeguindo(UUID seguidorId, UUID seguidoId) {
-        return repository.existsBySeguidor_IdAndSeguido_Id(seguidorId, seguidoId);
+        return repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(seguidorId, seguidoId);
     }
 
     public ContagemSeguidoresDTO contar(UUID usuarioId) {
         return new ContagemSeguidoresDTO(
-                repository.countBySeguido_Id(usuarioId),
-                repository.countBySeguidor_Id(usuarioId)
+                repository.countBySeguidoUsuario_Id(usuarioId),
+                repository.countBySeguidorUsuario_Id(usuarioId)
         );
     }
 
     private SeguidorResponseDTO montarDTO(Usuario usuario, UUID usuarioLogadoId) {
         //serve pro botao aparecer como Seguir ou Deixar de seguir
-        boolean euSigoEle = repository.existsBySeguidor_IdAndSeguido_Id(usuarioLogadoId, usuario.getId());
+        boolean euSigoEle = repository.existsBySeguidorUsuario_IdAndSeguidoUsuario_Id(usuarioLogadoId, usuario.getId());
         return new SeguidorResponseDTO(
                 usuario.getId(),
                 usuario.getName(),
