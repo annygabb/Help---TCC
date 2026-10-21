@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.example.Help.model.social.ParticipanteSocial;
+import com.example.Help.model.social.TipoParticipante;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -22,7 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @JsonPropertyOrder({ "id", "nome", "email", "cargo", "localizacao", "formacao", "skills", "bio" })
-public class Usuario implements UserDetails {
+public class Usuario implements UserDetails, ParticipanteSocial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -102,6 +104,16 @@ public class Usuario implements UserDetails {
 
     public boolean isAtivo() {
         return ativo == null || ativo;
+    }
+
+    @Override
+    public TipoParticipante getTipoParticipante() {
+        return TipoParticipante.USUARIO;
+    }
+
+    @Override
+    public String getNomeSocial() {
+        return this.name;
     }
 
     public void setAtivo(boolean ativo) {
