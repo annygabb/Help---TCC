@@ -10,6 +10,7 @@ import logoImg from '../assets/logo.png';
 import api from '../services/api';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
+import { normalizarContato } from '../utils/contatos';
 
 const Mensagens = () => {
   const navigate = useNavigate();
@@ -44,13 +45,16 @@ const Mensagens = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (location.state?.iniciarCom) iniciarConversaCom(location.state.iniciarCom);
-  }, [location.state]);
+    if (!location.state?.iniciarCom) return;
+    const contato = normalizarContato(location.state.iniciarCom);
+    if (contato) iniciarConversaCom(contato);
+    else navigate('/mensagens', { replace: true });
+  }, [location.state, navigate]);
 
   const carregarConversas = async () => {
     try {
       const response = await api.get('/mensagens/conversas', { headers: getHeaders() });
-      setConversas(response.data || []);
+      setConversas((response.data || []).map(normalizarContato).filter(Boolean));
     } catch (error) {
       console.error('Erro ao carregar conversas:', error);
     } finally {
@@ -67,8 +71,9 @@ const Mensagens = () => {
 
   const carregarConversaAtiva = async (contaId, tipoConta) => {
     try {
-      if (!contaId || !tipoConta) return;
-      const response = await api.get(`/mensagens/conversa/${tipoConta}/${contaId}`, { headers: getHeaders() });
+      const contato = normalizarContato({ contaId, tipoConta });
+      if (!contato) return;
+      const response = await api.get(`/mensagens/conversa/${contato.tipoConta}/${contato.contaId}`, { headers: getHeaders() });
       setMensagens(response.data || []);
     } catch (error) {
       console.error('Erro ao carregar conversa:', error);
@@ -90,10 +95,12 @@ const Mensagens = () => {
   }, [mensagens]);
 
   const abrirConversa = (conversa) => {
-    setConversaAtiva(conversa);
+    const contato = normalizarContato(conversa);
+    if (!contato) return;
+    setConversaAtiva(contato);
     //zera o badge na hora
     setConversas(prev => prev.map(c =>
-      c.contaId === conversa.contaId && c.tipoConta === conversa.tipoConta ? { ...c, naoLidas: 0 } : c
+      c.contaId === contato.contaId && c.tipoConta === contato.tipoConta ? { ...c, naoLidas: 0 } : c
     ));
   };
 
@@ -132,13 +139,9 @@ const Mensagens = () => {
   };
 
   const iniciarConversaCom = (usuario) => {
-    setConversaAtiva({
-      contaId: usuario.contaId || usuario.id,
-      tipoConta: usuario.tipoConta || 'USUARIO',
-      nome: usuario.name || usuario.nome,
-      subtitulo: usuario.subtitulo || usuario.cargo,
-      fotoUrl: usuario.fotoUrl
-    });
+    const contato = normalizarContato(usuario);
+    if (!contato) return;
+    setConversaAtiva({ ...contato, subtitulo: contato.subtitulo || contato.cargo });
     setMensagens([]);
     setModalNovaConversa(false);
     setBuscaUsuario('');
