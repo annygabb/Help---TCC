@@ -10,6 +10,11 @@ BEGIN
     END IF;
 
     IF to_regclass('public.perfis') IS NOT NULL THEN
+        ALTER TABLE perfis ADD COLUMN IF NOT EXISTS foto_url TEXT;
+        ALTER TABLE perfis ADD COLUMN IF NOT EXISTS curriculo_url TEXT;
+        ALTER TABLE perfis ALTER COLUMN foto_url TYPE TEXT;
+        ALTER TABLE perfis ALTER COLUMN curriculo_url TYPE TEXT;
+
         UPDATE usuarios u
         SET foto_url = p.foto_url
         FROM perfis p
