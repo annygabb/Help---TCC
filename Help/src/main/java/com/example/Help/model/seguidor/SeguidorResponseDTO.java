@@ -9,6 +9,7 @@ public record SeguidorResponseDTO(
         String nome,
         String cargo,
         String localizacao,
+        String fotoUrl,
         boolean euSigoEle
 ) {
 }

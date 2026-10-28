@@ -7,6 +7,7 @@ public record ParticipanteResumoDTO(
         TipoParticipante tipoConta,
         String nome,
         String subtitulo,
+        String fotoUrl,
         boolean seguindo
 ) {
 }

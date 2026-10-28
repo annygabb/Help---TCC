@@ -77,7 +77,8 @@ public class MensagemService {
                     id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA),
                     id(outro, TipoParticipante.USUARIO), id(outro, TipoParticipante.EMPRESA));
             resposta.add(new ConversaResponseDTO(outro.getId(), outro.getTipoParticipante(),
-                    outro.getNomeSocial(), subtitulo(outro), ultima.getConteudo(), ultima.getDataEnvio(), naoLidas));
+                    outro.getNomeSocial(), subtitulo(outro), outro.getFotoUrl(), ultima.getConteudo(),
+                    ultima.getDataEnvio(), naoLidas));
         }
         return resposta;
     }

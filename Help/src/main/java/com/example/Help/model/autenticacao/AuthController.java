@@ -30,7 +30,8 @@ public class AuthController {
                     sincronizado.getName(),
                     sincronizado.getEmail(),
                     sincronizado.getTipoConta().name(),
-                    sincronizado.isAtivo()
+                    sincronizado.isAtivo(),
+                    sincronizado.getFotoUrl()
             ));
         }
 
@@ -40,7 +41,8 @@ public class AuthController {
                     empresa.getCorporateName(),
                     empresa.getEmail(),
                     "EMPRESA",
-                    empresa.isAtivo()
+                    empresa.isAtivo(),
+                    empresa.getFotoUrl()
             ));
         }
 

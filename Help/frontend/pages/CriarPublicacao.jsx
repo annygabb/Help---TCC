@@ -5,7 +5,6 @@ import './CriarPublicacao.css';
 
 const CriarPublicacao = ({ onClose, onPublish, user }) => {
   const [texto, setTexto] = useState("");
-  const [privacidadePost, setPrivacidadePost] = useState("todos");
   const [comentarioStatus, setComentarioStatus] = useState(0);
   const [midia, setMidia] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -19,7 +18,13 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
 
   const handleFileChange = (e, tipo) => {
     const file = e.target.files[0];
-    if (file) setMidia({ file, tipo, preview: URL.createObjectURL(file) });
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      alert('A mídia deve ter no máximo 8 MB.');
+      e.target.value = '';
+      return;
+    }
+    setMidia({ file, tipo, preview: URL.createObjectURL(file) });
   };
 
   const onEmojiClick = (emojiData) => {
@@ -47,14 +52,7 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
             <div className="help-user-info">
               <span className="help-user-name">{user?.nome || "Ennie"}</span>
               <div className="help-selectors-container">
-                <select
-                  className="help-mini-select custom-select-bg"
-                  value={privacidadePost}
-                  onChange={(e) => setPrivacidadePost(e.target.value)}
-                >
-                  <option value="todos">🌐 Publicar para todos</option>
-                  <option value="seguidores">👥 Seguidores</option>
-                </select>
+                <span className="help-mini-select custom-select-bg">🌐 Publicação visível para todos</span>
 
                 <button
                   className={`help-mini-toggle status-${comentarioStatus}`}
@@ -132,7 +130,7 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
           <button
             className={`help-publish-btn ${(!texto.trim() && !midia) ? 'disabled' : ''}`}
             disabled={!texto.trim() && !midia}
-            onClick={() => onPublish(texto, midia, { privacidadePost, comentarioStatus })}
+            onClick={() => onPublish(texto, midia, { comentarioStatus })}
           >
             Publicar
           </button>

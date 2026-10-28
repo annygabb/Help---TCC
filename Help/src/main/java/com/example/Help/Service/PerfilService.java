@@ -43,12 +43,14 @@ public class PerfilService {
         perfil.setName(textoOuAtual(dados.nome(), perfil.getName(), usuario.getName()));
         perfil.setCargoAtual(textoOuAtual(dados.cargo(), perfil.getCargoAtual(), usuario.getJobRole()));
         perfil.setBio(textoOuAtual(dados.bio(), perfil.getBio(), usuario.getBio()));
-        perfil.setFotoUrl(textoOuAtual(dados.fotoUrl(), perfil.getFotoUrl(), null));
+        String foto = textoOuAtual(dados.fotoUrl(), usuario.getFotoUrl(), perfil.getFotoUrl());
+        perfil.setFotoUrl(foto);
 
         usuario.setName(perfil.getName());
         usuario.setJobRole(perfil.getCargoAtual());
         usuario.setLocation(textoOuAtual(dados.localidade(), usuario.getLocation(), null));
         usuario.setBio(perfil.getBio());
+        usuario.setFotoUrl(foto);
 
         perfil.getExperiencias().clear();
         dados.experiencias().stream()
@@ -81,6 +83,7 @@ public class PerfilService {
         perfil.setCargoAtual(usuario.getJobRole());
         perfil.setBio(usuario.getBio());
         perfil.setSkills(usuario.getSkills());
+        perfil.setFotoUrl(usuario.getFotoUrl());
         perfil.setExperiencias(new ArrayList<>());
         perfil.setCursos(new ArrayList<>());
         return perfil;
@@ -120,7 +123,7 @@ public class PerfilService {
                 perfil.getCargoAtual(),
                 usuario.getLocation(),
                 perfil.getBio(),
-                perfil.getFotoUrl(),
+                usuario.getFotoUrl() != null ? usuario.getFotoUrl() : perfil.getFotoUrl(),
                 perfil.getCurriculoUrl(),
                 perfil.getSkills(),
                 perfil.getExperiencias().stream()

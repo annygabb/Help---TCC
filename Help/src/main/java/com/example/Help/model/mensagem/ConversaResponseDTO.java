@@ -9,6 +9,7 @@ public record ConversaResponseDTO(
         TipoParticipante tipoConta,
         String nome,
         String subtitulo,
+        String fotoUrl,
         String ultimaMensagem,
         LocalDateTime dataUltimaMensagem,
         long naoLidas

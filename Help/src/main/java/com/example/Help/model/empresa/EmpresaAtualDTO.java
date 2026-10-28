@@ -8,6 +8,7 @@ public record EmpresaAtualDTO(
         String email,
         String cnpj,
         String tipoConta,
-        boolean ativo
+        boolean ativo,
+        String fotoUrl
 ) {
 }

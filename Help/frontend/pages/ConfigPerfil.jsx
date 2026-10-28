@@ -13,6 +13,7 @@ import logoImg from '../assets/logo.png';
 import logoImgperfil from '../assets/fotoperfil.png';
 import api from '../services/api';
 import useUnreadCounts from './useUnreadCounts';
+import GlobalSearch from '../components/GlobalSearch';
 
 const ConfigPerfil = () => {
   const navigate = useNavigate();
@@ -97,6 +98,11 @@ const ConfigPerfil = () => {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (!file.type.startsWith('image/') || file.size > 4 * 1024 * 1024) {
+        alert('Escolha uma imagem de até 4 MB.');
+        e.target.value = '';
+        return;
+      }
       setFotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -154,6 +160,11 @@ const ConfigPerfil = () => {
   const handleCertificadoUpload = (id, e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 8 * 1024 * 1024) {
+        alert('O certificado deve ter no máximo 8 MB.');
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setCursos(cursos.map(c =>
@@ -181,7 +192,7 @@ const ConfigPerfil = () => {
       const [resSeguindo, resSeguidores, resContagem] = await Promise.all([
         api.get('/seguidores/seguindo', { headers }),
         api.get('/seguidores/meus-seguidores', { headers }),
-        api.get(`/seguidores/contagem/${userData.id}`, { headers })
+        api.get(`/seguidores/contagem/USUARIO/${userData.id}`, { headers })
       ]);
       setSeguindoLista(resSeguindo.data || []);
       setSeguidoresLista(resSeguidores.data || []);
@@ -198,18 +209,19 @@ const ConfigPerfil = () => {
     if (!userData.id) return;
     setCarregandoConexoes(true);
     try {
-      const resUsuarios = await api.get('/usuarios', { headers: getAuthHeaders() });
-      const idsSeguindo = new Set(seguindoLista.map(u => u.id));
+      const resUsuarios = await api.get('/comunicacao/contatos', { headers: getAuthHeaders() });
+      const idsSeguindo = new Set(seguindoLista.map(u => `${u.tipoConta}:${u.id}`));
 
       setDescobrirLista(
         (resUsuarios.data || [])
-          .filter(u => u.id !== userData.id)
           .map(u => ({
             id: u.id,
+            tipoConta: u.tipoConta,
             nome: u.name || u.nome,
-            cargo: u.cargo,
+            cargo: u.subtitulo || u.cargo,
             localizacao: u.cidade,
-            euSigoEle: idsSeguindo.has(u.id)
+            fotoUrl: u.fotoUrl,
+            euSigoEle: u.seguindo ?? idsSeguindo.has(`${u.tipoConta}:${u.id}`)
           }))
       );
     } catch (error) {
@@ -227,9 +239,9 @@ const ConfigPerfil = () => {
     if (abaConexoes === 'descobrir') carregarDescobrir();
   }, [abaConexoes, userData.id, seguindoLista]);
 
-  const seguirUsuario = async (usuarioId) => {
+  const seguirUsuario = async (pessoa) => {
     try {
-      await api.post(`/seguidores/seguir/${usuarioId}`, {}, { headers: getAuthHeaders() });
+      await api.post(`/seguidores/seguir/${pessoa.tipoConta || 'USUARIO'}/${pessoa.id}`, {}, { headers: getAuthHeaders() });
       await carregarConexoes();
     } catch (error) {
       console.error('Erro ao seguir usuário:', error);
@@ -237,9 +249,9 @@ const ConfigPerfil = () => {
     }
   };
 
-  const deixarDeSeguirUsuario = async (usuarioId) => {
+  const deixarDeSeguirUsuario = async (pessoa) => {
     try {
-      await api.delete(`/seguidores/deixar-de-seguir/${usuarioId}`, { headers: getAuthHeaders() });
+      await api.delete(`/seguidores/deixar-de-seguir/${pessoa.tipoConta || 'USUARIO'}/${pessoa.id}`, { headers: getAuthHeaders() });
       await carregarConexoes();
     } catch (error) {
       console.error('Erro ao deixar de seguir:', error);
@@ -247,8 +259,9 @@ const ConfigPerfil = () => {
     }
   };
 
+  const normalizarBusca = (valor) => String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const filtrarPorNome = (lista) => lista.filter(u =>
-    (u.nome || '').toLowerCase().includes(buscaConexao.toLowerCase())
+    normalizarBusca(u.nome).includes(normalizarBusca(buscaConexao))
   );
 
   const handleSave = async (e) => {
@@ -311,7 +324,8 @@ const ConfigPerfil = () => {
       alert('Perfil atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar o perfil individual:', error.response || error);
-      alert(error.response?.data?.message || 'Erro ao salvar alterações.');
+      const dadosErro = error.response?.data;
+      alert(dadosErro?.mensagem || dadosErro?.message || dadosErro?.error || (typeof dadosErro === 'string' ? dadosErro : 'Erro ao salvar alterações.'));
     }
   };
 
@@ -322,10 +336,7 @@ const ConfigPerfil = () => {
         <div className="header-inner">
           <div className="header-left">
             <img src={logoImg} alt="Help Logo" className="header-logo" onClick={() => navigate('/feed')} />
-            <div className="search-bar">
-              <Search size={18} />
-              <input type="text" placeholder="Pesquisar profissionais..." />
-            </div>
+            <GlobalSearch />
           </div>
 
           <div className="header-right-nav">
@@ -624,8 +635,8 @@ const ConfigPerfil = () => {
                     ) : (
                       <div className="conexoes-lista">
                         {filtrarPorNome(seguindoLista).map((pessoa) => (
-                          <div key={pessoa.id} className="conexao-card">
-                            <div className="conexao-avatar">{(pessoa.nome || '?').charAt(0).toUpperCase()}</div>
+                          <div key={`${pessoa.tipoConta}:${pessoa.id}`} className="conexao-card">
+                            <div className="conexao-avatar">{pessoa.fotoUrl ? <img src={pessoa.fotoUrl} alt="" /> : (pessoa.nome || '?').charAt(0).toUpperCase()}</div>
                             <div className="conexao-info">
                               <span className="conexao-nome">{pessoa.nome}</span>
                               {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
@@ -633,7 +644,7 @@ const ConfigPerfil = () => {
                             <button
                               type="button"
                               className="conexao-btn deixar-seguir"
-                              onClick={() => deixarDeSeguirUsuario(pessoa.id)}
+                              onClick={() => deixarDeSeguirUsuario(pessoa)}
                             >
                               <UserMinus size={16} /> Deixar de seguir
                             </button>
@@ -649,8 +660,8 @@ const ConfigPerfil = () => {
                     ) : (
                       <div className="conexoes-lista">
                         {filtrarPorNome(seguidoresLista).map((pessoa) => (
-                          <div key={pessoa.id} className="conexao-card">
-                            <div className="conexao-avatar">{(pessoa.nome || '?').charAt(0).toUpperCase()}</div>
+                          <div key={`${pessoa.tipoConta}:${pessoa.id}`} className="conexao-card">
+                            <div className="conexao-avatar">{pessoa.fotoUrl ? <img src={pessoa.fotoUrl} alt="" /> : (pessoa.nome || '?').charAt(0).toUpperCase()}</div>
                             <div className="conexao-info">
                               <span className="conexao-nome">{pessoa.nome}</span>
                               {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
@@ -659,7 +670,7 @@ const ConfigPerfil = () => {
                               <button
                                 type="button"
                                 className="conexao-btn deixar-seguir"
-                                onClick={() => deixarDeSeguirUsuario(pessoa.id)}
+                                onClick={() => deixarDeSeguirUsuario(pessoa)}
                               >
                                 <UserMinus size={16} /> Deixar de seguir
                               </button>
@@ -667,7 +678,7 @@ const ConfigPerfil = () => {
                               <button
                                 type="button"
                                 className="conexao-btn seguir"
-                                onClick={() => seguirUsuario(pessoa.id)}
+                                onClick={() => seguirUsuario(pessoa)}
                               >
                                 <UserPlus size={16} /> Seguir de volta
                               </button>
@@ -684,8 +695,8 @@ const ConfigPerfil = () => {
                     ) : (
                       <div className="conexoes-lista">
                         {filtrarPorNome(descobrirLista).map((pessoa) => (
-                          <div key={pessoa.id} className="conexao-card">
-                            <div className="conexao-avatar">{(pessoa.nome || '?').charAt(0).toUpperCase()}</div>
+                          <div key={`${pessoa.tipoConta}:${pessoa.id}`} className="conexao-card">
+                            <div className="conexao-avatar">{pessoa.fotoUrl ? <img src={pessoa.fotoUrl} alt="" /> : (pessoa.nome || '?').charAt(0).toUpperCase()}</div>
                             <div className="conexao-info">
                               <span className="conexao-nome">{pessoa.nome}</span>
                               {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
@@ -694,7 +705,7 @@ const ConfigPerfil = () => {
                               <button
                                 type="button"
                                 className="conexao-btn deixar-seguir"
-                                onClick={() => deixarDeSeguirUsuario(pessoa.id)}
+                                onClick={() => deixarDeSeguirUsuario(pessoa)}
                               >
                                 <UserMinus size={16} /> Deixar de seguir
                               </button>
@@ -702,7 +713,7 @@ const ConfigPerfil = () => {
                               <button
                                 type="button"
                                 className="conexao-btn seguir"
-                                onClick={() => seguirUsuario(pessoa.id)}
+                                onClick={() => seguirUsuario(pessoa)}
                               >
                                 <UserPlus size={16} /> Seguir
                               </button>

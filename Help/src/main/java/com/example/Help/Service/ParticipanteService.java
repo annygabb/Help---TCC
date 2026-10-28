@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.text.Normalizer;
 
 @Service
 public class ParticipanteService {
@@ -68,7 +69,7 @@ public class ParticipanteService {
             String busca,
             TipoParticipante filtroTipo
     ) {
-        String termo = busca == null ? "" : busca.trim().toLowerCase(Locale.ROOT);
+        String termo = normalizar(busca);
         List<ParticipanteSocial> candidatos = new ArrayList<>();
         if (filtroTipo == null || filtroTipo == TipoParticipante.USUARIO) {
             candidatos.addAll(usuarioRepository.findAll());
@@ -123,6 +124,10 @@ public class ParticipanteService {
     }
 
     private String normalizar(String valor) {
-        return valor == null ? "" : valor.toLowerCase(Locale.ROOT);
+        if (valor == null) return "";
+        return Normalizer.normalize(valor, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .trim();
     }
 }

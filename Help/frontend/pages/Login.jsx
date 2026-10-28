@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowLeft } from 'lucide-react';
 
 import api from '../services/api';
 import './Login.css';
 import logoImg from '../assets/logo.png';
+import { estabelecerSessao, obterSessao } from '../services/session';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,6 +13,11 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const sessao = obterSessao();
+    if (sessao) navigate(sessao.conta.tipoConta === 'EMPRESA' ? '/dashboard-rh' : '/feed', { replace: true });
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +36,6 @@ function Login() {
       const { token, id, nome, email: userEmail } = response.data;
 
       if (token) {
-          localStorage.setItem('token', token);
         const usuarioParaSalvar = {
           token: token,
           id: id,
@@ -38,10 +43,11 @@ function Login() {
           email: userEmail,
           cargo: response.data.cargo || '',
           localidade: response.data.localidade || '',
-          bio: response.data.bio || ''
+          bio: response.data.bio || '',
+          tipoConta: response.data.tipoConta || 'CANDIDATO'
         };
 
-        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioParaSalvar));
+        estabelecerSessao(token, usuarioParaSalvar);
 
         navigate('/feed');
       } else {

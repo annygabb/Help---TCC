@@ -7,6 +7,7 @@ public record ContaAtualDTO(
         String nome,
         String email,
         String tipoConta,
-        boolean ativo
+        boolean ativo,
+        String fotoUrl
 ) {
 }

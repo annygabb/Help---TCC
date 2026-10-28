@@ -9,6 +9,7 @@ import './Mensagens.css';
 import logoImg from '../assets/logo.png';
 import api from '../services/api';
 import useUnreadCounts from './useUnreadCounts';
+import GlobalSearch from '../components/GlobalSearch';
 
 const Mensagens = () => {
   const navigate = useNavigate();
@@ -42,6 +43,10 @@ const Mensagens = () => {
     setUsuarioLogado(JSON.parse(savedUser));
   }, [navigate]);
 
+  useEffect(() => {
+    if (location.state?.iniciarCom) iniciarConversaCom(location.state.iniciarCom);
+  }, [location.state]);
+
   const carregarConversas = async () => {
     try {
       const response = await api.get('/mensagens/conversas', { headers: getHeaders() });
@@ -60,9 +65,10 @@ const Mensagens = () => {
     return () => clearInterval(intervalo);
   }, [usuarioLogado]);
 
-  const carregarConversaAtiva = async (usuarioId) => {
+  const carregarConversaAtiva = async (contaId, tipoConta) => {
     try {
-      const response = await api.get(`/mensagens/conversa/${usuarioId}`, { headers: getHeaders() });
+      if (!contaId || !tipoConta) return;
+      const response = await api.get(`/mensagens/conversa/${tipoConta}/${contaId}`, { headers: getHeaders() });
       setMensagens(response.data || []);
     } catch (error) {
       console.error('Erro ao carregar conversa:', error);
@@ -71,8 +77,8 @@ const Mensagens = () => {
 
   useEffect(() => {
     if (!conversaAtiva) return;
-    carregarConversaAtiva(conversaAtiva.usuarioId);
-    const intervalo = setInterval(() => carregarConversaAtiva(conversaAtiva.usuarioId), 5000);
+    carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta);
+    const intervalo = setInterval(() => carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta), 5000);
     return () => clearInterval(intervalo);
   }, [conversaAtiva]);
 
@@ -87,7 +93,7 @@ const Mensagens = () => {
     setConversaAtiva(conversa);
     //zera o badge na hora
     setConversas(prev => prev.map(c =>
-      c.usuarioId === conversa.usuarioId ? { ...c, naoLidas: 0 } : c
+      c.contaId === conversa.contaId && c.tipoConta === conversa.tipoConta ? { ...c, naoLidas: 0 } : c
     ));
   };
 
@@ -98,12 +104,13 @@ const Mensagens = () => {
     setEnviando(true);
     try {
       await api.post('/mensagens/enviar', {
-        destinatarioId: conversaAtiva.usuarioId,
+        destinatarioId: conversaAtiva.contaId,
+        tipoDestinatario: conversaAtiva.tipoConta,
         conteudo: textoNovaMensagem.trim()
       }, { headers: getHeaders() });
 
       setTextoNovaMensagem('');
-      await carregarConversaAtiva(conversaAtiva.usuarioId);
+      await carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta);
       await carregarConversas();
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
@@ -115,9 +122,8 @@ const Mensagens = () => {
 
   const abrirModalNovaConversa = async () => {
     try {
-      const response = await api.get('/usuarios', { headers: getHeaders() });
-      const outros = (response.data || []).filter(u => u.id !== usuarioLogado?.id);
-      setUsuariosDisponiveis(outros);
+      const response = await api.get('/comunicacao/contatos', { headers: getHeaders() });
+      setUsuariosDisponiveis(response.data || []);
       setModalNovaConversa(true);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
@@ -127,9 +133,11 @@ const Mensagens = () => {
 
   const iniciarConversaCom = (usuario) => {
     setConversaAtiva({
-      usuarioId: usuario.id,
+      contaId: usuario.contaId || usuario.id,
+      tipoConta: usuario.tipoConta || 'USUARIO',
       nome: usuario.name || usuario.nome,
-      cargo: usuario.cargo
+      subtitulo: usuario.subtitulo || usuario.cargo,
+      fotoUrl: usuario.fotoUrl
     });
     setMensagens([]);
     setModalNovaConversa(false);
@@ -148,8 +156,9 @@ const Mensagens = () => {
     return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
 
+  const normalizarBusca = (valor) => String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const usuariosFiltrados = usuariosDisponiveis.filter(u =>
-    (u.name || u.nome || '').toLowerCase().includes(buscaUsuario.toLowerCase())
+    normalizarBusca(u.name || u.nome).includes(normalizarBusca(buscaUsuario))
   );
 
   return (
@@ -158,10 +167,7 @@ const Mensagens = () => {
         <div className="header-inner">
           <div className="header-left">
             <img src={logoImg} alt="Help Logo" className="header-logo" onClick={() => navigate('/feed')} />
-            <div className="search-bar">
-              <Search size={18} color="#9ca3af" />
-              <input type="text" placeholder="Pesquisar..." />
-            </div>
+            <GlobalSearch />
           </div>
           <div className="header-right-nav">
             <Link to="/feed" className="nav-item">
@@ -210,11 +216,13 @@ const Mensagens = () => {
             ) : (
               conversas.map((conversa) => (
                 <div
-                  key={conversa.usuarioId}
-                  className={`conversa-item ${conversaAtiva?.usuarioId === conversa.usuarioId ? 'ativa' : ''}`}
+                  key={`${conversa.tipoConta}:${conversa.contaId}`}
+                  className={`conversa-item ${conversaAtiva?.contaId === conversa.contaId && conversaAtiva?.tipoConta === conversa.tipoConta ? 'ativa' : ''}`}
                   onClick={() => abrirConversa(conversa)}
                 >
-                  <div className="conversa-avatar">{(conversa.nome || '?').charAt(0).toUpperCase()}</div>
+                  <div className="conversa-avatar">
+                    {conversa.fotoUrl ? <img src={conversa.fotoUrl} alt="" /> : (conversa.nome || '?').charAt(0).toUpperCase()}
+                  </div>
                   <div className="conversa-info">
                     <div className="conversa-linha-topo">
                       <span className="conversa-nome">{conversa.nome}</span>
@@ -242,10 +250,12 @@ const Mensagens = () => {
                   <button className="voltar-btn-mobile" onClick={() => setConversaAtiva(null)}>
                     <ArrowLeft size={20} />
                   </button>
-                  <div className="conversa-avatar">{(conversaAtiva.nome || '?').charAt(0).toUpperCase()}</div>
+                  <div className="conversa-avatar">
+                    {conversaAtiva.fotoUrl ? <img src={conversaAtiva.fotoUrl} alt="" /> : (conversaAtiva.nome || '?').charAt(0).toUpperCase()}
+                  </div>
                   <div>
                     <div className="chat-header-nome">{conversaAtiva.nome}</div>
-                    {conversaAtiva.cargo && <div className="chat-header-cargo">{conversaAtiva.cargo}</div>}
+                    {conversaAtiva.subtitulo && <div className="chat-header-cargo">{conversaAtiva.subtitulo}</div>}
                   </div>
                 </div>
 
@@ -256,7 +266,7 @@ const Mensagens = () => {
                     mensagens.map((msg) => (
                       <div
                         key={msg.id}
-                        className={`msg-bolha ${msg.remetenteId === usuarioLogado?.id ? 'msg-enviada' : 'msg-recebida'}`}
+                        className={`msg-bolha ${msg.remetenteId === usuarioLogado?.id && (msg.remetenteTipo || 'USUARIO') === (usuarioLogado?.tipoConta === 'EMPRESA' ? 'EMPRESA' : 'USUARIO') ? 'msg-enviada' : 'msg-recebida'}`}
                       >
                         <p>{msg.conteudo}</p>
                         <span className="msg-hora">{formatarHora(msg.dataEnvio)}</span>
@@ -309,13 +319,13 @@ const Mensagens = () => {
                 <p className="mensagens-vazio">Nenhum usuário encontrado.</p>
               ) : (
                 usuariosFiltrados.map((usuario) => (
-                  <div key={usuario.id} className="usuario-modal-item" onClick={() => iniciarConversaCom(usuario)}>
+                  <div key={`${usuario.tipoConta}:${usuario.id}`} className="usuario-modal-item" onClick={() => iniciarConversaCom(usuario)}>
                     <div className="conversa-avatar">
-                      {(usuario.name || usuario.nome || '?').charAt(0).toUpperCase()}
+                      {usuario.fotoUrl ? <img src={usuario.fotoUrl} alt="" /> : (usuario.name || usuario.nome || '?').charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <div className="conversa-nome">{usuario.name || usuario.nome}</div>
-                      {usuario.cargo && <div className="chat-header-cargo">{usuario.cargo}</div>}
+                      {(usuario.subtitulo || usuario.cargo) && <div className="chat-header-cargo">{usuario.subtitulo || usuario.cargo}</div>}
                     </div>
                   </div>
                 ))

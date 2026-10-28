@@ -10,7 +10,7 @@ public record PerfilRequestDTO(
         @Size(max = 100) String cargo,
         @Size(max = 150) String localidade,
         @Size(max = 4000) String bio,
-        String fotoUrl,
+        @Size(max = 6291456, message = "A foto codificada excede o limite permitido.") String fotoUrl,
         @Valid List<ExperienciaDTO> experiencias,
         @Valid List<CursoDTO> cursos
 ) {
@@ -36,7 +36,7 @@ public record PerfilRequestDTO(
             String instituicao,
             String cargaHoraria,
             String tempoDuracao,
-            String certificadoUrl
+            @Size(max = 12582912, message = "O certificado codificado excede o limite permitido.") String certificadoUrl
     ) {
     }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // 📂 Arquivos dentro da pasta "pages" (fora da pasta src)
@@ -12,6 +12,7 @@ import CadastroEmpresa from '../pages/CadastroEmpresa.jsx';
 import CriarPublicacao from '../pages/CriarPublicacao.jsx';
 import Mensagens from '../pages/Mensagens.jsx';
 import Notificacoes from '../pages/Notificacoes.jsx';
+import PerfilPublico from '../pages/PerfilPublico.jsx';
 
 // 📂 Arquivos soltos na raiz do projeto (fora da pasta src)
 import Login from '../pages/Login.jsx';
@@ -27,11 +28,18 @@ import AdminUsuarios from '../pages/admin/AdminUsuarios.jsx';
 import AdminUsuarioDetalhe from '../pages/admin/AdminUsuarioDetalhe.jsx';
 import AdminEmpresas from '../pages/admin/AdminEmpresas.jsx';
 import AdminEmpresaDetalhe from '../pages/admin/AdminEmpresaDetalhe.jsx';
+import { observarSessao } from '../services/session';
+
+const SessionSynchronizer = () => {
+  useEffect(() => observarSessao(() => window.location.reload()), []);
+  return null;
+};
 
 const ProtectedRoute = ({ children }) => {
   const usuarioLogado = localStorage.getItem('usuarioLogado');
+  const token = localStorage.getItem('token');
 
-  if (!usuarioLogado) {
+  if (!usuarioLogado || !token) {
     return <Navigate to="/login" replace />;
   }
 
@@ -52,6 +60,7 @@ const ProtectedRouteDupla = ({ children }) => {
 function App() {
   return (
     <Router>
+      <SessionSynchronizer />
       <Routes>
         {/* Rotas Públicas */}
         <Route path="/" element={<Home />} />
@@ -65,9 +74,9 @@ function App() {
         <Route
           path="/feed"
           element={
-            <ProtectedRoute>
+            <ProtectedRouteDupla>
               <Feed />
-            </ProtectedRoute>
+            </ProtectedRouteDupla>
           }
         />
 
@@ -101,20 +110,22 @@ function App() {
         <Route
           path="/mensagens"
           element={
-            <ProtectedRoute>
+            <ProtectedRouteDupla>
               <Mensagens />
-            </ProtectedRoute>
+            </ProtectedRouteDupla>
           }
         />
 
         <Route
           path="/notificacoes"
           element={
-            <ProtectedRoute>
+            <ProtectedRouteDupla>
               <Notificacoes />
-            </ProtectedRoute>
+            </ProtectedRouteDupla>
           }
         />
+
+        <Route path="/perfil/:tipo/:id" element={<ProtectedRouteDupla><PerfilPublico /></ProtectedRouteDupla>} />
 
         {/* Rotas Compartilhadas / RH */}
         <Route

@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.example.Help.model.recuperacao.TokenService;
 import com.example.Help.model.usuario.Usuario;
+import com.example.Help.model.usuario.TipoConta;
+import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do TokenService (JWT)")
@@ -28,6 +30,17 @@ class TokenServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(tokenService, "secret", "segredo-de-teste-muito-seguro-e-longo-123456");
+        org.mockito.Mockito.lenient().when(usuarioMock.getId()).thenReturn(UUID.randomUUID());
+        org.mockito.Mockito.lenient().when(usuarioMock.getTipoConta()).thenReturn(TipoConta.CANDIDATO);
+        org.mockito.Mockito.lenient().when(usuarioMock.getSessionVersion()).thenReturn("sessao-atual");
+    }
+
+    @Test
+    @DisplayName("gerarToken - deve vincular o token à sessão ativa")
+    void gerarToken_deveConterVersaoDaSessao() {
+        when(usuarioMock.getEmail()).thenReturn("anny@email.com");
+        String token = tokenService.gerarToken(usuarioMock);
+        assertThat(tokenService.getSessionVersion(token)).isEqualTo("sessao-atual");
     }
 
     @Test

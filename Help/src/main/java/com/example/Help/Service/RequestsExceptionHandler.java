@@ -22,7 +22,13 @@ public class RequestsExceptionHandler {
     public ResponseEntity<?> tratarErro400(MethodArgumentNotValidException ex) {
         List<FieldError> erros = ex.getFieldErrors();
         List<DadosErroValidacao> lista = erros.stream().map(DadosErroValidacao::new).toList();
-        return ResponseEntity.badRequest().body(lista);
+        DadosErroValidacao primeiro = lista.isEmpty()
+                ? new DadosErroValidacao("requisicao", "Dados inválidos.") : lista.getFirst();
+        return ResponseEntity.badRequest().body(Map.of(
+                "campo", primeiro.campo(),
+                "mensagem", primeiro.mensagem(),
+                "erros", lista
+        ));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)//corpo vazio ou json inválido

@@ -48,25 +48,52 @@ public class SecurityFilter extends OncePerRequestFilter {
             try {
                 String email = tokenService.getSubject(tokenJWT);
                 String tipoConta = tokenService.getTipoConta(tokenJWT);
+                String sessionVersion = tokenService.getSessionVersion(tokenJWT);
 
                 if (email != null) {
                     UserDetails conta = localizarConta(email, tipoConta);
-                    if (conta != null && conta.isEnabled()) {
+                    if (conta != null && conta.isEnabled() && sessaoValida(conta, sessionVersion)) {
                         var authentication = new UsernamePasswordAuthenticationToken(
                                 conta,
                                 null,
                                 conta.getAuthorities()
                         );
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } else {
+                        rejeitar(response, "Sessão expirada ou substituída por outro login.");
+                        return;
                     }
+                } else {
+                    rejeitar(response, "Token inválido ou expirado.");
+                    return;
                 }
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
                 logger.warn("Token rejeitado durante a autenticação.");
+                rejeitar(response, "Token inválido ou expirado.");
+                return;
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void rejeitar(HttpServletResponse response, String mensagem) throws IOException {
+        SecurityContextHolder.clearContext();
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\":\"" + mensagem + "\"}");
+    }
+
+    private boolean sessaoValida(UserDetails conta, String tokenVersion) {
+        if (tokenVersion == null || tokenVersion.isBlank()) return false;
+        if (conta instanceof com.example.Help.model.usuario.Usuario usuario) {
+            return tokenVersion.equals(usuario.getSessionVersion());
+        }
+        if (conta instanceof com.example.Help.model.empresa.Empresa empresa) {
+            return tokenVersion.equals(empresa.getSessionVersion());
+        }
+        return false;
     }
 
     private UserDetails localizarConta(String email, String tipoConta) {

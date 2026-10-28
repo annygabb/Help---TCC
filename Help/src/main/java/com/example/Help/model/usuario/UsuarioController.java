@@ -38,6 +38,9 @@ public class UsuarioController {
     @Autowired
     private UsuarioAutenticadoService usuarioAutenticadoService;
 
+    @Autowired
+    private UsuarioRepository repository;
+
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrar(@RequestBody @Valid UsuarioRequestDTO data) {
         try {
@@ -54,6 +57,8 @@ public class UsuarioController {
             var authenticationToken = new UsernamePasswordAuthenticationToken(data.email(), data.password());
             var authentication = manager.authenticate(authenticationToken);
             var usuario = (Usuario) authentication.getPrincipal();
+            usuario.setSessionVersion(UUID.randomUUID().toString());
+            repository.save(usuario);
             var tokenJWT = tokenService.gerarToken(usuario);
 
             return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuario.getId(), usuario.getName(), usuario.getEmail()));

@@ -86,7 +86,7 @@ public class SeguidorService {
         String localizacao = conta instanceof Usuario usuario ? usuario.getCidade()
                 : conta instanceof Empresa empresa ? empresa.getEmail() : null;
         return new SeguidorResponseDTO(conta.getId(), conta.getTipoParticipante(), conta.getNomeSocial(),
-                cargo, localizacao, existe(atual, conta));
+                cargo, localizacao, conta.getFotoUrl(), existe(atual, conta));
     }
 
     private UUID id(ParticipanteSocial p, TipoParticipante tipo) {

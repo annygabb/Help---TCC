@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 public record EmpresaPerfilRequestDTO(
         @NotBlank(message = "O nome público da empresa é obrigatório.")
         @Size(max = 150, message = "O nome público deve ter no máximo 150 caracteres.")
-        String corporateName
+        String corporateName,
+        @Size(max = 6291456, message = "A foto codificada excede o limite permitido.") String fotoUrl
 ) {
 }

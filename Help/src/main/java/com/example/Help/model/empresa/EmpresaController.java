@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping({"/empresas", "/api/empresas"})
@@ -104,6 +105,8 @@ public class EmpresaController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
             }
 
+            empresa.setSessionVersion(UUID.randomUUID().toString());
+            repository.save(empresa);
             var tokenJWT = tokenService.gerarToken(empresa);
             return ResponseEntity.ok(new TokenDadosEmpresaDTO(tokenJWT));
         } catch (Exception e) {
@@ -123,7 +126,8 @@ public class EmpresaController {
                 empresa.getEmail(),
                 empresa.getCnpj(),
                 "EMPRESA",
-                empresa.isAtivo()
+                empresa.isAtivo(),
+                empresa.getFotoUrl()
         ));
     }
 
@@ -138,6 +142,7 @@ public class EmpresaController {
         String novoNome = dados.corporateName().trim().replaceAll("\\s+", " ");
         boolean mudou = !novoNome.equals(empresa.getCorporateName());
         empresa.setCorporateName(novoNome);
+        empresa.setFotoUrl(dados.fotoUrl());
         repository.save(empresa);
 
         if (mudou) {
@@ -146,6 +151,6 @@ public class EmpresaController {
                             "Empresa atualizada", empresa.getCorporateName() + " atualizou o perfil.", empresa));
         }
         return ResponseEntity.ok(new EmpresaAtualDTO(empresa.getId(), empresa.getCorporateName(), empresa.getEmail(),
-                empresa.getCnpj(), "EMPRESA", empresa.isAtivo()));
+                empresa.getCnpj(), "EMPRESA", empresa.isAtivo(), empresa.getFotoUrl()));
     }
 }
