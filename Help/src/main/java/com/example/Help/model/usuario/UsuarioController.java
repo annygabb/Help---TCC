@@ -3,6 +3,7 @@ package com.example.Help.model.usuario;
 import com.example.Help.Service.UsuarioService;
 import com.example.Help.Service.PagamentoService;
 import com.example.Help.Service.UsuarioAutenticadoService;
+import com.example.Help.Service.SessaoService;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.example.Help.model.recuperacao.DadosTokenJWT;
 import com.example.Help.model.recuperacao.TokenService;
@@ -41,6 +42,9 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository repository;
 
+    @Autowired
+    private SessaoService sessaoService;
+
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrar(@RequestBody @Valid UsuarioRequestDTO data) {
         try {
@@ -52,11 +56,12 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data, Authentication sessaoAtual) {
         try {
             var authenticationToken = new UsernamePasswordAuthenticationToken(data.email(), data.password());
-            var authentication = manager.authenticate(authenticationToken);
-            var usuario = (Usuario) authentication.getPrincipal();
+            var novaAutenticacao = manager.authenticate(authenticationToken);
+            var usuario = (Usuario) novaAutenticacao.getPrincipal();
+            sessaoService.invalidarContaAnterior(sessaoAtual, usuario);
             usuario.setSessionVersion(UUID.randomUUID().toString());
             repository.save(usuario);
             var tokenJWT = tokenService.gerarToken(usuario);

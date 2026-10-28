@@ -4,6 +4,7 @@ import com.example.Help.model.recuperacao.TokenService;
 import com.example.Help.model.usuario.UsuarioRepository;
 import com.example.Help.Service.NotificacaoService;
 import com.example.Help.Service.SeguidorService;
+import com.example.Help.Service.SessaoService;
 import com.example.Help.model.notificacao.TipoNotificacao;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class EmpresaController {
     private final TokenService tokenService;
     private final SeguidorService seguidorService;
     private final NotificacaoService notificacaoService;
+    private final SessaoService sessaoService;
 
     public EmpresaController(
             EmpresaRepository repository,
@@ -36,7 +38,8 @@ public class EmpresaController {
             AuthenticationManager manager,
             TokenService tokenService,
             SeguidorService seguidorService,
-            NotificacaoService notificacaoService
+            NotificacaoService notificacaoService,
+            SessaoService sessaoService
     ) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
@@ -45,6 +48,7 @@ public class EmpresaController {
         this.tokenService = tokenService;
         this.seguidorService = seguidorService;
         this.notificacaoService = notificacaoService;
+        this.sessaoService = sessaoService;
     }
 
     @PostMapping("/cadastro")
@@ -87,7 +91,8 @@ public class EmpresaController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> efetuarLogin(@RequestBody @Valid EmpresaLoginDTO dados) {
+    public ResponseEntity<?> efetuarLogin(@RequestBody @Valid EmpresaLoginDTO dados,
+                                          Authentication sessaoAtual) {
         try {
             String senhaLogin = dados.password() != null ? dados.password() : dados.senha();
             if (senhaLogin == null || senhaLogin.isBlank()) {
@@ -105,6 +110,7 @@ public class EmpresaController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
             }
 
+            sessaoService.invalidarContaAnterior(sessaoAtual, empresa);
             empresa.setSessionVersion(UUID.randomUUID().toString());
             repository.save(empresa);
             var tokenJWT = tokenService.gerarToken(empresa);
