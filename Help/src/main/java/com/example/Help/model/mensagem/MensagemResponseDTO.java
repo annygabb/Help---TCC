@@ -1,7 +1,8 @@
 package com.example.Help.model.mensagem;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
+import com.example.Help.Service.DataHora;
 import com.example.Help.model.social.ParticipanteSocial;
 import com.example.Help.model.social.TipoParticipante;
 
@@ -14,7 +15,7 @@ public record MensagemResponseDTO(
         TipoParticipante destinatarioTipo,
         String destinatarioNome,
         String conteudo,
-        LocalDateTime dataEnvio,
+        OffsetDateTime dataEnvio,
         boolean lida
 ) {
     public static MensagemResponseDTO fromEntity(Mensagem m) {
@@ -29,7 +30,7 @@ public record MensagemResponseDTO(
                 destinatario.getTipoParticipante(),
                 destinatario.getNomeSocial(),
                 m.getConteudo(),
-                m.getDataEnvio(),
+                DataHora.comoUtc(m.getDataEnvio()),
                 m.isLida()
         );
     }

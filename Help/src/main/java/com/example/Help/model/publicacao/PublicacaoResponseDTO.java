@@ -1,7 +1,7 @@
 package com.example.Help.model.publicacao;
 
 import com.example.Help.model.social.TipoParticipante;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record PublicacaoResponseDTO(
@@ -16,5 +16,5 @@ public record PublicacaoResponseDTO(
         String midiaTipo,
         PermissaoComentario permissaoComentario,
         boolean podeComentar,
-        LocalDateTime criadaEm
+        OffsetDateTime criadaEm
 ) {}

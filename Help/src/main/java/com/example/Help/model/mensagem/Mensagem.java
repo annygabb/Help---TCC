@@ -1,5 +1,6 @@
 package com.example.Help.model.mensagem;
 
+import com.example.Help.Service.DataHora;
 import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.social.ParticipanteSocial;
 import com.example.Help.model.usuario.Usuario;
@@ -51,7 +52,7 @@ public class Mensagem {
         atribuirRemetente(remetente);
         atribuirDestinatario(destinatario);
         this.conteudo = conteudo;
-        this.dataEnvio = LocalDateTime.now();
+        this.dataEnvio = DataHora.agoraUtc();
         this.lida = false;
         validarParticipantes();
     }
