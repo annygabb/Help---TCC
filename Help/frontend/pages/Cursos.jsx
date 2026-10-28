@@ -6,10 +6,11 @@ import {
 } from 'lucide-react';
 import './Cursos.css';
 import logoImg from '../assets/logo.png';
-import nttLogo from '../assets/ntt-logo.jpg';
 import logoImgperfil from '../assets/fotoperfil.png';
 import qrCodePix from '../assets/qrcode-pix.png';
 import { buildApiUrl } from '../services/apiConfig';
+import { obterSessao } from '../services/session';
+import useCurrentProfile from './useCurrentProfile';
 
 const MP_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY
   || 'TEST-15a6874e-0b27-41d1-8b04-407f5068e780';
@@ -707,6 +708,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
 
 const Cursos = () => {//pag principal
   const navigate = useNavigate();
+  const { perfil } = useCurrentProfile();
   const [showMeusCursosModal, setShowMeusCursosModal] = useState(false);
   const [cursoParaDetalhes, setCursoParaDetalhes] = useState(null);
   const [cursoParaMatricula, setCursoParaMatricula] = useState(null);
@@ -772,7 +774,7 @@ const Cursos = () => {//pag principal
   const limparFiltros = () => { setFiltroCategoria('Todos'); setFiltroNivel('Todos'); setFiltroPreco('Todos'); };
 
   const verificarSessao = () => {
-    const session = localStorage.getItem('user');
+    const session = obterSessao();
     if (!session) { navigate('/login'); return false; }
     return true;
   };
@@ -787,7 +789,14 @@ const Cursos = () => {//pag principal
     setShowMeusCursosModal(true);
   };
 
-  const user = JSON.parse(localStorage.getItem('user')) || { photo: null, name: 'Anny Gabrielly' };
+  const user = {
+    name: perfil.nome || 'Usuário',
+    email: obterSessao()?.conta?.email || '',
+    photo: perfil.fotoUrl,
+    role: perfil.cargo,
+    location: perfil.localidade,
+    company: perfil.empresaAtual
+  };
 
   return (
     <div className="cursos-page-wrapper">
@@ -828,20 +837,22 @@ const Cursos = () => {//pag principal
               </div>
               <div className="user-details-text">
                 <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>{user.name}</h3>
-                <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0', lineHeight: '1.2' }}>Systems Analyst na NTT DATA | Engenharia de Software</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {user.role && <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0', lineHeight: '1.2' }}>{user.role}</p>}
+                {user.location && <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <MapPin size={12} color="#9ca3af" />
-                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>Anápolis, Goiás</span>
+                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>{user.location}</span>
+                </div>}
+              </div>
+            </div>
+            {user.company && <>
+              <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(167,85,247,0.12)' }}>
+                  <Briefcase size={20} color="#a755f7" />
                 </div>
+                <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>{user.company}</span>
               </div>
-            </div>
-            <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5px', boxShadow: '0 0 10px rgba(255,255,255,0.1)' }}>
-                <img src={nttLogo} alt="NTT DATA" style={{ maxWidth: '100%', objectFit: 'contain' }} />
-              </div>
-              <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>NTT DATA</span>
-            </div>
+            </>}
           </div>
         </aside>
 

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import nttLogo from '../assets/ntt-logo.jpg';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search, MapPin,
@@ -12,6 +11,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import './Vagas.css';
 import logoImg from '../assets/logo.png';
 import userProfileImg from '../assets/fotoperfil.png';
+import useCurrentProfile from './useCurrentProfile';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -20,6 +20,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 
 const Vagas = () => {
   const navigate = useNavigate();
+  const { perfil } = useCurrentProfile();
 
   const [showFiltros, setShowFiltros] = useState(true);
   const [vagaSelecionada, setVagaSelecionada] = useState(null);
@@ -434,29 +435,31 @@ const Vagas = () => {
                   background: 'linear-gradient(45deg, #a755f7, #6366f1)',
                   zIndex: 0
                 }}></div>
-                <img src={userProfileImg} alt="Perfil" style={{ ...avatarStyle, position: 'relative', zIndex: 1, border: '3px solid #121217' }} />
+                <img src={perfil.fotoUrl || userProfileImg} alt={`Foto de ${perfil.nome || 'usuário'}`} style={{ ...avatarStyle, position: 'relative', zIndex: 1, border: '3px solid #121217' }} />
               </div>
 
               <div className="user-details-text">
-                <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>Anny Gabrielly</h3>
-                <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0' }}>Analista de Sistemas | Engenharia de Software</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>{perfil.nome || 'Usuário'}</h3>
+                {perfil.cargo && <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0' }}>{perfil.cargo}</p>}
+                {perfil.localidade && <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <MapPin size={12} color="#9ca3af" />
-                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>Silvânia, Goiás</span>
-                </div>
+                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>{perfil.localidade}</span>
+                </div>}
               </div>
             </div>
 
-            <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px', height: '40px', background: 'white', borderRadius: '8px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5px'
-              }}>
-              <div className="company-logo-box"><img src={nttLogo} alt="NTT DATA" /></div>
+            {perfil.empresaAtual && <>
+              <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '20px 0' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(167,85,247,0.12)'
+                }}>
+                  <Briefcase size={20} color="#a755f7" />
+                </div>
+                <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>{perfil.empresaAtual}</span>
               </div>
-              <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>NTT DATA</span>
-            </div>
+            </>}
           </div>
         </aside>
 

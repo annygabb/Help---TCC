@@ -10,6 +10,7 @@ import logoImg from '../assets/logo.png';
 import api from '../services/api';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
+import { destinoDaNotificacao } from '../utils/notificacoes';
 
 const iconePorTipo = (tipo) => {
   switch (tipo) {
@@ -72,15 +73,8 @@ const Notificacoes = () => {
 
   const handleClick = (notificacao) => {
     marcarComoLida(notificacao);
-    const origem = notificacao.origemId ? {
-      id: notificacao.origemId,
-      contaId: notificacao.origemId,
-      tipoConta: notificacao.origemTipo,
-      nome: notificacao.origemNome,
-      fotoUrl: notificacao.origemFotoUrl
-    } : null;
-    if (notificacao.tipo === 'NOVA_MENSAGEM') navigate('/mensagens', { state: { iniciarCom: origem } });
-    if (notificacao.tipo === 'NOVO_SEGUIDOR' && origem) navigate(`/perfil/${origem.tipoConta}/${origem.id}`);
+    const destino = destinoDaNotificacao(notificacao);
+    if (destino) navigate(destino.pathname, { state: destino.state });
   };
 
   const formatarData = (dataString) => {
@@ -156,6 +150,11 @@ const Notificacoes = () => {
                   key={notificacao.id}
                   className={`notificacao-item ${!notificacao.lida ? 'nao-lida' : ''}`}
                   onClick={() => handleClick(notificacao)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') handleClick(notificacao);
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className={`notificacao-icone tipo-${(notificacao.tipo || 'outro').toLowerCase()}`}>
                     {notificacao.origemFotoUrl
