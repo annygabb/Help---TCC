@@ -43,6 +43,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         var tokenJWT = recuperarToken(request);
+        boolean requisicaoDeLogin = isRequisicaoDeLogin(request);
 
         if (tokenJWT != null && !tokenJWT.isBlank()) {
             try {
@@ -60,15 +61,29 @@ public class SecurityFilter extends OncePerRequestFilter {
                         );
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } else {
+                        if (requisicaoDeLogin) {
+                            SecurityContextHolder.clearContext();
+                            filterChain.doFilter(request, response);
+                            return;
+                        }
                         rejeitar(response, "Sessão expirada ou substituída por outro login.");
                         return;
                     }
                 } else {
+                    if (requisicaoDeLogin) {
+                        SecurityContextHolder.clearContext();
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
                     rejeitar(response, "Token inválido ou expirado.");
                     return;
                 }
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
+                if (requisicaoDeLogin) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 logger.warn("Token rejeitado durante a autenticação.");
                 rejeitar(response, "Token inválido ou expirado.");
                 return;
@@ -76,6 +91,15 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isRequisicaoDeLogin(HttpServletRequest request) {
+        if (!"POST".equalsIgnoreCase(request.getMethod())) return false;
+        String caminho = request.getRequestURI();
+        return caminho.equals("/api/usuarios/login")
+                || caminho.equals("/usuarios/login")
+                || caminho.equals("/api/empresas/login")
+                || caminho.equals("/empresas/login");
     }
 
     private void rejeitar(HttpServletResponse response, String mensagem) throws IOException {
