@@ -1,5 +1,6 @@
 package com.example.Help.model.notificacao;
 
+import com.example.Help.Service.DataHora;
 import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.social.ParticipanteSocial;
 import com.example.Help.model.social.TipoParticipante;
@@ -61,7 +62,7 @@ public class Notificacao {
         this.origemNome = origemNome;
         this.origemTipo = origemTipo;
         this.lida = false;
-        this.dataCriacao = LocalDateTime.now();
+        this.dataCriacao = DataHora.agoraUtc();
         validarDestinatario();
     }
 

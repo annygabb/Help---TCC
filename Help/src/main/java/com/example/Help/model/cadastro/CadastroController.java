@@ -3,6 +3,7 @@ package com.example.Help.model.cadastro;
 import com.example.Help.Service.AdminAccountService;
 import com.example.Help.Service.PagamentoService;
 import com.example.Help.Service.UsuarioAutenticadoService;
+import com.example.Help.Service.SessaoService;
 import com.example.Help.model.empresa.EmpresaRepository;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.example.Help.model.recuperacao.TokenService;
@@ -34,6 +35,7 @@ public class CadastroController {
     private final TokenService tokenService;
     private final AdminAccountService adminAccountService;
     private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final SessaoService sessaoService;
 
     public CadastroController(
             UsuarioRepository repository,
@@ -42,7 +44,8 @@ public class CadastroController {
             PasswordEncoder passwordEncoder,
             TokenService tokenService,
             AdminAccountService adminAccountService,
-            UsuarioAutenticadoService usuarioAutenticadoService
+            UsuarioAutenticadoService usuarioAutenticadoService,
+            SessaoService sessaoService
     ) {
         this.repository = repository;
         this.empresaRepository = empresaRepository;
@@ -51,10 +54,12 @@ public class CadastroController {
         this.tokenService = tokenService;
         this.adminAccountService = adminAccountService;
         this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.sessaoService = sessaoService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data,
+                                   Authentication sessaoAtual) {
         String email = Usuario.normalizarEmail(data.email());
         var encontrado = repository.findByEmailIgnoreCase(email);
 
@@ -65,6 +70,7 @@ public class CadastroController {
                         .body(Map.of("error", "Conta desativada."));
             }
             if (passwordEncoder.matches(data.password(), usuario.getPassword())) {
+                sessaoService.invalidarContaAnterior(sessaoAtual, usuario);
                 usuario.setSessionVersion(UUID.randomUUID().toString());
                 repository.save(usuario);
                 String token = tokenService.gerarToken(usuario);

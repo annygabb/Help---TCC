@@ -7,7 +7,6 @@ import com.example.Help.model.usuario.Usuario;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +37,7 @@ public class NotificacaoService {
             notificacao.setTitulo(titulo);
             notificacao.setMensagem(mensagem);
             notificacao.setOrigemNome(origem.getNomeSocial());
-            notificacao.setDataCriacao(LocalDateTime.now());
+            notificacao.setDataCriacao(DataHora.agoraUtc());
             repository.save(notificacao);
         } else {
             criar(destinatario, tipo, titulo, mensagem, origem);

@@ -55,6 +55,6 @@ public class PublicacaoService {
                 : autor instanceof Empresa ? "Empresa" : null;
         return new PublicacaoResponseDTO(p.getId(), autor.getId(), autor.getTipoParticipante(),
                 autor.getNomeSocial(), subtitulo, autor.getFotoUrl(), p.getConteudo(), p.getMidiaUrl(),
-                p.getMidiaTipo(), p.getPermissaoComentario(), podeComentar, p.getCriadaEm());
+                p.getMidiaTipo(), p.getPermissaoComentario(), podeComentar, DataHora.comoUtc(p.getCriadaEm()));
     }
 }

@@ -20,7 +20,7 @@ jobs:
           java-version: '21'
           cache: maven
       - name: Validar isolamento, configuração e comunicação social
-        run: mvn -B -Dtest=BackendIdentityIsolationTest,PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest,ParticipanteAutenticadoServiceTest,SocialSchemaMappingTest,SeguidorSocialPersistenceTest,MensagemServiceSocialTest,MensagemControllerCompatibilityTest,NotificacaoServiceSocialTest,SeguidorServiceSocialTest,EmpresaSocialEventsTest,SessaoServiceTest test
+        run: mvn -B -Dtest=BackendIdentityIsolationTest,PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest,ParticipanteAutenticadoServiceTest,SocialSchemaMappingTest,SeguidorSocialPersistenceTest,MensagemServiceSocialTest,MensagemControllerCompatibilityTest,NotificacaoServiceSocialTest,SeguidorServiceSocialTest,EmpresaSocialEventsTest,SessaoServiceTest,TokenServiceTest,DataHoraTest test
       - name: Compilar e empacotar o backend
         run: mvn -B package -DskipTests
 

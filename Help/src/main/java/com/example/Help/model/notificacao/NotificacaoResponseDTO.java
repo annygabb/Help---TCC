@@ -1,7 +1,8 @@
 package com.example.Help.model.notificacao;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
+import com.example.Help.Service.DataHora;
 import com.example.Help.model.social.TipoParticipante;
 
 public record NotificacaoResponseDTO(
@@ -14,7 +15,7 @@ public record NotificacaoResponseDTO(
         String origemNome,
         String origemFotoUrl,
         boolean lida,
-        LocalDateTime dataCriacao
+        OffsetDateTime dataCriacao
 ) {
     public static NotificacaoResponseDTO fromEntity(Notificacao n, String origemFotoUrl) {
         return new NotificacaoResponseDTO(
@@ -27,7 +28,7 @@ public record NotificacaoResponseDTO(
                 n.getOrigemNome(),
                 origemFotoUrl,
                 n.isLida(),
-                n.getDataCriacao()
+                DataHora.comoUtc(n.getDataCriacao())
         );
     }
 }
