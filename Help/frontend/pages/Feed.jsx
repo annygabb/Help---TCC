@@ -109,7 +109,8 @@ const Feed = () => {
         conteudo: texto,
         midiaUrl,
         midiaTipo: midia?.tipo || null,
-        permissaoComentario: permissoes[config?.comentarioStatus ?? 0]
+        permissaoComentario: permissoes[config?.comentarioStatus ?? 0],
+        visibilidade: config?.visibilidade || 'TODOS'
       });
       setPosts((anteriores) => [data, ...anteriores.filter((post) => post.id !== data.id)]);
       setIsModalOpen(false);

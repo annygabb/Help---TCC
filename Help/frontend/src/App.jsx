@@ -28,18 +28,17 @@ import AdminUsuarios from '../pages/admin/AdminUsuarios.jsx';
 import AdminUsuarioDetalhe from '../pages/admin/AdminUsuarioDetalhe.jsx';
 import AdminEmpresas from '../pages/admin/AdminEmpresas.jsx';
 import AdminEmpresaDetalhe from '../pages/admin/AdminEmpresaDetalhe.jsx';
-import { observarSessao } from '../services/session';
+import { observarSessao, obterSessao } from '../services/session';
 
 const SessionSynchronizer = () => {
-  useEffect(() => observarSessao(() => window.location.reload()), []);
+  useEffect(() => observarSessao((sessao) => {
+    if (!sessao && !window.location.hash.includes('/login')) window.location.hash = '#/login';
+  }), []);
   return null;
 };
 
 const ProtectedRoute = ({ children }) => {
-  const usuarioLogado = localStorage.getItem('usuarioLogado');
-  const token = localStorage.getItem('token');
-
-  if (!usuarioLogado || !token) {
+  if (!obterSessao()) {
     return <Navigate to="/login" replace />;
   }
 
@@ -47,10 +46,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const ProtectedRouteDupla = ({ children }) => {
-  const usuarioLogado = localStorage.getItem('usuarioLogado');
-  const tokenEmpresa = localStorage.getItem('token');
-
-  if (!usuarioLogado && !tokenEmpresa) {
+  if (!obterSessao()) {
     return <Navigate to="/" replace />;
   }
 

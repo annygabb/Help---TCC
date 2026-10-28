@@ -31,7 +31,9 @@ public class PublicacaoService {
         }
         PermissaoComentario permissao = dados.permissaoComentario() == null
                 ? PermissaoComentario.TODOS : dados.permissaoComentario();
-        Publicacao salva = repository.save(new Publicacao(autor, conteudo, midia, dados.midiaTipo(), permissao));
+        VisibilidadePublicacao visibilidade = dados.visibilidade() == null
+                ? VisibilidadePublicacao.TODOS : dados.visibilidade();
+        Publicacao salva = repository.save(new Publicacao(autor, conteudo, midia, dados.midiaTipo(), permissao, visibilidade));
         return toResponse(salva, autor);
     }
 
@@ -39,8 +41,18 @@ public class PublicacaoService {
     public List<PublicacaoResponseDTO> listar(ParticipanteSocial atual) {
         return repository.findAllByOrderByCriadaEmDesc().stream()
                 .filter(p -> p.getAutorSocial() != null && p.getAutorSocial().isAtivo())
+                .filter(p -> podeVisualizar(p, atual))
                 .map(p -> toResponse(p, atual))
                 .toList();
+    }
+
+    private boolean podeVisualizar(Publicacao publicacao, ParticipanteSocial atual) {
+        ParticipanteSocial autor = publicacao.getAutorSocial();
+        boolean proprio = autor.getId().equals(atual.getId())
+                && autor.getTipoParticipante() == atual.getTipoParticipante();
+        return publicacao.getVisibilidade() == VisibilidadePublicacao.TODOS
+                || proprio
+                || seguidores.estaSeguindo(atual, autor.getId(), autor.getTipoParticipante());
     }
 
     private PublicacaoResponseDTO toResponse(Publicacao p, ParticipanteSocial atual) {
@@ -55,6 +67,7 @@ public class PublicacaoService {
                 : autor instanceof Empresa ? "Empresa" : null;
         return new PublicacaoResponseDTO(p.getId(), autor.getId(), autor.getTipoParticipante(),
                 autor.getNomeSocial(), subtitulo, autor.getFotoUrl(), p.getConteudo(), p.getMidiaUrl(),
-                p.getMidiaTipo(), p.getPermissaoComentario(), podeComentar, DataHora.comoUtc(p.getCriadaEm()));
+                p.getMidiaTipo(), p.getPermissaoComentario(), p.getVisibilidade(), podeComentar,
+                DataHora.comoUtc(p.getCriadaEm()));
     }
 }

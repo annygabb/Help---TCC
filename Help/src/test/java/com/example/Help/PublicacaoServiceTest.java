@@ -53,6 +53,31 @@ class PublicacaoServiceTest {
         assertThat(service.listar(leitor).getFirst().podeComentar()).isFalse();
     }
 
+    @Test
+    void publicacaoRestritaNaoApareceParaQuemNaoSegueAutor() {
+        Usuario autor = usuario("Autor");
+        Usuario leitor = usuario("Leitor");
+        Publicacao post = new Publicacao(autor, "Somente seguidores", null, null,
+                PermissaoComentario.TODOS, VisibilidadePublicacao.SEGUIDORES);
+        when(repository.findAllByOrderByCriadaEmDesc()).thenReturn(List.of(post));
+        when(seguidores.estaSeguindo(leitor, autor.getId(), autor.getTipoParticipante())).thenReturn(false);
+
+        assertThat(service.listar(leitor)).isEmpty();
+    }
+
+    @Test
+    void publicacaoRestritaApareceParaSeguidorEParaProprioAutor() {
+        Usuario autor = usuario("Autor");
+        Usuario seguidor = usuario("Seguidor");
+        Publicacao post = new Publicacao(autor, "Somente seguidores", null, null,
+                PermissaoComentario.TODOS, VisibilidadePublicacao.SEGUIDORES);
+        when(repository.findAllByOrderByCriadaEmDesc()).thenReturn(List.of(post));
+        when(seguidores.estaSeguindo(seguidor, autor.getId(), autor.getTipoParticipante())).thenReturn(true);
+
+        assertThat(service.listar(seguidor)).hasSize(1);
+        assertThat(service.listar(autor)).hasSize(1);
+    }
+
     private Usuario usuario(String nome) {
         Usuario usuario = new Usuario();
         usuario.setId(UUID.randomUUID());
