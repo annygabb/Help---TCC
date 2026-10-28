@@ -15,6 +15,7 @@ public record PublicacaoResponseDTO(
         String midiaUrl,
         String midiaTipo,
         PermissaoComentario permissaoComentario,
+        VisibilidadePublicacao visibilidade,
         boolean podeComentar,
         OffsetDateTime criadaEm
 ) {}

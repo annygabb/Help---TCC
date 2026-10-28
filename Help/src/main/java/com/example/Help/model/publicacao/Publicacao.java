@@ -41,18 +41,28 @@ public class Publicacao {
     @Column(name = "permissao_comentario", nullable = false, length = 20)
     private PermissaoComentario permissaoComentario = PermissaoComentario.TODOS;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibilidade", nullable = false, length = 20)
+    private VisibilidadePublicacao visibilidade = VisibilidadePublicacao.TODOS;
+
     @CreationTimestamp
     @Column(name = "criada_em", nullable = false, updatable = false)
     private LocalDateTime criadaEm;
 
     public Publicacao(ParticipanteSocial autor, String conteudo, String midiaUrl,
                       String midiaTipo, PermissaoComentario permissao) {
+        this(autor, conteudo, midiaUrl, midiaTipo, permissao, VisibilidadePublicacao.TODOS);
+    }
+
+    public Publicacao(ParticipanteSocial autor, String conteudo, String midiaUrl,
+                      String midiaTipo, PermissaoComentario permissao, VisibilidadePublicacao visibilidade) {
         if (autor.getTipoParticipante() == TipoParticipante.USUARIO) this.autorUsuario = (Usuario) autor;
         else this.autorEmpresa = (Empresa) autor;
         this.conteudo = conteudo;
         this.midiaUrl = midiaUrl;
         this.midiaTipo = midiaTipo;
         this.permissaoComentario = permissao;
+        this.visibilidade = visibilidade;
     }
 
     public ParticipanteSocial getAutorSocial() {
