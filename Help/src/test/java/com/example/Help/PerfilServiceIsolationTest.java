@@ -53,9 +53,12 @@ class PerfilServiceIsolationTest {
                 "Desenvolvedor",
                 "Goiânia, GO",
                 "Perfil individual",
-                null,
+                "data:image/png;base64,foto-do-usuario-teste",
                 List.of(),
-                List.of()
+                List.of(new PerfilRequestDTO.CursoDTO(
+                        "Curso", "Instituição", "40h", "1 mês",
+                        "data:application/pdf;base64," + "A".repeat(1000)
+                ))
         );
 
         service.atualizar(idTeste, dados);
@@ -64,6 +67,9 @@ class PerfilServiceIsolationTest {
         assertEquals("Desenvolvedor", perfilTeste.getCargoAtual());
         assertEquals("Anny Gabrielly", perfilAnny.getName());
         assertEquals("Analista", perfilAnny.getCargoAtual());
+        assertEquals("data:image/png;base64,foto-do-usuario-teste", teste.getFotoUrl());
+        assertEquals(1, perfilTeste.getCursos().size());
+        assertEquals(1028, perfilTeste.getCursos().getFirst().getCertificadoUrl().length());
         verify(usuarioRepository).findById(idTeste);
         verify(perfilRepository).findByUsuarioId(idTeste);
         verify(perfilRepository).save(perfilTeste);

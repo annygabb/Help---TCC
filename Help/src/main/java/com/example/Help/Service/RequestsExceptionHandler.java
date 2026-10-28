@@ -22,7 +22,13 @@ public class RequestsExceptionHandler {
     public ResponseEntity<?> tratarErro400(MethodArgumentNotValidException ex) {
         List<FieldError> erros = ex.getFieldErrors();
         List<DadosErroValidacao> lista = erros.stream().map(DadosErroValidacao::new).toList();
-        return ResponseEntity.badRequest().body(lista);
+        DadosErroValidacao primeiro = lista.isEmpty()
+                ? new DadosErroValidacao("requisicao", "Dados inválidos.") : lista.getFirst();
+        return ResponseEntity.badRequest().body(Map.of(
+                "campo", primeiro.campo(),
+                "mensagem", primeiro.mensagem(),
+                "erros", lista
+        ));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)//corpo vazio ou json inválido
@@ -54,11 +60,18 @@ public class RequestsExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)//duplicidade no banco
     public ResponseEntity<?> tratarConflitoBanco(DataIntegrityViolationException ex) {
         String msg = ex.getMessage();
-        if (msg != null && msg.toLowerCase().contains("email")) {
+        String mensagemNormalizada = msg != null ? msg.toLowerCase() : "";
+        if (mensagemNormalizada.contains("value too long")
+                || mensagemNormalizada.contains("valor é muito longo")
+                || mensagemNormalizada.contains("data too long")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("campo", "arquivo", "mensagem", "A imagem ou o arquivo enviado excede o limite aceito."));
+        }
+        if (mensagemNormalizada.contains("email")) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("campo", "email", "mensagem", "E-mail já cadastrado no sistema."));
         }
-        if (msg != null && msg.toLowerCase().contains("cpf")) {
+        if (mensagemNormalizada.contains("cpf")) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("campo", "cpf", "mensagem", "CPF já cadastrado no sistema."));
         }

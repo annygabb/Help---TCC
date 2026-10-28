@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Users, Briefcase, Plus, TrendingUp, Search,
     FileText, CheckCircle, MoreVertical, X,
-    Edit3, Ban
+    Edit3, Ban, Home, MessageSquare, Bell, Camera, Save
 } from 'lucide-react';
 import { vagaService } from '../pages/VagaServiceEmpresa';
 import logoImg from '../assets/logo.png';
@@ -12,6 +12,7 @@ import Talentos from './Talentos';
 import VagasRH from './VagasRH';
 import { calcularMatchIA } from './matchIA';
 import api from '../services/api';
+import GlobalSearch from '../components/GlobalSearch';
 
 const DashboardRH = () => {
     const [busca, setBusca] = useState('');
@@ -23,6 +24,42 @@ const DashboardRH = () => {
     const [pesoSkills, setPesoSkills] = useState(50);
     const [pesoExp, setPesoExp] = useState(50);
     const [abaAtiva, setAbaAtiva] = useState('painel');
+    const fotoEmpresaRef = useRef(null);
+    const [empresa, setEmpresa] = useState({ razaoSocial: '', fotoUrl: null });
+
+    useEffect(() => {
+        api.get('/empresas/me').then(({ data }) => setEmpresa(data)).catch((error) => {
+            console.error('Erro ao carregar empresa:', error);
+        });
+    }, []);
+
+    const alterarFotoEmpresa = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/') || file.size > 4 * 1024 * 1024) {
+            alert('Escolha uma imagem de até 4 MB.');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => setEmpresa((anterior) => ({ ...anterior, fotoUrl: reader.result }));
+        reader.readAsDataURL(file);
+    };
+
+    const salvarPerfilEmpresa = async () => {
+        try {
+            const { data } = await api.put('/empresas/me', {
+                corporateName: empresa.razaoSocial,
+                fotoUrl: empresa.fotoUrl
+            });
+            setEmpresa(data);
+            const sessao = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+            localStorage.setItem('usuarioLogado', JSON.stringify({ ...sessao, nome: data.razaoSocial, fotoPerfil: data.fotoUrl }));
+            alert('Perfil da empresa atualizado.');
+        } catch (error) {
+            const dados = error.response?.data;
+            alert(dados?.mensagem || dados?.error || 'Não foi possível atualizar a empresa.');
+        }
+    };
 
     const [novaVaga, setNovaVaga] = useState({
         cargo: '',
@@ -279,17 +316,12 @@ const DashboardRH = () => {
                 <div className="header-inner">
                     <div className="header-left">
                         <img src={logoImg} alt="Help Logo" className="header-logo" />
-                        <div className="search-bar">
-                            <Search size={18} color="#9ca3af" />
-                            <input
-                                type="text"
-                                placeholder="Buscar talentos ou vagas..."
-                                value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
-                            />
-                        </div>
+                        <GlobalSearch />
                     </div>
                     <div className="header-right-nav">
+                        <Link to="/feed" className="nav-item"><Home size={22} /><span>Feed</span></Link>
+                        <Link to="/mensagens" className="nav-item"><MessageSquare size={22} /><span>Mensagens</span></Link>
+                        <Link to="/notificacoes" className="nav-item"><Bell size={22} /><span>Notificações</span></Link>
                         <div className={`nav-item ${abaAtiva === 'painel' ? 'active' : ''}`} onClick={() => setAbaAtiva('painel')}>
                             <TrendingUp size={22} /><span>Painel</span>
                         </div>
@@ -308,6 +340,14 @@ const DashboardRH = () => {
                     <>
                         <aside className="left-column">
                             <div className="profile-card-dark">
+                                <div className="empresa-profile-editor">
+                                    <button type="button" className="empresa-avatar-button" onClick={() => fotoEmpresaRef.current?.click()} title="Alterar foto da empresa">
+                                        {empresa.fotoUrl ? <img src={empresa.fotoUrl} alt="Foto da empresa" /> : <Camera size={24} />}
+                                    </button>
+                                    <input ref={fotoEmpresaRef} type="file" accept="image/*" hidden onChange={alterarFotoEmpresa} />
+                                    <input value={empresa.razaoSocial || ''} onChange={(e) => setEmpresa({ ...empresa, razaoSocial: e.target.value })} aria-label="Nome público da empresa" />
+                                    <button type="button" className="empresa-save-button" onClick={salvarPerfilEmpresa}><Save size={16} /> Salvar</button>
+                                </div>
                                 <h4 className="section-title" style={{ marginBottom: '15px', fontSize: '14px', color: '#a755f7' }}>
                                     Resumo Semanal
                                 </h4>

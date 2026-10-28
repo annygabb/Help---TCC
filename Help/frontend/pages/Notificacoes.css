@@ -196,6 +196,19 @@
   color: #a755f7;
 }
 
+.notificacao-icone img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.notificacao-origem {
+  color: #f4efff;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
 .notificacao-icone.tipo-novo_seguidor {
   background: rgba(99, 102, 241, 0.2);
   color: #818cf8;

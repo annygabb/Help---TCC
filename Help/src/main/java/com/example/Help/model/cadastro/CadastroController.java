@@ -65,6 +65,8 @@ public class CadastroController {
                         .body(Map.of("error", "Conta desativada."));
             }
             if (passwordEncoder.matches(data.password(), usuario.getPassword())) {
+                usuario.setSessionVersion(UUID.randomUUID().toString());
+                repository.save(usuario);
                 String token = tokenService.gerarToken(usuario);
                 return ResponseEntity.ok(Map.of(
                         "token", token,

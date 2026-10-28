@@ -191,7 +191,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:config": "node --test services/*.test.js"
+    "test:config": "node --test services/*.test.js",
+    "test": "node --test services/*.test.js utils/*.test.js"
   },
   "repository": {
     "type": "git",

@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, Lock, User, Fingerprint } from 'lucide-react';
 import api from '../services/api';
 import './Cadastro.css';
 import logoImg from '../assets/logo.png';
+import { apenasDigitos, formatarCPF, mensagemDaApi, validarCPF } from '../utils/validacoes';
 
 function Cadastro() {
   const navigate = useNavigate();
@@ -16,13 +17,17 @@ function Cadastro() {
 
   const handleCadastro = async (e) => {
     e.preventDefault();
+    if (!validarCPF(cpf)) {
+      alert('Informe um CPF válido.');
+      return;
+    }
     setLoading(true);
 
     const dados = {
       name: nome,
       email: email,
       password: senha,
-      cpf: cpf
+      cpf: apenasDigitos(cpf)
     };
 
     try {
@@ -33,11 +38,7 @@ function Cadastro() {
     } catch (error) {
       console.error("Erro ao realizar cadastro:", error);
 
-      if (error.response?.status === 400) {
-        alert("E-mail ou CPF já cadastrados no sistema.");
-      } else {
-        alert("Erro ao criar conta. Verifique a conexão com o servidor.");
-      }
+      alert(mensagemDaApi(error, 'Erro ao criar conta. Verifique a conexão com o servidor.'));
     } finally {
       setLoading(false);
     }
@@ -98,7 +99,7 @@ function Cadastro() {
               placeholder="CPF (000.000.000-00)"
               maxLength="14"
               value={cpf}
-              onChange={(e) => setCpf(e.target.value)}
+              onChange={(e) => setCpf(formatarCPF(e.target.value))}
               required
             />
           </div>

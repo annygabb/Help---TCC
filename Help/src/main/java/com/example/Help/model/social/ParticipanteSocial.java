@@ -6,5 +6,6 @@ public interface ParticipanteSocial {
     UUID getId();
     TipoParticipante getTipoParticipante();
     String getNomeSocial();
+    String getFotoUrl();
     boolean isAtivo();
 }

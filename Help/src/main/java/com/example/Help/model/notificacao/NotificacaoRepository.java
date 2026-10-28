@@ -43,4 +43,10 @@ public interface NotificacaoRepository extends JpaRepository<Notificacao, UUID> 
                                            @Param("origemId") UUID origemId,
                                            @Param("origemTipo") TipoParticipante origemTipo,
                                            @Param("tipo") TipoNotificacao tipo);
+
+    @Query(value = "SELECT foto_url FROM usuarios WHERE id = :id", nativeQuery = true)
+    String buscarFotoUsuario(@Param("id") UUID id);
+
+    @Query(value = "SELECT foto_url FROM empresas WHERE id = :id", nativeQuery = true)
+    String buscarFotoEmpresa(@Param("id") UUID id);
 }

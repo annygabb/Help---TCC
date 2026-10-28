@@ -55,6 +55,14 @@ public class Empresa implements UserDetails, ParticipanteSocial {
     @Getter @Setter
     private String motivoStatus;
 
+    @Column(name = "foto_url", columnDefinition = "TEXT")
+    @Getter @Setter
+    private String fotoUrl;
+
+    @Column(name = "session_version", length = 36)
+    @Getter @Setter
+    private String sessionVersion;
+
     @PrePersist
     @PreUpdate
     void normalizarAntesDeSalvar() {

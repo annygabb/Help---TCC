@@ -408,6 +408,12 @@ O backend solicita o PIX, retorna QR Code/copia e cola quando disponíveis e con
 | POST | `/usuarios/redefinir-senha` | Redefine senha |
 | POST | `/empresas/cadastro` | Cadastra empresa |
 | POST | `/empresas/login` | Login de empresa |
+| GET/PUT | `/perfis/me` | Consulta ou altera somente o perfil autenticado |
+| GET | `/comunicacao/contatos` | Pesquisa unificada de usuários e empresas |
+| POST/DELETE | `/seguidores/.../{tipoConta}/{contaId}` | Segue ou deixa de seguir uma conta tipada |
+| GET/POST | `/mensagens` | Conversas entre usuários e empresas |
+| GET | `/notificacoes` | Notificações da conta autenticada |
+| GET/POST | `/publicacoes` | Feed global persistente |
 | GET | `/api/vagas` | Lista vagas |
 | POST | `/api/vagas` | Cria vaga autorizada |
 | DELETE | `/api/vagas/{id}` | Exclui vaga |
@@ -441,8 +447,12 @@ Há testes relacionados a autenticação, usuários, cadastro, cursos, vagas, ma
 ```bash
 cd Help/frontend
 npm install
+npm test
 npm run build
 ```
+
+O roteiro completo para validar duas contas de usuário e duas empresas está em
+[`Help/docs/TESTE_SOCIAL_PONTA_A_PONTA.md`](Help/docs/TESTE_SOCIAL_PONTA_A_PONTA.md).
 
 ## Autoria
 

@@ -26,17 +26,19 @@ public class TokenService {
             return criarToken(
                     usuario.getEmail(),
                     usuario.getId().toString(),
-                    usuario.getTipoConta().name()
+                    usuario.getTipoConta().name(),
+                    usuario.getSessionVersion()
             );
         }
         if (conta instanceof Empresa empresa) {
             return criarToken(
                     empresa.getEmail(),
                     empresa.getId().toString(),
-                    "EMPRESA"
+                    "EMPRESA",
+                    empresa.getSessionVersion()
             );
         }
-        return criarToken(conta.getUsername(), null, "DESCONHECIDO");
+        return criarToken(conta.getUsername(), null, "DESCONHECIDO", null);
     }
 
     public String gerarToken(Usuario usuario) {
@@ -47,12 +49,13 @@ public class TokenService {
         return gerarToken((UserDetails) empresa);
     }
 
-    private String criarToken(String email, String id, String tipoConta) {
+    private String criarToken(String email, String id, String tipoConta, String sessionVersion) {
         try {
             var builder = JWT.create()
                     .withIssuer(ISSUER)
                     .withSubject(email)
                     .withClaim("tipoConta", tipoConta)
+                    .withClaim("sessionVersion", sessionVersion)
                     .withExpiresAt(dataExpiracao());
 
             if (id != null) builder.withClaim("contaId", id);
@@ -73,6 +76,14 @@ public class TokenService {
     public String getTipoConta(String tokenJWT) {
         try {
             return verificar(tokenJWT).getClaim("tipoConta").asString();
+        } catch (JWTVerificationException exception) {
+            return null;
+        }
+    }
+
+    public String getSessionVersion(String tokenJWT) {
+        try {
+            return verificar(tokenJWT).getClaim("sessionVersion").asString();
         } catch (JWTVerificationException exception) {
             return null;
         }

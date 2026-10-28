@@ -10,6 +10,7 @@ import logoImg from '../assets/logo.png';
 import defaultProfileImg from '../assets/fotoperfil.png';
 import CriarPublicacao from './CriarPublicacao';
 import useUnreadCounts from './useUnreadCounts';
+import GlobalSearch from '../components/GlobalSearch';
 import api from '../services/api';
 
 const Feed = () => {
@@ -18,27 +19,17 @@ const Feed = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const naoLidas = useUnreadCounts();
 
-  const [isSeguidorDoAutor] = useState(true);
-
   const [user, setUser] = useState({
     name: '',
     role: '',
     company: '',
     location: '',
-    photoUrl: null
+    photoUrl: null,
+    tipoConta: ''
   });
 
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: "Help - Plataforma de Carreiras",
-      role: "Promovido",
-      content: "Bem-vinda ao seu novo ecossistema profissional! Explore vagas e cursos voltados para Engenharia de Software.",
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      isPromoted: true,
-      comentarioStatus: 0
-    }
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [carregandoPosts, setCarregandoPosts] = useState(true);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -55,14 +46,20 @@ const Feed = () => {
       role: parsedUser.cargo || '',
       company: '',
       location: parsedUser.localidade || '',
-      photoUrl: parsedUser.fotoPerfil || null
+      photoUrl: parsedUser.fotoPerfil || parsedUser.fotoUrl || null,
+      tipoConta: parsedUser.tipoConta || 'CANDIDATO'
     });
 
     let ativo = true;
-    api.get('/perfis/me', {
+    const tipoConta = parsedUser.tipoConta;
+    api.get(tipoConta === 'EMPRESA' ? '/empresas/me' : '/perfis/me', {
       headers: { Authorization: `Bearer ${token}` }
     }).then(({ data }) => {
       if (!ativo) return;
+      if (tipoConta === 'EMPRESA') {
+        setUser({ name: data.razaoSocial || '', role: 'Empresa', company: '', location: '', photoUrl: data.fotoUrl || null, tipoConta: 'EMPRESA' });
+        return;
+      }
       const empregoAtual = (data.experiencias || []).find((experiencia) => experiencia.trabalhaAtualmente);
 
       setUser({
@@ -70,11 +67,17 @@ const Feed = () => {
         role: data.cargo || '',
         company: empregoAtual?.empresa || '',
         location: data.localidade || '',
-        photoUrl: data.fotoUrl || null
+        photoUrl: data.fotoUrl || null,
+        tipoConta: parsedUser.tipoConta || 'CANDIDATO'
       });
     }).catch((error) => {
       console.error('Erro ao carregar perfil no feed:', error);
     });
+
+    api.get('/publicacoes').then(({ data }) => {
+      if (ativo) setPosts(data || []);
+    }).catch((error) => console.error('Erro ao carregar publicações:', error))
+      .finally(() => { if (ativo) setCarregandoPosts(false); });
 
     return () => {
       ativo = false;
@@ -93,21 +96,27 @@ const Feed = () => {
     return `${Math.floor(diffInHours / 24)}d`;
   };
 
-  const handleNewPost = (texto, midia, config) => {
-    const newPost = {
-      id: Date.now(),
-      author: user.name,
-      role: user.company ? `${user.role} na ${user.company}` : user.role,
-      content: texto,
-      midia: midia,
-      timestamp: new Date().toISOString(),
-      isPromoted: false,
-      comentarioStatus: config?.comentarioStatus ?? 0,
-      privacidade: config?.privacidadePost ?? 'todos'
-    };
-
-    setPosts([newPost, ...posts]);
-    setIsModalOpen(false);
+  const handleNewPost = async (texto, midia, config) => {
+    try {
+      const midiaUrl = midia?.file ? await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(midia.file);
+      }) : null;
+      const permissoes = ['TODOS', 'SEGUIDORES', 'DESATIVADO'];
+      const { data } = await api.post('/publicacoes', {
+        conteudo: texto,
+        midiaUrl,
+        midiaTipo: midia?.tipo || null,
+        permissaoComentario: permissoes[config?.comentarioStatus ?? 0]
+      });
+      setPosts((anteriores) => [data, ...anteriores.filter((post) => post.id !== data.id)]);
+      setIsModalOpen(false);
+    } catch (error) {
+      const dados = error.response?.data;
+      alert(dados?.mensagem || dados?.message || dados?.error || (typeof dados === 'string' ? dados : 'Não foi possível publicar.'));
+    }
   };
 
   const avatarStyle = { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' };
@@ -120,10 +129,7 @@ const Feed = () => {
         <div className="header-inner">
           <div className="header-left">
             <img src={logoImg} alt="Help Logo" className="header-logo" onClick={() => navigate('/')} />
-            <div className="search-bar">
-              <Search size={18} color="#9ca3af" />
-              <input type="text" placeholder="Pesquisar..." />
-            </div>
+            <GlobalSearch />
           </div>
           <div className="header-right-nav">
             <Link to="/feed" className={`nav-item ${location.pathname === '/feed' ? 'active' : ''}`}>
@@ -160,7 +166,7 @@ const Feed = () => {
 <aside className="left-column">
   <div
     className="profile-card-dark"
-    onClick={() => navigate('/configuracao-perfil')}
+    onClick={() => navigate(user.tipoConta === 'EMPRESA' ? '/dashboard-rh' : '/configuracao-perfil')}
     style={{
       cursor: 'pointer',
       padding: '20px'
@@ -247,27 +253,29 @@ const Feed = () => {
             </div>
           </div>
 
+          {carregandoPosts && <p className="feed-state">Carregando publicações...</p>}
+          {!carregandoPosts && posts.length === 0 && <p className="feed-state">Ainda não há publicações. Seja a primeira conta a publicar.</p>}
           {posts.map(post => {
-            const isOff = post.comentarioStatus === 2;
-            const isOnlyFollowers = post.comentarioStatus === 1;
-            const canUserComment = !isOff && (isOnlyFollowers ? isSeguidorDoAutor : true);
+            const isOff = post.permissaoComentario === 'DESATIVADO';
+            const isOnlyFollowers = post.permissaoComentario === 'SEGUIDORES';
+            const canUserComment = post.podeComentar;
 
             return (
               <div className="post" key={post.id}>
                 <div className="post-header">
                   <div className="avatar-mini">
-                    <img src={post.isPromoted ? logoImg : profileImage} alt="Autor" style={avatarStyle} />
+                    <img src={post.autorFotoUrl || defaultProfileImg} alt="Autor" style={avatarStyle} />
                   </div>
                   <div className="post-info">
-                    <h4>{post.author}</h4>
-                    <span>{post.role} • {post.isPromoted ? 'Promovido' : formatTimeAgo(post.timestamp)}</span>
+                    <h4>{post.autorNome}</h4>
+                    <span>{post.autorSubtitulo || (post.autorTipo === 'EMPRESA' ? 'Empresa' : 'Usuário')} • {formatTimeAgo(post.criadaEm)}</span>
                   </div>
                 </div>
                 <div className="post-body">
-                  <p>{post.content}</p>
-                  {post.midia && post.midia.preview && (
+                  <p>{post.conteudo}</p>
+                  {post.midiaUrl && (
                      <div className="post-media-content">
-                        {post.midia.tipo === 'image' ? <img src={post.midia.preview} alt="Post" /> : <video src={post.midia.preview} controls />}
+                        {post.midiaTipo === 'image' ? <img src={post.midiaUrl} alt="Post" /> : <video src={post.midiaUrl} controls />}
                      </div>
                   )}
                 </div>
@@ -279,11 +287,13 @@ const Feed = () => {
                     <button className="action-btn"><MessageCircle size={18} /> Comentar</button>
                   )}
 
-                  {isOnlyFollowers && !isSeguidorDoAutor && (
+                  {isOnlyFollowers && !canUserComment && (
                     <div className="comment-restricted-info">
                        <Users size={14} /> <span>Apenas seguidores podem comentar</span>
                     </div>
                   )}
+
+                  {isOff && <div className="comment-restricted-info"><span>Comentários desativados</span></div>}
 
                   <button className="action-btn"><Share2 size={18} /> Compartilhar</button>
                 </div>

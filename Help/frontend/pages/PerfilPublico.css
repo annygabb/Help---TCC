@@ -1,0 +1,12 @@
+.perfil-publico-page { min-height: 100vh; background: #080115; color: #fff; padding: 40px 20px; }
+.perfil-publico-voltar { display: flex; gap: 8px; align-items: center; background: transparent; border: 0; color: #d9d1e5; cursor: pointer; margin: 0 auto 20px; width: min(720px, 100%); }
+.perfil-publico-card { width: min(720px, 100%); margin: auto; background: #120822; border: 1px solid #3c2855; border-radius: 20px; padding: 36px; text-align: center; }
+.perfil-publico-avatar { width: 112px; height: 112px; margin: auto; border-radius: 50%; overflow: hidden; background: #7c3aed; display: grid; place-items: center; font-size: 42px; font-weight: 700; }
+.perfil-publico-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-publico-tipo { margin: 16px auto 0; display: flex; gap: 6px; align-items: center; justify-content: center; color: #b994ff; }
+.perfil-publico-card h1 { margin-bottom: 6px; }
+.perfil-publico-card p { color: #b9aec9; }
+.perfil-publico-numeros { display: flex; justify-content: center; gap: 28px; margin: 24px 0; }
+.perfil-publico-acoes { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.perfil-publico-acoes button { display: flex; align-items: center; gap: 8px; border: 0; border-radius: 10px; padding: 11px 18px; color: #fff; background: #7c3aed; cursor: pointer; }
+.perfil-publico-acoes .secundario { background: transparent; border: 1px solid #8b5cf6; }

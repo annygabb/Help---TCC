@@ -48,7 +48,7 @@ public class NotificacaoService {
     public List<NotificacaoResponseDTO> listar(ParticipanteSocial destinatario) {
         return repository.listar(id(destinatario, TipoParticipante.USUARIO),
                         id(destinatario, TipoParticipante.EMPRESA)).stream()
-                .map(NotificacaoResponseDTO::fromEntity).toList();
+                .map(n -> NotificacaoResponseDTO.fromEntity(n, fotoDaOrigem(n))).toList();
     }
 
     public long contarNaoLidas(ParticipanteSocial destinatario) {
@@ -91,7 +91,8 @@ public class NotificacaoService {
     }
 
     public List<NotificacaoResponseDTO> listarPorUsuario(UUID usuarioId) {
-        return repository.listar(usuarioId, null).stream().map(NotificacaoResponseDTO::fromEntity).toList();
+        return repository.listar(usuarioId, null).stream()
+                .map(n -> NotificacaoResponseDTO.fromEntity(n, fotoDaOrigem(n))).toList();
     }
 
     public long contarNaoLidas(UUID usuarioId) { return repository.contarNaoLidas(usuarioId, null); }
@@ -113,5 +114,16 @@ public class NotificacaoService {
     private boolean mesmaConta(ParticipanteSocial a, ParticipanteSocial b) {
         return a != null && b != null && a.getTipoParticipante() == b.getTipoParticipante()
                 && a.getId().equals(b.getId());
+    }
+
+    private String fotoDaOrigem(Notificacao notificacao) {
+        if (notificacao.getOrigemId() == null || notificacao.getOrigemTipo() == null) return null;
+        try {
+            return notificacao.getOrigemTipo() == TipoParticipante.USUARIO
+                    ? repository.buscarFotoUsuario(notificacao.getOrigemId())
+                    : repository.buscarFotoEmpresa(notificacao.getOrigemId());
+        } catch (RuntimeException ignored) {
+            return null;
+        }
     }
 }

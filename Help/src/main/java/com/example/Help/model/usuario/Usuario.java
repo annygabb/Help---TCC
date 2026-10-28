@@ -59,6 +59,12 @@ public class Usuario implements UserDetails, ParticipanteSocial {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(name = "foto_url", columnDefinition = "TEXT")
+    private String fotoUrl;
+
+    @Column(name = "session_version", length = 36)
+    private String sessionVersion;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_conta", length = 20)
     private TipoConta tipoConta = TipoConta.CANDIDATO;

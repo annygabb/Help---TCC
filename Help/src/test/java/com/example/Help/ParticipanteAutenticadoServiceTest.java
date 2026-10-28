@@ -72,6 +72,18 @@ class ParticipanteAutenticadoServiceTest {
                 .containsExactlyInAnyOrder("USUARIO:Ana Java", "EMPRESA:Ana Tecnologia");
     }
 
+    @Test
+    void diretorioPesquisaSemDiferenciarAcentosOuMaiusculas() {
+        Usuario atual = usuario(UUID.randomUUID(), "Atual", "atual@help.test", true);
+        Usuario jose = usuario(UUID.randomUUID(), "José da Silva", "jose@help.test", true);
+        when(usuarioRepository.findAll()).thenReturn(List.of(atual, jose));
+        when(empresaRepository.findAll()).thenReturn(List.of());
+
+        assertThat(service.listarAtivos(atual, "JOSE", null))
+                .extracting(p -> p.getNomeSocial())
+                .containsExactly("José da Silva");
+    }
+
     private Usuario usuario(UUID id, String nome, String email, boolean ativo) {
         Usuario usuario = new Usuario();
         usuario.setId(id);

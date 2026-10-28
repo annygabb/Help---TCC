@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock } from 'lucide-react';
 import api from '../services/api';
 import './LoginEmpresa.css';
 import logoImg from '../assets/logo.png';
+import { estabelecerSessao, obterSessao } from '../services/session';
 
 function LoginEmpresa() {
     const navigate = useNavigate();
@@ -11,6 +12,11 @@ function LoginEmpresa() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const sessao = obterSessao();
+        if (sessao) navigate(sessao.conta.tipoConta === 'EMPRESA' ? '/dashboard-rh' : '/feed', { replace: true });
+    }, [navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -24,8 +30,9 @@ function LoginEmpresa() {
         try {
             const response = await api.post('/empresas/login', dados);
 
-            // Armazena o token de autenticação da empresa no localStorage
-            localStorage.setItem('token', response.data.token);
+            const token = response.data.token;
+            const { data: conta } = await api.get('/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+            estabelecerSessao(token, { ...conta, tipoConta: 'EMPRESA' });
 
             alert("Login realizado com sucesso!");
             navigate('/dashboard-rh');

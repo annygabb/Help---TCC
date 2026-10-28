@@ -9,6 +9,7 @@ import './Notificacoes.css';
 import logoImg from '../assets/logo.png';
 import api from '../services/api';
 import useUnreadCounts from './useUnreadCounts';
+import GlobalSearch from '../components/GlobalSearch';
 
 const iconePorTipo = (tipo) => {
   switch (tipo) {
@@ -43,7 +44,7 @@ const Notificacoes = () => {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem('usuarioLogado')) {
+    if (!localStorage.getItem('token')) {
       navigate('/login');
       return;
     }
@@ -71,8 +72,15 @@ const Notificacoes = () => {
 
   const handleClick = (notificacao) => {
     marcarComoLida(notificacao);
-    if (notificacao.tipo === 'NOVA_MENSAGEM') navigate('/mensagens');
-    if (notificacao.tipo === 'NOVO_SEGUIDOR') navigate('/configuracao-perfil');
+    const origem = notificacao.origemId ? {
+      id: notificacao.origemId,
+      contaId: notificacao.origemId,
+      tipoConta: notificacao.origemTipo,
+      nome: notificacao.origemNome,
+      fotoUrl: notificacao.origemFotoUrl
+    } : null;
+    if (notificacao.tipo === 'NOVA_MENSAGEM') navigate('/mensagens', { state: { iniciarCom: origem } });
+    if (notificacao.tipo === 'NOVO_SEGUIDOR' && origem) navigate(`/perfil/${origem.tipoConta}/${origem.id}`);
   };
 
   const formatarData = (dataString) => {
@@ -100,10 +108,7 @@ const Notificacoes = () => {
         <div className="header-inner">
           <div className="header-left">
             <img src={logoImg} alt="Help Logo" className="header-logo" onClick={() => navigate('/feed')} />
-            <div className="search-bar">
-              <Search size={18} color="#9ca3af" />
-              <input type="text" placeholder="Pesquisar..." />
-            </div>
+            <GlobalSearch />
           </div>
           <div className="header-right-nav">
             <Link to="/feed" className="nav-item">
@@ -153,10 +158,13 @@ const Notificacoes = () => {
                   onClick={() => handleClick(notificacao)}
                 >
                   <div className={`notificacao-icone tipo-${(notificacao.tipo || 'outro').toLowerCase()}`}>
-                    {iconePorTipo(notificacao.tipo)}
+                    {notificacao.origemFotoUrl
+                      ? <img src={notificacao.origemFotoUrl} alt={`Foto de ${notificacao.origemNome || 'conta'}`} />
+                      : notificacao.origemNome?.charAt(0).toUpperCase() || iconePorTipo(notificacao.tipo)}
                   </div>
                   <div className="notificacao-conteudo">
                     <div className="notificacao-titulo">{notificacao.titulo}</div>
+                    {notificacao.origemNome && <div className="notificacao-origem">{notificacao.origemNome}</div>}
                     <div className="notificacao-mensagem">{notificacao.mensagem}</div>
                     <div className="notificacao-data">{formatarData(notificacao.dataCriacao)}</div>
                   </div>

@@ -16,5 +16,6 @@ public class CursoPerfil {
     private String instituicao;
     private String cargaHoraria;
     private String tempoDuracao;
+    @Column(columnDefinition = "TEXT")
     private String certificadoUrl;
 }
