@@ -4,7 +4,7 @@ import {
   Home, BookOpen, Briefcase, Search, MessageSquare, Bell, Plus,
   User, Mail, MapPin, Save, Building2, AlignLeft, FileText, Trash2,
   Camera, Calendar, GraduationCap, Clock, FileUp, CheckCircle, Pencil, X,
-  Users, UserPlus, UserMinus, Compass, RefreshCw
+  Users, UserPlus, UserMinus, Compass, RefreshCw, LogOut
 } from 'lucide-react';
 
 import './ConfigPerfil.css';
@@ -14,6 +14,7 @@ import logoImgperfil from '../assets/fotoperfil.png';
 import api from '../services/api';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
+import { encerrarSessao } from '../services/session';
 
 const ConfigPerfil = () => {
   const navigate = useNavigate();
@@ -449,6 +450,14 @@ const ConfigPerfil = () => {
             <input type="file" ref={fileInputRef} onChange={handlePhotoChange} accept="image/*" style={{ display: 'none' }} />
             <button type="button" className="change-photo-btn-styled" onClick={() => fileInputRef.current.click()}>
               <Camera size={18} /> Alterar foto de perfil
+            </button>
+            <button
+              type="button"
+              className="change-photo-btn-styled"
+              style={{ marginTop: '12px' }}
+              onClick={() => { encerrarSessao(); navigate('/login'); }}
+            >
+              <LogOut size={18} /> Sair da conta
             </button>
           </section>
 
