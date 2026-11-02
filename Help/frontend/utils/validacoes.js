@@ -25,3 +25,19 @@ export function mensagemDaApi(error, padrao) {
   if (typeof data === 'string' && data.trim()) return data;
   return data?.mensagem || data?.message || data?.error || padrao;
 }
+
+export const REQUISITOS_SENHA = [
+  { id: 'tamanho', texto: 'Pelo menos 8 caracteres', testar: (senha) => senha.length >= 8 },
+  { id: 'maiuscula', texto: 'Uma letra maiúscula', testar: (senha) => /[A-Z]/.test(senha) },
+  { id: 'minuscula', texto: 'Uma letra minúscula', testar: (senha) => /[a-z]/.test(senha) },
+  { id: 'numero', texto: 'Um número', testar: (senha) => /\d/.test(senha) }
+];
+
+export function verificarSenha(valor) {
+  const senha = String(valor ?? '');
+  return REQUISITOS_SENHA.map(({ id, texto, testar }) => ({ id, texto, atendido: testar(senha) }));
+}
+
+export function senhaValida(valor) {
+  return verificarSenha(valor).every((requisito) => requisito.atendido);
+}

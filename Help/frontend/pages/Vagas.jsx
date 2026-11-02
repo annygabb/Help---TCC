@@ -409,9 +409,9 @@ const Vagas = () => {
             <Link to="/feed" className="nav-item"><Home size={22} /><span>Início</span></Link>
             <Link to="/cursos" className="nav-item"><BookOpen size={22} /><span>Cursos</span></Link>
             <Link to="/vagas" className="nav-item active"><Briefcase size={22} /><span>Vagas</span></Link>
-            <div className="nav-item"><MessageSquare size={22} /><span>Mensagens</span></div>
-            <div className="nav-item"><Bell size={22} /><span>Notificações</span></div>
-          </div>
+            <Link to="/mensagens" className="nav-item"><MessageSquare size={22} /><span>Mensagens</span></Link>
+            <Link to="/notificacoes" className="nav-item"><Bell size={22} /><span>Notificações</span></Link>
+                      </div>
         </div>
       </nav>
 

@@ -1,0 +1,87 @@
+.campo-senha > svg {
+  flex-shrink: 0;
+}
+
+.campo-senha > input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.campo-senha-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 6px;
+  margin-right: -6px;
+  border-radius: 50%;
+  color: #7c3aed;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.campo-senha-toggle:hover {
+  background-color: rgba(124, 58, 237, 0.1);
+}
+
+.campo-senha-toggle:focus-visible {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
+.requisitos-senha {
+  text-align: left;
+  margin: -4px 0 10px;
+  padding: 0 12px;
+}
+
+.requisitos-senha-titulo {
+  color: #b8b8c8;
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.requisitos-senha ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.requisitos-senha li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.requisitos-senha li svg {
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.requisitos-senha li.atendido {
+  color: #4ade80;
+}
+
+.requisitos-senha li.atendido svg {
+  color: #4ade80;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
