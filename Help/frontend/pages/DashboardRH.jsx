@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     Users, Briefcase, Plus, TrendingUp, Search,
     FileText, CheckCircle, MoreVertical, X,
-    Edit3, Ban, Home, MessageSquare, Bell, Camera, Save
+    Edit3, Ban, Home, MessageSquare, Bell, Camera, Save, LogOut
 } from 'lucide-react';
 import { vagaService } from '../pages/VagaServiceEmpresa';
 import logoImg from '../assets/logo.png';
@@ -13,8 +13,10 @@ import VagasRH from './VagasRH';
 import { calcularMatchIA } from './matchIA';
 import api from '../services/api';
 import GlobalSearch from '../components/GlobalSearch';
+import { encerrarSessao } from '../services/session';
 
 const DashboardRH = () => {
+    const navigate = useNavigate();
     const [busca, setBusca] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [menuAberto, setMenuAberto] = useState(null);
@@ -330,6 +332,9 @@ const DashboardRH = () => {
                         </div>
                         <div className={`nav-item ${abaAtiva === 'talentos' ? 'active' : ''}`} onClick={() => setAbaAtiva('talentos')}>
                             <Users size={22} /><span>Talentos</span>
+                        </div>
+                        <div className="nav-item" onClick={() => { encerrarSessao(); navigate('/login-empresa'); }}>
+                            <LogOut size={22} /><span>Sair</span>
                         </div>
                     </div>
                 </div>
