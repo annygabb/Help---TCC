@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, User, Fingerprint } from 'lucide-react';
+import { ArrowLeft, Mail, User, Fingerprint } from 'lucide-react';
 import api from '../services/api';
 import './Cadastro.css';
 import logoImg from '../assets/logo.png';
-import { apenasDigitos, formatarCPF, mensagemDaApi, validarCPF } from '../utils/validacoes';
+import { apenasDigitos, formatarCPF, mensagemDaApi, senhaValida, validarCPF } from '../utils/validacoes';
+import { CampoSenha, RequisitosSenha } from '../components/CampoSenha';
 
 function Cadastro() {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ function Cadastro() {
       alert('Informe um CPF válido.');
       return;
     }
+    if (!senhaValida(senha)) {
+      alert('A senha precisa ter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula e um número.');
+      return;
+    }
     setLoading(true);
 
     const dados = {
@@ -31,7 +36,7 @@ function Cadastro() {
     };
 
     try {
-    await api.post('/api/usuarios/cadastrar', dados);
+      await api.post('/api/usuarios/cadastrar', dados);
 
       alert("Cadastro realizado com sucesso!");
       navigate('/login');
@@ -71,10 +76,11 @@ function Cadastro() {
           alt="Help Logo"
           className="logo-image-auth"
           style={{
+            display: 'block',
             height: '100px',
             width: 'auto',
             objectFit: 'contain',
-            marginBottom: '20px'
+            margin: '0 auto 20px'
           }}
         />
 
@@ -115,18 +121,21 @@ function Cadastro() {
             />
           </div>
 
-          <div className="input-with-icon">
-            <Lock size={20} color="#7c3aed" />
-            <input
-              type="password"
-              placeholder="Senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required
-            />
-          </div>
+          <CampoSenha
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            required
+            autoComplete="new-password"
+            aria-describedby="requisitos-senha-cadastro"
+          />
+          <RequisitosSenha senha={senha} id="requisitos-senha-cadastro" />
 
-          <button type="submit" className="btn-cadastro" disabled={loading}>
+          <button
+            type="submit"
+            className="btn-cadastro"
+            disabled={loading || !senhaValida(senha)}
+            style={loading || !senhaValida(senha) ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+          >
             {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>

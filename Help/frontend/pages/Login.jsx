@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowLeft } from 'lucide-react';
+import { CampoSenha } from '../components/CampoSenha';
 
 import api from '../services/api';
 import './Login.css';
@@ -111,7 +112,7 @@ function Login() {
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="input-container">
-            <Mail size={20} color="#7c3aed" style={{ marginLeft: '15px' }} />
+            <Mail size={20} color="#7c3aed" style={{ marginLeft: '15px', flexShrink: 0 }} />
             <input
               type="email"
               placeholder="E-mail"
@@ -120,21 +121,19 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              style={{ minWidth: 0 }}
             />
           </div>
 
-          <div className="input-container">
-            <Lock size={20} color="#7c3aed" style={{ marginLeft: '15px' }} />
-            <input
-              type="password"
-              placeholder="Senha"
-              className="input-field"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
+          <CampoSenha
+            wrapperClassName="input-container"
+            inputClassName="input-field"
+            iconStyle={{ marginLeft: '15px' }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
 
           <div style={{ textAlign: 'right', width: '100%', marginBottom: '20px' }}>
             <Link
