@@ -4,7 +4,7 @@ import {
   Home, BookOpen, Briefcase, Search, MessageSquare, Bell, Plus,
   User, Mail, MapPin, Save, Building2, AlignLeft, FileText, Trash2,
   Camera, Calendar, GraduationCap, Clock, FileUp, CheckCircle, Pencil, X,
-  Users, UserPlus, UserMinus, Compass
+  Users, UserPlus, UserMinus, Compass, RefreshCw
 } from 'lucide-react';
 
 import './ConfigPerfil.css';
@@ -44,6 +44,10 @@ const ConfigPerfil = () => {
   const [contagemConexoes, setContagemConexoes] = useState({ seguidores: 0, seguindo: 0 });
   const [carregandoConexoes, setCarregandoConexoes] = useState(false);
   const [buscaConexao, setBuscaConexao] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('TODOS');
+  const [carregandoDescobrir, setCarregandoDescobrir] = useState(false);
+  const [erroDescobrir, setErroDescobrir] = useState(false);
+  const [tentativaDescobrir, setTentativaDescobrir] = useState(0);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -194,8 +198,8 @@ const ConfigPerfil = () => {
         api.get('/seguidores/meus-seguidores', { headers }),
         api.get(`/seguidores/contagem/USUARIO/${userData.id}`, { headers })
       ]);
-      setSeguindoLista(resSeguindo.data || []);
-      setSeguidoresLista(resSeguidores.data || []);
+      setSeguindoLista((resSeguindo.data || []).map((u) => normalizarPessoa(u)).filter(Boolean));
+      setSeguidoresLista((resSeguidores.data || []).map((u) => normalizarPessoa(u)).filter(Boolean));
       setContagemConexoes(resContagem.data || { seguidores: 0, seguindo: 0 });
     } catch (error) {
       console.error('Erro ao carregar conexões:', error);
@@ -204,40 +208,61 @@ const ConfigPerfil = () => {
     }
   };
 
-  //lista todo mundo marcando quem eu ja sigo
-  const carregarDescobrir = async () => {
-    if (!userData.id) return;
-    setCarregandoConexoes(true);
-    try {
-      const resUsuarios = await api.get('/comunicacao/contatos', { headers: getAuthHeaders() });
-      const idsSeguindo = new Set(seguindoLista.map(u => `${u.tipoConta}:${u.id}`));
-
-      setDescobrirLista(
-        (resUsuarios.data || [])
-          .map(u => ({
-            id: u.id,
-            tipoConta: u.tipoConta,
-            nome: u.name || u.nome,
-            cargo: u.subtitulo || u.cargo,
-            localizacao: u.cidade,
-            fotoUrl: u.fotoUrl,
-            euSigoEle: u.seguindo ?? idsSeguindo.has(`${u.tipoConta}:${u.id}`)
-          }))
-      );
-    } catch (error) {
-      console.error('Erro ao carregar usuários para seguir:', error);
-    } finally {
-      setCarregandoConexoes(false);
-    }
+  const normalizarPessoa = (u, idsSeguindo) => {
+    if (!u || !u.id) return null;
+    const tipoConta = String(u.tipoConta || 'USUARIO').toUpperCase();
+    const nome = String(u.nome || u.name || '').trim()
+      || (tipoConta === 'EMPRESA' ? 'Empresa sem nome' : 'Usuário sem nome');
+    const chave = `${tipoConta}:${u.id}`;
+    return {
+      id: u.id,
+      tipoConta,
+      chave,
+      nome,
+      cargo: u.subtitulo || u.cargo || '',
+      localizacao: u.localizacao || u.cidade,
+      fotoUrl: u.fotoUrl,
+      euSigoEle: u.seguindo ?? u.euSigoEle ?? Boolean(idsSeguindo?.has(chave))
+    };
   };
+
+  useEffect(() => {
+    if (abaConexoes !== 'descobrir' || !userData.id) return undefined;
+
+    const controle = new AbortController();
+    const espera = setTimeout(async () => {
+      setCarregandoDescobrir(true);
+      setErroDescobrir(false);
+      try {
+        const params = {};
+        if (buscaConexao.trim()) params.busca = buscaConexao.trim();
+        if (filtroTipo !== 'TODOS') params.tipo = filtroTipo;
+
+        const resposta = await api.get('/comunicacao/contatos', {
+          headers: getAuthHeaders(),
+          params,
+          signal: controle.signal
+        });
+        const idsSeguindo = new Set(seguindoLista.map((u) => `${u.tipoConta}:${u.id}`));
+        setDescobrirLista((resposta.data || []).map((u) => normalizarPessoa(u, idsSeguindo)).filter(Boolean));
+      } catch (error) {
+        if (controle.signal.aborted || error.code === 'ERR_CANCELED') return;
+        console.error('Erro ao buscar contas:', error);
+        setErroDescobrir(true);
+      } finally {
+        if (!controle.signal.aborted) setCarregandoDescobrir(false);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(espera);
+      controle.abort();
+    };
+  }, [abaConexoes, userData.id, buscaConexao, filtroTipo, seguindoLista, tentativaDescobrir]);
 
   useEffect(() => {
     if (userData.id) carregarConexoes();
   }, [userData.id]);
-
-  useEffect(() => {
-    if (abaConexoes === 'descobrir') carregarDescobrir();
-  }, [abaConexoes, userData.id, seguindoLista]);
 
   const seguirUsuario = async (pessoa) => {
     try {
@@ -259,9 +284,63 @@ const ConfigPerfil = () => {
     }
   };
 
-  const normalizarBusca = (valor) => String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const filtrarPorNome = (lista) => lista.filter(u =>
-    normalizarBusca(u.nome).includes(normalizarBusca(buscaConexao))
+  const normalizarBusca = (valor) => String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const filtrarPorTipo = (lista) => lista.filter((u) => filtroTipo === 'TODOS' || u.tipoConta === filtroTipo);
+  const filtrarPorNome = (lista) => filtrarPorTipo(lista).filter((u) =>
+    normalizarBusca(`${u.nome} ${u.cargo}`).includes(normalizarBusca(buscaConexao))
+  );
+
+  const FILTROS_TIPO = [
+    { valor: 'TODOS', rotulo: 'Todos' },
+    { valor: 'USUARIO', rotulo: 'Usuários' },
+    { valor: 'EMPRESA', rotulo: 'Empresas' }
+  ];
+
+  const renderCartao = (pessoa, textoSeguir = 'Seguir') => (
+    <div key={pessoa.chave} className="conexao-card">
+      <div className="conexao-avatar">
+        {pessoa.fotoUrl
+          ? <img src={pessoa.fotoUrl} alt="" />
+          : (pessoa.tipoConta === 'EMPRESA' ? <Building2 size={20} /> : <User size={20} />)}
+      </div>
+      <div className="conexao-info">
+        <span className="conexao-nome">
+          {pessoa.nome}
+          <span
+            style={{
+              marginLeft: '8px',
+              fontSize: '11px',
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: '999px',
+              verticalAlign: 'middle',
+              background: pessoa.tipoConta === 'EMPRESA' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(167, 85, 247, 0.2)',
+              color: pessoa.tipoConta === 'EMPRESA' ? '#a5b4fc' : '#d8b4fe'
+            }}
+          >
+            {pessoa.tipoConta === 'EMPRESA' ? 'Empresa' : 'Usuário'}
+          </span>
+        </span>
+        {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
+      </div>
+      {pessoa.euSigoEle ? (
+        <button
+          type="button"
+          className="conexao-btn deixar-seguir"
+          onClick={() => deixarDeSeguirUsuario(pessoa)}
+        >
+          <UserMinus size={16} /> Deixar de seguir
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="conexao-btn seguir"
+          onClick={() => seguirUsuario(pessoa)}
+        >
+          <UserPlus size={16} /> {textoSeguir}
+        </button>
+      )}
+    </div>
   );
 
   const handleSave = async (e) => {
@@ -618,112 +697,74 @@ const ConfigPerfil = () => {
                   <Search size={18} />
                   <input
                     type="text"
-                    placeholder="Buscar por nome..."
+                    placeholder={abaConexoes === 'descobrir' ? 'Buscar por nome, cargo ou e-mail...' : 'Buscar por nome...'}
                     value={buscaConexao}
                     onChange={(e) => setBuscaConexao(e.target.value)}
+                    aria-label="Buscar conexões"
                   />
                 </div>
               </div>
 
-              {carregandoConexoes ? (
+              <div className="conexoes-tabs" role="group" aria-label="Filtrar por tipo de conta">
+                {FILTROS_TIPO.map(({ valor, rotulo }) => (
+                  <button
+                    key={valor}
+                    type="button"
+                    className={`conexoes-tab ${filtroTipo === valor ? 'ativa' : ''}`}
+                    onClick={() => setFiltroTipo(valor)}
+                    aria-pressed={filtroTipo === valor}
+                  >
+                    {rotulo}
+                  </button>
+                ))}
+              </div>
+
+              {abaConexoes === 'descobrir' ? (
+                carregandoDescobrir ? (
+                  <p className="conexoes-vazio">Carregando...</p>
+                ) : erroDescobrir ? (
+                  <div className="conexoes-vazio">
+                    <p>Não foi possível carregar as contas.</p>
+                    <button
+                      type="button"
+                      className="conexao-btn seguir"
+                      style={{ margin: '12px auto 0' }}
+                      onClick={() => setTentativaDescobrir((n) => n + 1)}
+                    >
+                      <RefreshCw size={16} /> Tentar novamente
+                    </button>
+                  </div>
+                ) : filtrarPorTipo(descobrirLista).length === 0 ? (
+                  <p className="conexoes-vazio">
+                    {buscaConexao.trim() ? `Nenhuma conta encontrada para "${buscaConexao.trim()}".` : 'Nenhuma conta encontrada.'}
+                  </p>
+                ) : (
+                  <div className="conexoes-lista">
+                    {filtrarPorTipo(descobrirLista).map((pessoa) => renderCartao(pessoa))}
+                  </div>
+                )
+              ) : carregandoConexoes ? (
                 <p className="conexoes-vazio">Carregando...</p>
+              ) : abaConexoes === 'seguindo' ? (
+                filtrarPorNome(seguindoLista).length === 0 ? (
+                  <p className="conexoes-vazio">
+                    {buscaConexao.trim() || filtroTipo !== 'TODOS' ? 'Nenhuma conta encontrada com esse filtro.' : 'Você ainda não está seguindo ninguém.'}
+                  </p>
+                ) : (
+                  <div className="conexoes-lista">
+                    {filtrarPorNome(seguindoLista).map((pessoa) => renderCartao({ ...pessoa, euSigoEle: true }))}
+                  </div>
+                )
               ) : (
-                <>
-                  {abaConexoes === 'seguindo' && (
-                    filtrarPorNome(seguindoLista).length === 0 ? (
-                      <p className="conexoes-vazio">Você ainda não está seguindo ninguém.</p>
-                    ) : (
-                      <div className="conexoes-lista">
-                        {filtrarPorNome(seguindoLista).map((pessoa) => (
-                          <div key={`${pessoa.tipoConta}:${pessoa.id}`} className="conexao-card">
-                            <div className="conexao-avatar">{pessoa.fotoUrl ? <img src={pessoa.fotoUrl} alt="" /> : (pessoa.nome || '?').charAt(0).toUpperCase()}</div>
-                            <div className="conexao-info">
-                              <span className="conexao-nome">{pessoa.nome}</span>
-                              {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
-                            </div>
-                            <button
-                              type="button"
-                              className="conexao-btn deixar-seguir"
-                              onClick={() => deixarDeSeguirUsuario(pessoa)}
-                            >
-                              <UserMinus size={16} /> Deixar de seguir
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
-
-                  {abaConexoes === 'seguidores' && (
-                    filtrarPorNome(seguidoresLista).length === 0 ? (
-                      <p className="conexoes-vazio">Ninguém está te seguindo ainda.</p>
-                    ) : (
-                      <div className="conexoes-lista">
-                        {filtrarPorNome(seguidoresLista).map((pessoa) => (
-                          <div key={`${pessoa.tipoConta}:${pessoa.id}`} className="conexao-card">
-                            <div className="conexao-avatar">{pessoa.fotoUrl ? <img src={pessoa.fotoUrl} alt="" /> : (pessoa.nome || '?').charAt(0).toUpperCase()}</div>
-                            <div className="conexao-info">
-                              <span className="conexao-nome">{pessoa.nome}</span>
-                              {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
-                            </div>
-                            {pessoa.euSigoEle ? (
-                              <button
-                                type="button"
-                                className="conexao-btn deixar-seguir"
-                                onClick={() => deixarDeSeguirUsuario(pessoa)}
-                              >
-                                <UserMinus size={16} /> Deixar de seguir
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                className="conexao-btn seguir"
-                                onClick={() => seguirUsuario(pessoa)}
-                              >
-                                <UserPlus size={16} /> Seguir de volta
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
-
-                  {abaConexoes === 'descobrir' && (
-                    filtrarPorNome(descobrirLista).length === 0 ? (
-                      <p className="conexoes-vazio">Nenhum usuário encontrado.</p>
-                    ) : (
-                      <div className="conexoes-lista">
-                        {filtrarPorNome(descobrirLista).map((pessoa) => (
-                          <div key={`${pessoa.tipoConta}:${pessoa.id}`} className="conexao-card">
-                            <div className="conexao-avatar">{pessoa.fotoUrl ? <img src={pessoa.fotoUrl} alt="" /> : (pessoa.nome || '?').charAt(0).toUpperCase()}</div>
-                            <div className="conexao-info">
-                              <span className="conexao-nome">{pessoa.nome}</span>
-                              {pessoa.cargo && <span className="conexao-cargo">{pessoa.cargo}</span>}
-                            </div>
-                            {pessoa.euSigoEle ? (
-                              <button
-                                type="button"
-                                className="conexao-btn deixar-seguir"
-                                onClick={() => deixarDeSeguirUsuario(pessoa)}
-                              >
-                                <UserMinus size={16} /> Deixar de seguir
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                className="conexao-btn seguir"
-                                onClick={() => seguirUsuario(pessoa)}
-                              >
-                                <UserPlus size={16} /> Seguir
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
-                </>
+                filtrarPorNome(seguidoresLista).length === 0 ? (
+                  <p className="conexoes-vazio">
+                    {buscaConexao.trim() || filtroTipo !== 'TODOS' ? 'Nenhuma conta encontrada com esse filtro.' : 'Ninguém está te seguindo ainda.'}
+                  </p>
+                ) : (
+                  <div className="conexoes-lista">
+                    {filtrarPorNome(seguidoresLista).map((pessoa) => renderCartao(pessoa, 'Seguir de volta'))}
+                  </div>
+                )
               )}
             </div>
 
