@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock } from 'lucide-react';
+import { ArrowLeft, Mail } from 'lucide-react';
 import api from '../services/api';
 import './LoginEmpresa.css';
 import logoImg from '../assets/logo.png';
 import { estabelecerSessao } from '../services/session';
+import { CampoSenha } from '../components/CampoSenha';
 
 function LoginEmpresa() {
     const navigate = useNavigate();
@@ -99,16 +100,12 @@ function LoginEmpresa() {
                         />
                     </div>
 
-                    <div className="input-with-icon">
-                        <Lock size={20} color="#7c3aed" />
-                        <input
-                            type="password"
-                            placeholder="Senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <CampoSenha
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                    />
 
                     <button type="submit" className="btn-login" disabled={loading}>
                         {loading ? 'Entrando...' : 'Entrar'}

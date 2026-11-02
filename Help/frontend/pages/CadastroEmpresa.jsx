@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, Building, FileText } from 'lucide-react';
+import { ArrowLeft, Mail, Building, FileText } from 'lucide-react';
 import api from '../services/api';
 import './CadastroEmpresa.css';
 import logoImg from '../assets/logo.png';
+import { senhaValida } from '../utils/validacoes';
+import { CampoSenha, RequisitosSenha } from '../components/CampoSenha';
 
 function CadastroEmpresa() {
     const navigate = useNavigate();
@@ -27,6 +29,10 @@ function CadastroEmpresa() {
 
     const handleCadastro = async (e) => {
         e.preventDefault();
+        if (!senhaValida(senha)) {
+            alert('A senha precisa ter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula e um número.');
+            return;
+        }
         setLoading(true);
 
         const cnpjLimpo = cnpj.replace(/\D/g, '');
@@ -133,18 +139,21 @@ function CadastroEmpresa() {
                         />
                     </div>
 
-                    <div className="input-with-icon">
-                        <Lock size={20} color="#7c3aed" />
-                        <input
-                            type="password"
-                            placeholder="Senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <CampoSenha
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                        aria-describedby="requisitos-senha-empresa"
+                    />
+                    <RequisitosSenha senha={senha} id="requisitos-senha-empresa" />
 
-                    <button type="submit" className="btn-cadastro" disabled={loading}>
+                    <button
+                        type="submit"
+                        className="btn-cadastro"
+                        disabled={loading || !senhaValida(senha)}
+                        style={loading || !senhaValida(senha) ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                    >
                         {loading ? 'Cadastrando...' : 'Cadastrar Empresa'}
                     </button>
                 </form>
