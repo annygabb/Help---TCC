@@ -1,4 +1,5 @@
 import api from './api';
+import { encerrarSessao as encerrarSessaoGeral } from './session';
 
 const comToken = (extra = {}) => {
   const token = localStorage.getItem('token');
@@ -43,6 +44,7 @@ export const alterarStatusEmpresa = (id, ativo) =>
   api.patch(`/admin/empresas/${id}/status`, { ativo }, comToken()).then((r) => r.data);
 
 export const encerrarSessao = () => {
+    encerrarSessaoGeral('logout-admin');
   localStorage.removeItem('token');
   localStorage.removeItem('usuarioLogado');
 };
