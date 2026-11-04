@@ -46,3 +46,9 @@ test('notificacao de mensagem abre a conversa com a conta normalizada', () => {
   assert.equal(destino.state.iniciarCom.contaId, USUARIO_ID);
   assert.equal(destino.state.iniciarCom.tipoConta, 'USUARIO');
 });
+
+test('atualização de empresa abre seu perfil e nova vaga abre vagas', () => {
+  const empresa = { tipo: 'EMPRESA_ATUALIZADA', origemId: EMPRESA_ID, origemTipo: 'EMPRESA', origemNome: 'HELP' };
+  assert.equal(destinoDaNotificacao(empresa).pathname, `/perfil/EMPRESA/${EMPRESA_ID}`);
+  assert.equal(destinoDaNotificacao({ ...empresa, tipo: 'NOVA_VAGA_EMPRESA' }).pathname, '/vagas');
+});

@@ -7,10 +7,9 @@ import {
 
 import './Notificacoes.css';
 import logoImg from '../assets/logo.png';
-import api from '../services/api';
+import { listarNotificacoes, marcarNotificacaoComoLida, marcarTodasNotificacoesComoLidas, resolverDestinoDaNotificacao } from '../services/notificacoes';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
-import { destinoDaNotificacao } from '../utils/notificacoes';
 
 const iconePorTipo = (tipo) => {
   switch (tipo) {
@@ -28,17 +27,23 @@ const Notificacoes = () => {
 
   const [notificacoes, setNotificacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [filtro, setFiltro] = useState('TODAS');
+  const [erro, setErro] = useState('');
+  const [marcandoId, setMarcandoId] = useState(null);
+  const [marcandoTodas, setMarcandoTodas] = useState(false);
 
-  const getHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`
-  });
+  const mensagemDoErro = (error, padrao) =>
+    error?.response?.data?.mensagem || error?.response?.data?.message || error?.response?.data || padrao;
+
+  const atualizarBadge = () => window.dispatchEvent(new Event('help:unread-counts-changed'));
 
   const carregarNotificacoes = async () => {
     try {
-      const response = await api.get('/notificacoes', { headers: getHeaders() });
-      setNotificacoes(response.data || []);
+      setErro('');
+      setNotificacoes(await listarNotificacoes());
     } catch (error) {
       console.error('Erro ao carregar notificações:', error);
+      setErro(mensagemDoErro(error, 'Não foi possível carregar as notificações.'));
     } finally {
       setCarregando(false);
     }
@@ -55,25 +60,41 @@ const Notificacoes = () => {
   const marcarComoLida = async (notificacao) => {
     if (notificacao.lida) return;
     try {
-      await api.put(`/notificacoes/${notificacao.id}/marcar-lida`, {}, { headers: getHeaders() });
+      setMarcandoId(notificacao.id);
+      await marcarNotificacaoComoLida(notificacao.id);
       setNotificacoes(prev => prev.map(n => n.id === notificacao.id ? { ...n, lida: true } : n));
+      atualizarBadge();
     } catch (error) {
       console.error('Erro ao marcar notificação como lida:', error);
+      throw error;
+    } finally {
+      setMarcandoId(null);
     }
   };
 
   const marcarTodasComoLidas = async () => {
     try {
-      await api.put('/notificacoes/marcar-todas-lidas', {}, { headers: getHeaders() });
+      setMarcandoTodas(true);
+      setErro('');
+      await marcarTodasNotificacoesComoLidas();
       setNotificacoes(prev => prev.map(n => ({ ...n, lida: true })));
+      atualizarBadge();
     } catch (error) {
       console.error('Erro ao marcar todas como lidas:', error);
+      setErro(mensagemDoErro(error, 'Não foi possível marcar as notificações como lidas.'));
+    } finally {
+      setMarcandoTodas(false);
     }
   };
 
-  const handleClick = (notificacao) => {
-    marcarComoLida(notificacao);
-    const destino = destinoDaNotificacao(notificacao);
+  const handleClick = async (notificacao) => {
+    try {
+      await marcarComoLida(notificacao);
+    } catch (error) {
+      setErro(mensagemDoErro(error, 'Não foi possível marcar a notificação como lida.'));
+      return;
+    }
+    const destino = resolverDestinoDaNotificacao(notificacao);
     if (destino) navigate(destino.pathname, { state: destino.state });
   };
 
@@ -95,6 +116,13 @@ const Notificacoes = () => {
   };
 
   const temNaoLidas = notificacoes.some(n => !n.lida);
+  const notificacoesFiltradas = filtro === 'NAO_LIDAS' ? notificacoes.filter(n => !n.lida) : notificacoes;
+  const hoje = new Date().toDateString();
+  const grupos = notificacoesFiltradas.reduce((resultado, notificacao) => {
+    const grupo = notificacao.dataCriacao && new Date(notificacao.dataCriacao).toDateString() === hoje ? 'Hoje' : 'Anteriores';
+    (resultado[grupo] ||= []).push(notificacao);
+    return resultado;
+  }, {});
 
   return (
     <div className="notificacoes-container">
@@ -133,43 +161,30 @@ const Notificacoes = () => {
           <div className="notificacoes-header">
             <h2>Notificações</h2>
             {temNaoLidas && (
-              <button className="marcar-lidas-btn" onClick={marcarTodasComoLidas}>
+              <button className="marcar-lidas-btn" onClick={marcarTodasComoLidas} disabled={marcandoTodas}>
                 <CheckCheck size={16} /> Marcar todas como lidas
               </button>
             )}
           </div>
 
+          <div className="notificacoes-filtros" aria-label="Filtrar notificações">
+            <button className={filtro === 'TODAS' ? 'ativo' : ''} onClick={() => setFiltro('TODAS')}>Todas</button>
+            <button className={filtro === 'NAO_LIDAS' ? 'ativo' : ''} onClick={() => setFiltro('NAO_LIDAS')}>Não lidas</button>
+          </div>
+          {erro && <p className="notificacoes-erro" role="alert">{erro}</p>}
           {carregando ? (
             <p className="notificacoes-vazio">Carregando...</p>
-          ) : notificacoes.length === 0 ? (
+          ) : notificacoesFiltradas.length === 0 ? (
             <p className="notificacoes-vazio">Você ainda não tem notificações.</p>
           ) : (
             <div className="notificacoes-lista">
-              {notificacoes.map((notificacao) => (
-                <div
-                  key={notificacao.id}
-                  className={`notificacao-item ${!notificacao.lida ? 'nao-lida' : ''}`}
-                  onClick={() => handleClick(notificacao)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') handleClick(notificacao);
-                  }}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <div className={`notificacao-icone tipo-${(notificacao.tipo || 'outro').toLowerCase()}`}>
-                    {notificacao.origemFotoUrl
-                      ? <img src={notificacao.origemFotoUrl} alt={`Foto de ${notificacao.origemNome || 'conta'}`} />
-                      : notificacao.origemNome?.charAt(0).toUpperCase() || iconePorTipo(notificacao.tipo)}
-                  </div>
-                  <div className="notificacao-conteudo">
-                    <div className="notificacao-titulo">{notificacao.titulo}</div>
-                    {notificacao.origemNome && <div className="notificacao-origem">{notificacao.origemNome}</div>}
-                    <div className="notificacao-mensagem">{notificacao.mensagem}</div>
-                    <div className="notificacao-data">{formatarData(notificacao.dataCriacao)}</div>
-                  </div>
+              {Object.entries(grupos).map(([titulo, itens]) => <section key={titulo} className="notificacoes-grupo"><h3>{titulo}</h3>{itens.map((notificacao) => (
+                <div key={notificacao.id} className={`notificacao-item ${!notificacao.lida ? 'nao-lida' : ''} ${marcandoId === notificacao.id ? 'processando' : ''}`} onClick={() => handleClick(notificacao)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') handleClick(notificacao); }} role="button" tabIndex={0} aria-busy={marcandoId === notificacao.id}>
+                  <div className={`notificacao-icone tipo-${(notificacao.tipo || 'outro').toLowerCase()}`}>{notificacao.origemFotoUrl ? <img src={notificacao.origemFotoUrl} alt={`Foto de ${notificacao.origemNome || 'conta'}`} /> : notificacao.origemNome?.charAt(0).toUpperCase() || iconePorTipo(notificacao.tipo)}</div>
+                  <div className="notificacao-conteudo"><div className="notificacao-titulo">{notificacao.titulo}</div>{notificacao.origemNome && <div className="notificacao-origem">{notificacao.origemNome}</div>}<div className="notificacao-mensagem">{notificacao.mensagem}</div><div className="notificacao-data">{formatarData(notificacao.dataCriacao)}</div></div>
                   {!notificacao.lida && <span className="notificacao-ponto" />}
                 </div>
-              ))}
+              ))}</section>)}
             </div>
           )}
         </div>

@@ -286,6 +286,12 @@
   gap: 12px;
   padding: 16px;
 }
+.post-author-button { display: flex; align-items: center; gap: 12px; min-width: 0; background: transparent; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; }
+.post-author-button:hover h4 { text-decoration: underline; }
+.post-social-actions { display: flex; gap: 8px; margin-left: auto; }
+.post-social-actions button { border: 1px solid #8b5cf6; border-radius: 999px; background: transparent; color: #c4b5fd; padding: 6px 10px; cursor: pointer; font-size: 12px; }
+.post-social-actions button:disabled { opacity: .6; cursor: wait; }
+.feed-social-error { color: #fecaca; margin: 0 0 12px; }
 
 .post-info h4 {
   font-size: 14px;
@@ -616,4 +622,8 @@
   .feed-content {
     grid-template-columns: 1fr;
   }
+}
+@media (max-width: 560px) {
+  .post-header { align-items: flex-start; }
+  .post-social-actions { flex-direction: column; }
 }

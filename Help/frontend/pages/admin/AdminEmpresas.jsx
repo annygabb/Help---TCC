@@ -1,20 +1,36 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Check, ChevronDown, Search } from 'lucide-react';
 import { alterarStatusEmpresa, listarEmpresas, mensagemDeErro } from '../../services/adminService';
 import { Aviso, Paginacao, StatusBadge, formatarCnpj, formatarData, useDebounce } from './adminComponentes';
 
 const TAMANHO_PAGINA = 10;
 
 function AdminEmpresas() {
+  const [parametros] = useSearchParams();
   const [busca, setBusca] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(() => parametros.get('status') || '');
   const [pagina, setPagina] = useState(0);
   const [resultado, setResultado] = useState({ itens: [], pagina: 0, totalPaginas: 0, totalItens: 0 });
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [aviso, setAviso] = useState('');
   const [alterando, setAlterando] = useState(null);
+  const [menuStatusAberto, setMenuStatusAberto] = useState(false);
+  const filtroStatusRef = useRef(null);
+
+  useEffect(() => {
+    const fecharMenu = (event) => {
+      if (filtroStatusRef.current && !filtroStatusRef.current.contains(event.target)) setMenuStatusAberto(false);
+    };
+    const fecharComEsc = (event) => { if (event.key === 'Escape') setMenuStatusAberto(false); };
+    document.addEventListener('mousedown', fecharMenu);
+    document.addEventListener('keydown', fecharComEsc);
+    return () => {
+      document.removeEventListener('mousedown', fecharMenu);
+      document.removeEventListener('keydown', fecharComEsc);
+    };
+  }, []);
 
   const buscaAplicada = useDebounce(busca.trim());
   const ultimaRequisicao = useRef(0);
@@ -82,11 +98,15 @@ function AdminEmpresas() {
             aria-label="Buscar por razão social, CNPJ ou e-mail"
           />
         </label>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Filtrar por status">
-          <option value="">Todos os status</option>
-          <option value="ativo">Ativas</option>
-          <option value="inativo">Desativadas</option>
-        </select>
+        <div className={`adm-filtro-status ${status || 'todos'}`} ref={filtroStatusRef}>
+          <span>Status da empresa</span>
+          <button type="button" className="adm-filtro-status-gatilho" onClick={() => setMenuStatusAberto((aberto) => !aberto)} aria-haspopup="listbox" aria-expanded={menuStatusAberto}>
+            {status === 'ativo' ? 'Somente ativas' : status === 'inativo' ? 'Somente desativadas' : 'Todas as empresas'}<ChevronDown size={17} aria-hidden="true" />
+          </button>
+          {menuStatusAberto && <div className="adm-filtro-status-opcoes" role="listbox" aria-label="Filtrar por status">
+            {[['', 'Todas as empresas'], ['ativo', 'Somente ativas'], ['inativo', 'Somente desativadas']].map(([valor, rotulo]) => <button type="button" role="option" aria-selected={status === valor} key={valor || 'todas'} onClick={() => { setStatus(valor); setMenuStatusAberto(false); }}><span className={`adm-status-ponto ${valor || 'todas'}`} aria-hidden="true" />{rotulo}{status === valor && <Check size={16} aria-hidden="true" />}</button>)}
+          </div>}
+        </div>
       </div>
 
       <Aviso>{erro}</Aviso>

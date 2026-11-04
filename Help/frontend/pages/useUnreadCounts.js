@@ -34,10 +34,13 @@ export default function useUnreadCounts(intervaloMs = 15000) {
 
     buscar();
     const intervalo = setInterval(buscar, intervaloMs);
+    const atualizarAoMudar = () => buscar();
+    window.addEventListener('help:unread-counts-changed', atualizarAoMudar);
 
     return () => {
       ativo = false;
       clearInterval(intervalo);
+      window.removeEventListener('help:unread-counts-changed', atualizarAoMudar);
     };
   }, [intervaloMs]);
 

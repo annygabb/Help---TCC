@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
-  Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
+  Home, BookOpen, Briefcase, MessageSquare, Bell, Search, ShieldCheck,
   Share2, ThumbsUp, MessageCircle, Image, Video, MapPin, Users
 } from 'lucide-react';
 import './Feed.css';
@@ -12,6 +12,7 @@ import CriarPublicacao from './CriarPublicacao';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
 import api from '../services/api';
+import { deixarDeSeguir, consultarStatus, seguir } from '../services/seguidores';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -30,6 +31,9 @@ const Feed = () => {
 
   const [posts, setPosts] = useState([]);
   const [carregandoPosts, setCarregandoPosts] = useState(true);
+  const [contaAtual, setContaAtual] = useState(null);
+  const [atualizandoAutor, setAtualizandoAutor] = useState(null);
+  const [erroSocial, setErroSocial] = useState('');
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -41,6 +45,10 @@ const Feed = () => {
     }
 
     const parsedUser = JSON.parse(savedUser);
+    setContaAtual({
+      contaId: parsedUser.id,
+      tipoConta: parsedUser.tipoConta === 'EMPRESA' ? 'EMPRESA' : 'USUARIO'
+    });
     setUser({
       name: parsedUser.nome || parsedUser.name || '',
       role: parsedUser.cargo || '',
@@ -74,8 +82,21 @@ const Feed = () => {
       console.error('Erro ao carregar perfil no feed:', error);
     });
 
-    api.get('/publicacoes').then(({ data }) => {
-      if (ativo) setPosts(data || []);
+    api.get('/publicacoes').then(async ({ data }) => {
+      const publicacoes = data || [];
+      const autores = [...new Map(publicacoes.map((post) => [
+        `${post.autorTipo}:${post.autorId}`,
+        { contaId: post.autorId, tipoConta: post.autorTipo }
+      ])).values()];
+      const status = await Promise.all(autores.map(async (autor) => {
+        try { return [`${autor.tipoConta}:${autor.contaId}`, await consultarStatus(autor)]; }
+        catch { return [`${autor.tipoConta}:${autor.contaId}`, false]; }
+      }));
+      const seguindoPorAutor = new Map(status);
+      if (ativo) setPosts(publicacoes.map((post) => ({
+        ...post,
+        seguindoAutor: seguindoPorAutor.get(`${post.autorTipo}:${post.autorId}`) || false
+      })));
     }).catch((error) => console.error('Erro ao carregar publicações:', error))
       .finally(() => { if (ativo) setCarregandoPosts(false); });
 
@@ -123,6 +144,31 @@ const Feed = () => {
   const avatarStyle = { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' };
   const profileImage = user.photoUrl || defaultProfileImg;
   const displayName = user.name?.trim() || 'Usuário';
+  const contaDoAutor = (post) => ({ contaId: post.autorId, tipoConta: post.autorTipo, nome: post.autorNome, subtitulo: post.autorSubtitulo, fotoUrl: post.autorFotoUrl });
+  const autorEhContaAtual = (post) => contaAtual?.contaId === post.autorId && contaAtual?.tipoConta === post.autorTipo;
+  const mensagemDoErro = (error, padrao) => error?.response?.data?.mensagem || error?.response?.data?.message || (typeof error?.response?.data === 'string' ? error.response.data : padrao);
+
+  const alternarSeguimentoDoAutor = async (post) => {
+    if (autorEhContaAtual(post) || atualizandoAutor) return;
+    const autor = contaDoAutor(post);
+    const chave = `${autor.tipoConta}:${autor.contaId}`;
+    setAtualizandoAutor(chave);
+    setErroSocial('');
+    try {
+      if (post.seguindoAutor) await deixarDeSeguir(autor);
+      else await seguir(autor);
+      setPosts((anteriores) => anteriores.map((item) =>
+        item.autorId === post.autorId && item.autorTipo === post.autorTipo
+          ? { ...item, seguindoAutor: !post.seguindoAutor }
+          : item
+      ));
+      window.dispatchEvent(new Event('help:unread-counts-changed'));
+    } catch (error) {
+      setErroSocial(mensagemDoErro(error, 'Não foi possível atualizar o seguimento.'));
+    } finally {
+      setAtualizandoAutor(null);
+    }
+  };
 
   return (
     <div className="feed-container">
@@ -159,6 +205,12 @@ const Feed = () => {
               </div>
               <span>Notificações</span>
             </Link>
+            {user.tipoConta === 'ADMIN' && (
+              <Link to="/admin" className={`nav-item ${location.pathname.startsWith('/admin') ? 'active' : ''}`}>
+                <ShieldCheck size={22} />
+                <span>Painel admin</span>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -256,6 +308,7 @@ const Feed = () => {
 
           {carregandoPosts && <p className="feed-state">Carregando publicações...</p>}
           {!carregandoPosts && posts.length === 0 && <p className="feed-state">Ainda não há publicações. Seja a primeira conta a publicar.</p>}
+          {erroSocial && <p className="feed-social-error" role="alert">{erroSocial}</p>}
           {posts.map(post => {
             const isOff = post.permissaoComentario === 'DESATIVADO';
             const isOnlyFollowers = post.permissaoComentario === 'SEGUIDORES';
@@ -264,6 +317,7 @@ const Feed = () => {
             return (
               <div className="post" key={post.id}>
                 <div className="post-header">
+                  <button className="post-author-button" onClick={() => navigate(`/perfil/${post.autorTipo}/${post.autorId}`)} aria-label={`Abrir perfil de ${post.autorNome}`}>
                   <div className="avatar-mini">
                     <img src={post.autorFotoUrl || defaultProfileImg} alt="Autor" style={avatarStyle} />
                   </div>
@@ -271,6 +325,13 @@ const Feed = () => {
                     <h4>{post.autorNome}</h4>
                     <span>{post.autorSubtitulo || (post.autorTipo === 'EMPRESA' ? 'Empresa' : 'Usuário')} • {formatTimeAgo(post.criadaEm)}</span>
                   </div>
+                  </button>
+                  {!autorEhContaAtual(post) && <div className="post-social-actions">
+                    <button onClick={() => alternarSeguimentoDoAutor(post)} disabled={atualizandoAutor === `${post.autorTipo}:${post.autorId}`}>
+                      {atualizandoAutor === `${post.autorTipo}:${post.autorId}` ? 'Atualizando...' : post.seguindoAutor ? 'Seguindo' : 'Seguir'}
+                    </button>
+                    <button onClick={() => navigate('/mensagens', { state: { iniciarCom: contaDoAutor(post) } })}>Mensagem</button>
+                  </div>}
                 </div>
                 <div className="post-body">
                   <p>{post.conteudo}</p>

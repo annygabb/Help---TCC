@@ -379,6 +379,8 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+.mensagens-erro { color: #fecaca; padding: 0 20px 12px; font-size: 13px; }
+.mensagens-erro button { background: transparent; border: 0; color: #c4b5fd; cursor: pointer; font-weight: 700; text-decoration: underline; }
 
 /* vazio */
 .mensagens-vazio {

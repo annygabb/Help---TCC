@@ -32,6 +32,7 @@ function Login() {
       const { token, id, nome, email: userEmail } = response.data;
 
       if (token) {
+        const tipoConta = response.data.tipoConta || 'CANDIDATO';
         const usuarioParaSalvar = {
           token: token,
           id: id,
@@ -40,12 +41,12 @@ function Login() {
           cargo: response.data.cargo || '',
           localidade: response.data.localidade || '',
           bio: response.data.bio || '',
-          tipoConta: response.data.tipoConta || 'CANDIDATO'
+          tipoConta
         };
 
         estabelecerSessao(token, usuarioParaSalvar);
 
-        navigate('/feed');
+        navigate(tipoConta === 'ADMIN' ? '/admin' : '/feed');
       } else {
         alert("O servidor não retornou um token de acesso.");
       }
