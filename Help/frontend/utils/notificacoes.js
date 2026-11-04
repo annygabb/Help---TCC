@@ -25,5 +25,16 @@ export function destinoDaNotificacao(notificacao) {
     };
   }
 
+  if (notificacao.tipo === 'EMPRESA_ATUALIZADA') {
+    return {
+      pathname: `/perfil/${origem.tipoConta}/${origem.contaId}`,
+      state: undefined
+    };
+  }
+
+  if (notificacao.tipo === 'NOVA_VAGA_EMPRESA' || notificacao.tipo === 'NOVA_VAGA') {
+    return { pathname: '/vagas', state: undefined };
+  }
+
   return null;
 }

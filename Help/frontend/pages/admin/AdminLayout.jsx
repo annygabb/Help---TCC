@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, LogOut, Menu, X, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, BellRing, LayoutDashboard, Megaphone, MessageSquareText, Users, Building2, LogOut, Menu, X, ShieldCheck } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 import { encerrarSessao } from '../../services/adminService';
 import { useContaAdmin } from './AdminRoute';
@@ -10,12 +10,17 @@ const LINKS = [
   { para: '/admin', rotulo: 'Visão geral', icone: LayoutDashboard, exato: true },
   { para: '/admin/usuarios', rotulo: 'Usuários', icone: Users },
   { para: '/admin/empresas', rotulo: 'Empresas', icone: Building2 },
+  { para: '/admin/denuncias', rotulo: 'Denúncias', icone: AlertTriangle },
+  { para: '/admin/mensagens', rotulo: 'Mensagens', icone: MessageSquareText },
+  { para: '/admin/notificacoes', rotulo: 'Notificações', icone: BellRing },
+  { para: '/admin/avisos', rotulo: 'Avisos', icone: Megaphone },
 ];
 
 function AdminLayout() {
   const navigate = useNavigate();
   const conta = useContaAdmin();
   const [menuAberto, setMenuAberto] = useState(false);
+  const [confirmarSaida, setConfirmarSaida] = useState(false);
 
   const sair = () => {
     encerrarSessao();
@@ -51,7 +56,7 @@ function AdminLayout() {
           ))}
         </nav>
 
-        <button type="button" className="adm-sair" onClick={sair}>
+        <button type="button" className="adm-sair" onClick={() => setConfirmarSaida(true)}>
           <LogOut size={18} />
           <span>Sair</span>
         </button>
@@ -77,6 +82,15 @@ function AdminLayout() {
           <Outlet />
         </main>
       </div>
+
+      {confirmarSaida && <div className="adm-modal-overlay" role="presentation">
+        <section className="adm-modal adm-modal-confirmacao" role="dialog" aria-modal="true" aria-labelledby="titulo-confirmar-saida">
+          <div className="adm-confirmacao-icone"><AlertTriangle size={22} /></div>
+          <h2 id="titulo-confirmar-saida">Sair do painel?</h2>
+          <p className="adm-texto-suave">Você precisará entrar novamente para acessar as ferramentas administrativas.</p>
+          <div className="adm-acoes"><button type="button" className="adm-botao adm-botao-secundario" onClick={() => setConfirmarSaida(false)}>Cancelar</button><button type="button" className="adm-botao adm-botao-perigo adm-botao-perigo-preenchido" onClick={sair}>Sim, sair</button></div>
+        </section>
+      </div>}
     </div>
   );
 }

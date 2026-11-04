@@ -7,7 +7,8 @@ import {
 
 import './Mensagens.css';
 import logoImg from '../assets/logo.png';
-import api from '../services/api';
+import { abrirConversaTipada, enviarMensagem as enviarMensagemParaConta, listarContatos, listarConversas } from '../services/comunicacao';
+import { obterSessao } from '../services/session';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
 import { normalizarContato } from '../utils/contatos';
@@ -23,25 +24,30 @@ const Mensagens = () => {
   const [mensagens, setMensagens] = useState([]);
   const [textoNovaMensagem, setTextoNovaMensagem] = useState('');
   const [carregando, setCarregando] = useState(true);
+  const [carregandoConversa, setCarregandoConversa] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [erroConversas, setErroConversas] = useState('');
+  const [erroConversa, setErroConversa] = useState('');
+  const [erroEnvio, setErroEnvio] = useState('');
 
   const [modalNovaConversa, setModalNovaConversa] = useState(false);
   const [usuariosDisponiveis, setUsuariosDisponiveis] = useState([]);
   const [buscaUsuario, setBuscaUsuario] = useState('');
+  const [carregandoContatos, setCarregandoContatos] = useState(false);
+  const [erroContatos, setErroContatos] = useState('');
 
   const scrollRef = useRef(null);
 
-  const getHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`
-  });
+  const mensagemDoErro = (erro, padrao) =>
+    erro?.response?.data?.mensagem || erro?.response?.data?.message || erro?.response?.data || padrao;
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('usuarioLogado');
-    if (!savedUser) {
+    const sessao = obterSessao();
+    if (!sessao) {
       navigate('/login');
       return;
     }
-    setUsuarioLogado(JSON.parse(savedUser));
+    setUsuarioLogado(sessao.conta);
   }, [navigate]);
 
   useEffect(() => {
@@ -52,11 +58,12 @@ const Mensagens = () => {
   }, [location.state, navigate]);
 
   const carregarConversas = async () => {
+    setErroConversas('');
     try {
-      const response = await api.get('/mensagens/conversas', { headers: getHeaders() });
-      setConversas((response.data || []).map(normalizarContato).filter(Boolean));
+      setConversas(await listarConversas());
     } catch (error) {
       console.error('Erro ao carregar conversas:', error);
+      setErroConversas(mensagemDoErro(error, 'Não foi possível carregar suas conversas.'));
     } finally {
       setCarregando(false);
     }
@@ -70,13 +77,17 @@ const Mensagens = () => {
   }, [usuarioLogado]);
 
   const carregarConversaAtiva = async (contaId, tipoConta) => {
+    setCarregandoConversa(true);
+    setErroConversa('');
     try {
       const contato = normalizarContato({ contaId, tipoConta });
       if (!contato) return;
-      const response = await api.get(`/mensagens/conversa/${contato.tipoConta}/${contato.contaId}`, { headers: getHeaders() });
-      setMensagens(response.data || []);
+      setMensagens(await abrirConversaTipada(contato));
     } catch (error) {
       console.error('Erro ao carregar conversa:', error);
+      setErroConversa(mensagemDoErro(error, 'Não foi possível carregar esta conversa.'));
+    } finally {
+      setCarregandoConversa(false);
     }
   };
 
@@ -109,32 +120,34 @@ const Mensagens = () => {
     if (!textoNovaMensagem.trim() || !conversaAtiva) return;
 
     setEnviando(true);
+    setErroEnvio('');
     try {
-      await api.post('/mensagens/enviar', {
-        destinatarioId: conversaAtiva.contaId,
-        tipoDestinatario: conversaAtiva.tipoConta,
-        conteudo: textoNovaMensagem.trim()
-      }, { headers: getHeaders() });
+      await enviarMensagemParaConta(conversaAtiva, textoNovaMensagem);
 
       setTextoNovaMensagem('');
       await carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta);
       await carregarConversas();
+      window.dispatchEvent(new Event('help:unread-counts-changed'));
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
-      alert('Não foi possível enviar a mensagem.');
+      setErroEnvio(mensagemDoErro(error, 'Não foi possível enviar a mensagem. Tente novamente.'));
     } finally {
       setEnviando(false);
     }
   };
 
   const abrirModalNovaConversa = async () => {
+    setCarregandoContatos(true);
+    setErroContatos('');
     try {
-      const response = await api.get('/comunicacao/contatos', { headers: getHeaders() });
-      setUsuariosDisponiveis(response.data || []);
+      setUsuariosDisponiveis(await listarContatos());
       setModalNovaConversa(true);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
-      alert('Não foi possível carregar a lista de usuários.');
+      setErroContatos(mensagemDoErro(error, 'Não foi possível carregar a lista de contatos.'));
+      setModalNovaConversa(true);
+    } finally {
+      setCarregandoContatos(false);
     }
   };
 
@@ -209,6 +222,8 @@ const Mensagens = () => {
 
             {carregando ? (
               <p className="mensagens-vazio">Carregando conversas...</p>
+            ) : erroConversas ? (
+              <div className="mensagens-vazio-container" role="alert"><p className="mensagens-vazio">{erroConversas}</p><button className="iniciar-conversa-btn" onClick={carregarConversas}>Tentar novamente</button></div>
             ) : conversas.length === 0 ? (
               <div className="mensagens-vazio-container">
                 <p className="mensagens-vazio">Você ainda não tem nenhuma conversa.</p>
@@ -263,7 +278,11 @@ const Mensagens = () => {
                 </div>
 
                 <div className="chat-mensagens" ref={scrollRef}>
-                  {mensagens.length === 0 ? (
+                  {carregandoConversa ? (
+                    <p className="mensagens-vazio">Carregando conversa...</p>
+                  ) : erroConversa ? (
+                    <div className="mensagens-vazio-container" role="alert"><p className="mensagens-vazio">{erroConversa}</p><button className="iniciar-conversa-btn" onClick={() => carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta)}>Tentar novamente</button></div>
+                  ) : mensagens.length === 0 ? (
                     <p className="mensagens-vazio">Nenhuma mensagem ainda. Diga oi! 👋</p>
                   ) : (
                     mensagens.map((msg) => (
@@ -290,6 +309,7 @@ const Mensagens = () => {
                     <Send size={20} />
                   </button>
                 </form>
+                {erroEnvio && <div className="mensagens-erro" role="alert">{erroEnvio} <button type="button" onClick={enviarMensagem} disabled={enviando || !textoNovaMensagem.trim()}>Reenviar</button></div>}
               </>
             )}
           </section>
@@ -318,7 +338,11 @@ const Mensagens = () => {
             </div>
 
             <div className="lista-usuarios-modal">
-              {usuariosFiltrados.length === 0 ? (
+              {carregandoContatos ? (
+                <p className="mensagens-vazio">Carregando contatos...</p>
+              ) : erroContatos ? (
+                <div className="mensagens-vazio-container" role="alert"><p className="mensagens-vazio">{erroContatos}</p><button className="iniciar-conversa-btn" onClick={abrirModalNovaConversa}>Tentar novamente</button></div>
+              ) : usuariosFiltrados.length === 0 ? (
                 <p className="mensagens-vazio">Nenhum usuário encontrado.</p>
               ) : (
                 usuariosFiltrados.map((usuario) => (

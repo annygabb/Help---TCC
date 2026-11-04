@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, Building2, MessageSquare, UserMinus, UserPlus } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from '../services/api';
+import { obterContato } from '../services/comunicacao';
+import { consultarContagem, consultarStatus, deixarDeSeguir, seguir } from '../services/seguidores';
+import { obterSessao } from '../services/session';
 import './PerfilPublico.css';
+
+const mensagemDoErro = (erro, padrao) =>
+  erro?.response?.data?.mensagem || erro?.response?.data?.message || erro?.response?.data || padrao;
 
 export default function PerfilPublico() {
   const { tipo, id } = useParams();
@@ -10,31 +15,63 @@ export default function PerfilPublico() {
   const [conta, setConta] = useState(null);
   const [contagem, setContagem] = useState({ seguidores: 0, seguindo: 0 });
   const [carregando, setCarregando] = useState(true);
+  const [atualizandoSeguimento, setAtualizandoSeguimento] = useState(false);
+  const [erro, setErro] = useState('');
 
-  const carregar = async () => {
+  const carregar = useCallback(async () => {
+    const referencia = { contaId: id, tipoConta: tipo };
+    setCarregando(true);
+    setErro('');
     try {
-      const [{ data }, { data: numeros }] = await Promise.all([
-        api.get(`/comunicacao/contatos/${tipo}/${id}`),
-        api.get(`/seguidores/contagem/${tipo}/${id}`)
+      const [dadosDaConta, numeros, seguindo] = await Promise.all([
+        obterContato(referencia),
+        consultarContagem(referencia),
+        consultarStatus(referencia)
       ]);
-      setConta(data);
+      setConta({ ...dadosDaConta, seguindo });
       setContagem(numeros);
+    } catch (error) {
+      setConta(null);
+      setErro(mensagemDoErro(error, 'Não foi possível carregar este perfil.'));
     } finally {
       setCarregando(false);
     }
-  };
+  }, [id, tipo]);
 
-  useEffect(() => { carregar(); }, [tipo, id]);
+  useEffect(() => { carregar(); }, [carregar]);
+
+  const sessao = obterSessao();
+  const contaEhDoUsuarioAtual = Boolean(
+    conta && sessao?.conta?.id === conta.contaId
+    && String(sessao.conta.tipoConta || 'USUARIO').toUpperCase() === conta.tipoConta
+  );
 
   const alternarSeguir = async () => {
-    if (!conta) return;
-    if (conta.seguindo) await api.delete(`/seguidores/deixar-de-seguir/${conta.tipoConta}/${conta.id}`);
-    else await api.post(`/seguidores/seguir/${conta.tipoConta}/${conta.id}`, {});
-    await carregar();
+    if (!conta || contaEhDoUsuarioAtual || atualizandoSeguimento) return;
+
+    setAtualizandoSeguimento(true);
+    setErro('');
+    try {
+      if (conta.seguindo) await deixarDeSeguir(conta);
+      else await seguir(conta);
+
+      const [contaAtualizada, numeros, seguindo] = await Promise.all([
+        obterContato(conta),
+        consultarContagem(conta),
+        consultarStatus(conta)
+      ]);
+      setConta({ ...contaAtualizada, seguindo });
+      setContagem(numeros);
+      window.dispatchEvent(new Event('help:unread-counts-changed'));
+    } catch (error) {
+      setErro(mensagemDoErro(error, 'Não foi possível atualizar o seguimento. Tente novamente.'));
+    } finally {
+      setAtualizandoSeguimento(false);
+    }
   };
 
   if (carregando) return <main className="perfil-publico-page"><p>Carregando perfil...</p></main>;
-  if (!conta) return <main className="perfil-publico-page"><p>Conta não encontrada.</p></main>;
+  if (!conta) return <main className="perfil-publico-page"><p role="alert">{erro || 'Conta não encontrada.'}</p></main>;
 
   return (
     <main className="perfil-publico-page">
@@ -47,9 +84,17 @@ export default function PerfilPublico() {
         <h1>{conta.nome}</h1>
         <p>{conta.subtitulo}</p>
         <div className="perfil-publico-numeros"><span><strong>{contagem.seguidores}</strong> seguidores</span><span><strong>{contagem.seguindo}</strong> seguindo</span></div>
+        {erro && <p className="perfil-publico-erro" role="alert">{erro}</p>}
         <div className="perfil-publico-acoes">
-          <button onClick={alternarSeguir}>{conta.seguindo ? <UserMinus size={18} /> : <UserPlus size={18} />}{conta.seguindo ? 'Deixar de seguir' : 'Seguir'}</button>
-          <button className="secundario" onClick={() => navigate('/mensagens', { state: { iniciarCom: conta } })}><MessageSquare size={18} /> Mensagem</button>
+          {contaEhDoUsuarioAtual ? (
+            <span className="perfil-publico-propria-conta">Este é o seu perfil</span>
+          ) : (
+            <button onClick={alternarSeguir} disabled={atualizandoSeguimento} aria-busy={atualizandoSeguimento}>
+              {conta.seguindo ? <UserMinus size={18} /> : <UserPlus size={18} />}
+              {atualizandoSeguimento ? 'Atualizando...' : conta.seguindo ? 'Seguindo' : 'Seguir'}
+            </button>
+          )}
+          {!contaEhDoUsuarioAtual && <button className="secundario" onClick={() => navigate('/mensagens', { state: { iniciarCom: conta } })}><MessageSquare size={18} /> Mensagem</button>}
         </div>
       </section>
     </main>

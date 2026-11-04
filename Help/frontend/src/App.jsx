@@ -28,6 +28,10 @@ import AdminUsuarios from '../pages/admin/AdminUsuarios.jsx';
 import AdminUsuarioDetalhe from '../pages/admin/AdminUsuarioDetalhe.jsx';
 import AdminEmpresas from '../pages/admin/AdminEmpresas.jsx';
 import AdminEmpresaDetalhe from '../pages/admin/AdminEmpresaDetalhe.jsx';
+import AdminDenuncias from '../pages/admin/AdminDenuncias.jsx';
+import AdminMensagens from '../pages/admin/AdminMensagens.jsx';
+import AdminNotificacoes from '../pages/admin/AdminNotificacoes.jsx';
+import AdminAvisos from '../pages/admin/AdminAvisos.jsx';
 import { observarSessao, obterSessao } from '../services/session';
 
 const SessionSynchronizer = () => {
@@ -173,6 +177,10 @@ function App() {
           <Route path="usuarios/:id" element={<AdminUsuarioDetalhe />} />
           <Route path="empresas" element={<AdminEmpresas />} />
           <Route path="empresas/:id" element={<AdminEmpresaDetalhe />} />
+          <Route path="denuncias" element={<AdminDenuncias />} />
+          <Route path="mensagens" element={<AdminMensagens />} />
+          <Route path="notificacoes" element={<AdminNotificacoes />} />
+          <Route path="avisos" element={<AdminAvisos />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

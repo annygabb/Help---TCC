@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { alterarStatusConta, listarContas, mensagemDeErro } from '../../services/adminService';
 import { useContaAdmin } from './AdminRoute';
@@ -9,9 +9,10 @@ const TAMANHO_PAGINA = 10;
 
 function AdminUsuarios() {
   const contaLogada = useContaAdmin();
+  const [parametros] = useSearchParams();
   const [busca, setBusca] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [status, setStatus] = useState('');
+  const [tipo, setTipo] = useState(() => parametros.get('tipo') || '');
+  const [status, setStatus] = useState(() => parametros.get('status') || '');
   const [pagina, setPagina] = useState(0);
   const [resultado, setResultado] = useState({ itens: [], pagina: 0, totalPaginas: 0, totalItens: 0 });
   const [carregando, setCarregando] = useState(true);

@@ -5,12 +5,12 @@ import { buscarResumo, mensagemDeErro } from '../../services/adminService';
 import { Aviso } from './adminComponentes';
 
 const CARTOES = [
-  { chave: 'totalContas', rotulo: 'Contas de pessoas', icone: Users },
-  { chave: 'candidatos', rotulo: 'Candidatos', icone: UserCheck },
-  { chave: 'administradores', rotulo: 'Administradores', icone: ShieldCheck },
-  { chave: 'empresas', rotulo: 'Empresas', icone: Building2 },
-  { chave: 'contasInativas', rotulo: 'Contas desativadas', icone: UserX },
-  { chave: 'empresasInativas', rotulo: 'Empresas desativadas', icone: Ban },
+  { chave: 'totalContas', rotulo: 'Contas de pessoas', icone: Users, para: '/admin/usuarios' },
+  { chave: 'candidatos', rotulo: 'Candidatos', icone: UserCheck, para: '/admin/usuarios?tipo=CANDIDATO' },
+  { chave: 'administradores', rotulo: 'Administradores', icone: ShieldCheck, para: '/admin/usuarios?tipo=ADMIN' },
+  { chave: 'empresas', rotulo: 'Empresas', icone: Building2, para: '/admin/empresas' },
+  { chave: 'contasInativas', rotulo: 'Contas desativadas', icone: UserX, para: '/admin/usuarios?status=inativo' },
+  { chave: 'empresasInativas', rotulo: 'Empresas desativadas', icone: Ban, para: '/admin/empresas?status=inativo' },
 ];
 
 function AdminHome() {
@@ -35,14 +35,15 @@ function AdminHome() {
       <Aviso>{erro}</Aviso>
 
       <div className="adm-cartoes">
-        {CARTOES.map(({ chave, rotulo, icone: Icone }) => (
-          <div className="adm-cartao" key={chave}>
+        {CARTOES.map(({ chave, rotulo, icone: Icone, para }) => (
+          <Link to={para} className="adm-cartao" key={chave} aria-label={`Ver ${rotulo}`}>
             <Icone size={22} className="adm-cartao-icone" />
             <span className="adm-cartao-rotulo">{rotulo}</span>
             <strong className="adm-cartao-valor">
               {carregando ? '...' : resumo?.[chave] ?? '—'}
             </strong>
-          </div>
+            <small className="adm-cartao-atalho">Ver detalhes →</small>
+          </Link>
         ))}
       </div>
 

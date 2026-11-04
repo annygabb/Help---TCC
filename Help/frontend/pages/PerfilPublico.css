@@ -9,4 +9,7 @@
 .perfil-publico-numeros { display: flex; justify-content: center; gap: 28px; margin: 24px 0; }
 .perfil-publico-acoes { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 .perfil-publico-acoes button { display: flex; align-items: center; gap: 8px; border: 0; border-radius: 10px; padding: 11px 18px; color: #fff; background: #7c3aed; cursor: pointer; }
+.perfil-publico-acoes button:disabled { cursor: wait; opacity: .65; }
 .perfil-publico-acoes .secundario { background: transparent; border: 1px solid #8b5cf6; }
+.perfil-publico-propria-conta { color: #d9d1e5; padding: 11px 18px; }
+.perfil-publico-erro { color: #fecaca !important; margin: 0 0 16px; }
