@@ -69,7 +69,7 @@ O formulário exige motivo, permite uma descrição de até 2.000 caracteres e i
 | `GET` | `/admin/denuncias` | Listar denúncias; aceita filtros `status` e `prioridade` |
 | `PATCH` | `/admin/denuncias/{id}` | Registrar status, decisão e justificativa da moderação |
 
-Cada denúncia armazena denunciante tipado, alvo tipado, motivo, descrição, prioridade, status, administrador responsável e datas. As rotas administrativas continuam protegidas por `ROLE_ADMIN`.
+Cada denúncia armazena denunciante tipado, alvo tipado, motivo, descrição, prioridade, status, administrador responsável e datas. As rotas administrativas continuam protegidas por `ROLE_ADMIN`. A decisão também é executada: advertência gera notificação, remoção exclui a publicação denunciada e suspensão desativa a conta de usuário ou empresa.
 
 ## Segurança e privacidade
 

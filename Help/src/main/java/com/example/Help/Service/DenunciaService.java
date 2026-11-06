@@ -6,6 +6,9 @@ import com.example.Help.model.social.ParticipanteSocial;
 import com.example.Help.model.social.TipoParticipante;
 import com.example.Help.model.usuario.TipoConta;
 import com.example.Help.model.usuario.Usuario;
+import com.example.Help.model.usuario.UsuarioRepository;
+import com.example.Help.model.empresa.EmpresaRepository;
+import com.example.Help.model.notificacao.TipoNotificacao;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -18,8 +21,13 @@ import java.util.UUID;
 
 @Service
 public class DenunciaService {
-    private final DenunciaRepository repository; private final ParticipanteService participantes; private final PublicacaoRepository publicacoes;
-    public DenunciaService(DenunciaRepository r, ParticipanteService p, PublicacaoRepository pub) { repository=r; participantes=p; publicacoes=pub; }
+    private final DenunciaRepository repository; private final ParticipanteService participantes;
+    private final PublicacaoRepository publicacoes; private final UsuarioRepository usuarios;
+    private final EmpresaRepository empresas; private final NotificacaoService notificacoes;
+    public DenunciaService(DenunciaRepository r, ParticipanteService p, PublicacaoRepository pub,
+            UsuarioRepository u, EmpresaRepository e, NotificacaoService n) {
+        repository=r; participantes=p; publicacoes=pub; usuarios=u; empresas=e; notificacoes=n;
+    }
 
     @Transactional public DenunciaDtos.Resposta criar(DenunciaDtos.Criar dados, Authentication auth) {
         ParticipanteSocial autor = participantes.obterAutenticado(auth); Denuncia d = new Denuncia();
@@ -42,7 +50,48 @@ public class DenunciaService {
                         Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(this::toDto).toList();
     }
-    @Transactional public DenunciaDtos.Resposta moderar(UUID id, DenunciaDtos.Moderar dados, Authentication auth) { Usuario admin=admin(auth); Denuncia d=repository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Denúncia não encontrada.")); d.setStatus(dados.status()); d.setDecisao(limpar(dados.decisao(),50)); d.setJustificativa(dados.justificativa().trim()); d.setAdminId(admin.getId()); d.setAdminNome(admin.getName()); d.setAtualizadaEm(LocalDateTime.now()); return toDto(repository.save(d)); }
+    @Transactional public DenunciaDtos.Resposta moderar(UUID id, DenunciaDtos.Moderar dados, Authentication auth) {
+        Usuario admin=admin(auth);
+        Denuncia d=repository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Denúncia não encontrada."));
+        String decisao = limpar(dados.decisao(), 50);
+        if (dados.status() == StatusDenuncia.RESOLVIDA && decisao == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe a decisão da moderação.");
+        executarDecisao(d, decisao, admin);
+        d.setStatus(dados.status()); d.setDecisao(decisao); d.setJustificativa(dados.justificativa().trim());
+        d.setAdminId(admin.getId()); d.setAdminNome(admin.getName()); d.setAtualizadaEm(LocalDateTime.now());
+        return toDto(repository.save(d));
+    }
+
+    private void executarDecisao(Denuncia d, String decisao, Usuario admin) {
+        if (decisao == null || "SEM_ACAO".equals(decisao)) return;
+        if ("REMOVER_CONTEUDO".equals(decisao)) {
+            if (d.getAlvoTipo() != TipoAlvoDenuncia.PUBLICACAO)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Esta decisão só pode ser aplicada a publicações.");
+            if (!publicacoes.existsById(d.getAlvoId()))
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicação não encontrada.");
+            publicacoes.deleteById(d.getAlvoId());
+            return;
+        }
+        ParticipanteSocial alvo = obterAlvoDaConta(d);
+        if ("SUSPENDER_CONTA".equals(decisao)) {
+            if (alvo instanceof Usuario u) { u.setAtivo(false); usuarios.save(u); }
+            else if (alvo instanceof com.example.Help.model.empresa.Empresa e) { e.setAtivo(false); empresas.save(e); }
+            return;
+        }
+        if ("ADVERTIR".equals(decisao)) {
+            notificacoes.criar(alvo, TipoNotificacao.OUTRO, "Aviso da moderação",
+                    "Sua conta recebeu uma advertência após análise administrativa.", admin);
+        }
+    }
+
+    private ParticipanteSocial obterAlvoDaConta(Denuncia d) {
+        if (d.getAlvoTipo() == TipoAlvoDenuncia.PUBLICACAO)
+            return publicacoes.findById(d.getAlvoId()).map(p -> p.getAutorSocial())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicação não encontrada."));
+        if (d.getAlvoTipo() == TipoAlvoDenuncia.USUARIO)
+            return usuarios.findById(d.getAlvoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+        return empresas.findById(d.getAlvoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa não encontrada."));
+    }
     private String nomeAlvo(TipoAlvoDenuncia tipo, UUID id) {
         if (tipo == TipoAlvoDenuncia.PUBLICACAO) {
             return publicacoes.findById(id)
