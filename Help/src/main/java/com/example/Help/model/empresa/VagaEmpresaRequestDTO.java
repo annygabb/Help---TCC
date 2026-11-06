@@ -17,5 +17,20 @@ public record VagaEmpresaRequestDTO(
         Integer experienciaMinima,
 
         @NotNull(message = "O salário base é necessário para o cálculo de match")
-        Double salarioBase
-) {}
+        Double salarioBase,
+        String tipoExperiencia,
+        String modelo,
+        String tipo,
+        String status,
+        String senioridade,
+        String localizacao,
+        String salario,
+        String prioridade,
+        String descricao
+) {
+    public VagaEmpresaRequestDTO(String cargo, List<String> skillsExigidas,
+            Integer experienciaMinima, Double salarioBase) {
+        this(cargo, skillsExigidas, experienciaMinima, salarioBase, null, null,
+                null, null, null, null, null, null, null);
+    }
+}

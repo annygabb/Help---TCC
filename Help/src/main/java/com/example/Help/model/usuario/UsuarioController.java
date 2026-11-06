@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,7 @@ public class UsuarioController {
             var tokenJWT = tokenService.gerarToken(usuario);
 
             return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuario.getId(), usuario.getName(), usuario.getEmail()));
-        } catch (BadCredentialsException e) {
+        } catch (BadCredentialsException | DisabledException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor.");

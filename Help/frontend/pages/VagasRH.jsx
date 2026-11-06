@@ -57,7 +57,9 @@ const VagasRH = ({
     setAbaAtiva,
     setVagaSelecionada,
     vagaParaEditar,
-    onVagaEdicaoAberta
+    onVagaEdicaoAberta,
+    onAtualizarVaga,
+    onExcluirVaga
 }) => {
     const [filtroStatus, setFiltroStatus] = useState('todas');
     const [filtroModelo, setFiltroModelo] = useState('todos');
@@ -159,10 +161,10 @@ const VagasRH = ({
         onVagaEdicaoAberta?.();
     }, [vagaParaEditar, onVagaEdicaoAberta]);
 
-    const salvarEdicao = () => {
+    const salvarEdicao = async () => {
         if (!form.cargo?.trim()) return;
         const valorExperiencia = tipoExperiencia === 'nenhuma' ? 0 : Number(form.experienciaMinima) || 0;
-        atualizarVaga(vagaEditando.id, {
+        const dados = {
             cargo: form.cargo,
             skillsExigidas: form.skills.split(',').map(s => s.trim()).filter(Boolean),
             experienciaMinima: valorExperiencia,
@@ -174,8 +176,14 @@ const VagasRH = ({
             salario: form.salario,
             prioridade: form.prioridade,
             descricao: form.descricao
-        });
-        setVagaEditando(null);
+        };
+        try {
+            if (onAtualizarVaga) await onAtualizarVaga(vagaEditando.id, dados);
+            else atualizarVaga(vagaEditando.id, dados);
+            setVagaEditando(null);
+        } catch (error) {
+            alert(error.response?.data?.message || error.response?.data?.error || 'Não foi possível editar a vaga.');
+        }
     };
 
     const duplicarVaga = (vaga) => {
@@ -183,11 +191,14 @@ const VagasRH = ({
         setVagas(prev => [novaVaga, ...prev]);
     };
 
-    const excluirVaga = (id) => {
+    const excluirVaga = async (id) => {
         if (window.confirm('Deseja realmente excluir esta vaga?')) {
-            setVagas(prev => prev.filter(v => v.id !== id));
-            setVagaDetalhe(null);
-            setVagaEditando(null);
+            try {
+                if (onExcluirVaga) await onExcluirVaga(id);
+                else setVagas(prev => prev.filter(v => v.id !== id));
+                setVagaDetalhe(null);
+                setVagaEditando(null);
+            } catch { alert('Não foi possível excluir a vaga.'); }
         }
     };
 

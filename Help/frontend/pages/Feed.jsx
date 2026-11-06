@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search, ShieldCheck,
-  Share2, ThumbsUp, MessageCircle, Image, Video, MapPin, Users
+  Share2, ThumbsUp, MessageCircle, Image, Video, MapPin, Users, Flag
 } from 'lucide-react';
 import './Feed.css';
 import './Badges.css';
 import logoImg from '../assets/logo.png';
-import defaultProfileImg from '../assets/fotoperfil.png';
 import CriarPublicacao from './CriarPublicacao';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
 import api from '../services/api';
 import { deixarDeSeguir, consultarStatus, seguir } from '../services/seguidores';
 import { deduplicarPublicacoes } from '../utils/feed';
+import DenunciaModal from '../components/DenunciaModal';
+import { avatarPadrao } from '../utils/avatar';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const Feed = () => {
   const [novoComentario, setNovoComentario] = useState('');
   const [comentarios, setComentarios] = useState({});
   const [compartilhadoId, setCompartilhadoId] = useState(null);
+  const [postDenunciado, setPostDenunciado] = useState(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -188,8 +190,8 @@ const Feed = () => {
   };
 
   const avatarStyle = { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' };
-  const profileImage = user.photoUrl || defaultProfileImg;
   const displayName = user.name?.trim() || 'Usuário';
+  const profileImage = user.photoUrl || avatarPadrao(displayName);
   const contaDoAutor = (post) => ({ contaId: post.autorId, tipoConta: post.autorTipo, nome: post.autorNome, subtitulo: post.autorSubtitulo, fotoUrl: post.autorFotoUrl });
   const autorEhContaAtual = (post) => contaAtual?.contaId === post.autorId && contaAtual?.tipoConta === post.autorTipo;
   const mensagemDoErro = (error, padrao) => error?.response?.data?.mensagem || error?.response?.data?.message || (typeof error?.response?.data === 'string' ? error.response.data : padrao);
@@ -367,7 +369,7 @@ const Feed = () => {
                 <div className="post-header">
                   <button className="post-author-button" onClick={() => navigate(`/perfil/${post.autorTipo}/${post.autorId}`)} aria-label={`Abrir perfil de ${post.autorNome}`}>
                   <div className="avatar-mini">
-                    <img src={post.autorFotoUrl || defaultProfileImg} alt="Autor" style={avatarStyle} />
+                    <img src={post.autorFotoUrl || avatarPadrao(post.autorNome)} alt="Autor" style={avatarStyle} />
                   </div>
                   <div className="post-info">
                     <h4>{post.autorNome}</h4>
@@ -412,6 +414,7 @@ const Feed = () => {
                   <button className="action-btn" onClick={() => compartilharPublicacao(post.id)}>
                     <Share2 size={18} /> {compartilhadoId === post.id ? 'Link copiado' : 'Compartilhar'}
                   </button>
+                  {!autorEhContaAtual(post) && <button className="action-btn" onClick={() => setPostDenunciado(post)}><Flag size={18} /> Denunciar</button>}
                 </div>
 
                 {comentarioAberto === post.id && canUserComment && (
@@ -465,6 +468,7 @@ const Feed = () => {
           }}
         />
       )}
+      {postDenunciado && <DenunciaModal alvoTipo="PUBLICACAO" alvoId={postDenunciado.id} alvoNome={`publicação de ${postDenunciado.autorNome}`} onClose={() => setPostDenunciado(null)} />}
     </div>
   );
 };

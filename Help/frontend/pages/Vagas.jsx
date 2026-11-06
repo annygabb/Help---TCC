@@ -10,8 +10,9 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 import './Vagas.css';
 import logoImg from '../assets/logo.png';
-import userProfileImg from '../assets/fotoperfil.png';
+import { avatarPadrao } from '../utils/avatar';
 import useCurrentProfile from './useCurrentProfile';
+import { vagaService } from './VagaServiceEmpresa';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -21,6 +22,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 const Vagas = () => {
   const navigate = useNavigate();
   const { perfil } = useCurrentProfile();
+  const userProfileImg = perfil?.fotoUrl || avatarPadrao(perfil?.nome);
 
   const [showFiltros, setShowFiltros] = useState(true);
   const [vagaSelecionada, setVagaSelecionada] = useState(null);
@@ -39,32 +41,20 @@ const Vagas = () => {
     educacao: [], cursos: [], experiencias: []
   });
 
-  const listaVagas = [
-    {
-      id: 1,
-      cargo: "Desenvolvedor Java Pleno",
-      empresa: "NTT DATA",
-      local: "São Paulo, SP",
-      modalidade: "Remoto",
-      tipo: "CLT",
-      valor: "R$ 8.500,00",
-      cursosNec: ["Superior em Eng. de Software ou áreas correlatas", "Java Avançado", "Spring Framework"],
-      cursosDes: ["Certificação AWS Cloud", "Inglês Técnico", "ServiceNow Fundamentals"],
-      descricaoCompleta: "Buscamos um profissional apaixonado por código limpo e arquitetura de sistemas. Você atuará em um time global, desenvolvendo soluções de alto impacto utilizando Java e ecossistema Spring."
-    },
-    {
-      id: 2,
-      cargo: "Analista de Sistemas",
-      empresa: "Tech Solutions",
-      local: "Anápolis, GO",
-      modalidade: "Híbrido",
-      tipo: "PJ",
-      valor: "R$ 6.000,00",
-      cursosNec: ["ServiceNow Certified Admin", "PostgreSQL Avançado"],
-      cursosDes: ["Metodologias Ágeis (Scrum)", "ITIL 4 Foundation"],
-      descricaoCompleta: "Responsável por ponte entre o negócio e o desenvolvimento, garantindo que as especificações técnicas atendam às necessidades dos usuários ServiceNow."
-    }
-  ];
+  const [listaVagas, setListaVagas] = useState([]);
+
+  useEffect(() => {
+    vagaService.listarTodas().then(({ data }) => setListaVagas((data || []).filter((vaga) => (vaga.status || 'ativa') === 'ativa').map((vaga) => ({
+      ...vaga,
+      empresa: vaga.empresaNome || 'Empresa contratante',
+      local: vaga.localizacao || 'Brasil',
+      modalidade: vaga.modelo || 'Não informado',
+      valor: vaga.salario || 'A combinar',
+      cursosNec: vaga.skillsExigidas || [],
+      cursosDes: [],
+      descricaoCompleta: vaga.descricao || 'Consulte os detalhes desta oportunidade.'
+    })))).catch((erro) => console.error('Erro ao carregar vagas:', erro));
+  }, []);
 
   const vagasFiltradas = listaVagas.filter(vaga => {
     const matchTexto = vaga.cargo.toLowerCase().includes(termoBusca.toLowerCase()) ||
@@ -365,8 +355,8 @@ const Vagas = () => {
                          <div><label style={labelStyle}>Curso / Área de Estudo</label><input style={inputRevisaoStyle} value={edu.curso} onChange={(e) => handleListaChange('educacao', edu.id, 'curso', e.target.value)} /></div>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                         <div><label style={labelStyle}>Ano de Início</label><input style={inputRevisaoStyle} value={edu.inicio} onChange={(e) => handleListaChange('educacao', edu.id, 'inicio', e.target.value)} /></div>
-                         <div><label style={labelStyle}>Ano de Conclusão</label><input style={inputRevisaoStyle} value={edu.fim} onChange={(e) => handleListaChange('educacao', edu.id, 'fim', e.target.value)} /></div>
+                         <div><label style={labelStyle}>Ano de Início</label><input style={inputRevisaoStyle} inputMode="numeric" pattern="[0-9]{4}" maxLength="4" value={edu.inicio} onChange={(e) => handleListaChange('educacao', edu.id, 'inicio', e.target.value.replace(/\D/g, '').slice(0, 4))} /></div>
+                         <div><label style={labelStyle}>Ano de Conclusão</label><input style={inputRevisaoStyle} inputMode="numeric" pattern="[0-9]{4}" maxLength="4" value={edu.fim} onChange={(e) => handleListaChange('educacao', edu.id, 'fim', e.target.value.replace(/\D/g, '').slice(0, 4))} /></div>
                       </div>
                     </div>
                   ))}

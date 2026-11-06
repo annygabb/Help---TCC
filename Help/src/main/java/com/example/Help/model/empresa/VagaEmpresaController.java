@@ -52,6 +52,13 @@ public class VagaEmpresaController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<VagaEmpresa> atualizar(@PathVariable UUID id,
+            @RequestBody @Valid VagaEmpresaRequestDTO dados, Authentication authentication) {
+        var empresa = empresaAutenticadaService.obter(authentication);
+        return ResponseEntity.ok(service.atualizarVaga(id, empresa.getId(), dados));
+    }
+
     @GetMapping("/talentos") //retorna a lista de candidatos
     public ResponseEntity<List<Object>> listarBancoDeTalentos() { //service buscar os dados da tabela de usuarios
         return ResponseEntity.ok(service.listarCandidatosDisponiveis());

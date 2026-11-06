@@ -39,11 +39,7 @@ public class VagaEmpresaService {
 
     public VagaEmpresa salvarVaga(Empresa empresa, VagaEmpresaRequestDTO dados) {
         VagaEmpresa novaVaga = new VagaEmpresa();
-
-        novaVaga.setCargo(dados.cargo());
-        novaVaga.setSkillsExigidas(dados.skillsExigidas());
-        novaVaga.setExperienciaMinima(dados.experienciaMinima());
-        novaVaga.setSalarioBase(dados.salarioBase());
+        preencher(novaVaga, dados);
         novaVaga.setDataPublicacao(LocalDate.now()); //Define a data de publicação automaticamente
         novaVaga.setEmpresa(empresa);
 
@@ -54,6 +50,33 @@ public class VagaEmpresaService {
                         "Nova vaga de " + empresa.getCorporateName(),
                         "Vaga publicada: " + salva.getCargo(), empresa));
         return salva;
+    }
+
+    public VagaEmpresa atualizarVaga(UUID id, UUID empresaId, VagaEmpresaRequestDTO dados) {
+        VagaEmpresa vaga = repository.findByIdAndEmpresaId(id, empresaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vaga não encontrada."));
+        preencher(vaga, dados);
+        return repository.save(vaga);
+    }
+
+    private void preencher(VagaEmpresa vaga, VagaEmpresaRequestDTO dados) {
+        vaga.setCargo(dados.cargo().trim());
+        vaga.setSkillsExigidas(dados.skillsExigidas());
+        vaga.setExperienciaMinima(dados.experienciaMinima());
+        vaga.setSalarioBase(dados.salarioBase());
+        vaga.setTipoExperiencia(valor(dados.tipoExperiencia(), "anos"));
+        vaga.setModelo(valor(dados.modelo(), "Remoto"));
+        vaga.setTipo(valor(dados.tipo(), "CLT"));
+        vaga.setStatus(valor(dados.status(), "ativa"));
+        vaga.setSenioridade(valor(dados.senioridade(), "Pleno"));
+        vaga.setLocalizacao(valor(dados.localizacao(), "Brasil"));
+        vaga.setSalario(valor(dados.salario(), "A combinar"));
+        vaga.setPrioridade(valor(dados.prioridade(), "media"));
+        vaga.setDescricao(valor(dados.descricao(), "Descrição da vaga ainda não cadastrada."));
+    }
+
+    private String valor(String valor, String padrao) {
+        return valor == null || valor.isBlank() ? padrao : valor.trim();
     }
 
     public void deletarVaga(UUID id, UUID empresaId) {
