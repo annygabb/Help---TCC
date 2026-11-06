@@ -85,4 +85,17 @@ public class PagamentoController {
         Map<String, Object> resultado = pagamentoService.consultarStatusPagamento(id);
         return ResponseEntity.ok(resultado);
     }
+
+    @PostMapping("/pix/gerar-token")
+    public ResponseEntity<Map<String, String>> gerarTokenPix(@RequestBody Map<String, Object> body) {
+        try {
+            Long paymentId = Long.valueOf(String.valueOf(body.get("paymentId")));
+            String email = String.valueOf(body.get("email"));
+            String nomeCurso = String.valueOf(body.get("nomeCurso"));
+            pagamentoService.gerarTokenPixAprovado(paymentId, email, nomeCurso);
+            return ResponseEntity.ok(Map.of("message", "Token enviado com sucesso."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

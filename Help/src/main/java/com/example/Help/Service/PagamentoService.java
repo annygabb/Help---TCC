@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -106,13 +105,17 @@ public class PagamentoService {
 
             logger.info("Pagamento cartão processado — ID: " + payment.getId() + " | Status: " + payment.getStatus());
 
+            boolean tokenEnviado = false;
+            String mensagem = resolverMensagemStatus(payment.getStatus());
             if ("approved".equals(payment.getStatus())) {
                 try {
                     String nomeCurso = (description != null && !description.isBlank()) ? description : "Curso Adquirido";
                     gerarTokenMatriculaPagaAposConfirmacaoPagamento(payerEmail, nomeCurso);
+                    tokenEnviado = true;
                     logger.info("Faturamento concluído: Token de acesso enviado para " + payerEmail);
                 } catch (Exception e) {
                     logger.severe("Pagamento APROVADO, mas falha ao gerar matrícula/e-mail: " + e.getMessage());
+                    mensagem = "Pagamento aprovado, mas o token não pôde ser enviado. Entre em contato com o suporte.";
                 }
             }
 
@@ -120,7 +123,8 @@ public class PagamentoService {
                     "id",           payment.getId(),
                     "status",       payment.getStatus(),
                     "statusDetail", payment.getStatusDetail(),
-                    "message",      resolverMensagemStatus(payment.getStatus())
+                    "message",      mensagem,
+                    "tokenEnviado", tokenEnviado
             );
 
         } catch (MPApiException apiException) {
@@ -251,12 +255,21 @@ public class PagamentoService {
         }
     }
 
+    public void gerarTokenPixAprovado(Long paymentId, String email, String nomeCurso) {
+        Map<String, Object> status = consultarStatusPagamento(paymentId);
+        if (!"approved".equals(status.get("status"))) {
+            throw new IllegalStateException("O pagamento PIX ainda não foi aprovado.");
+        }
+        gerarTokenMatriculaPagaAposConfirmacaoPagamento(email, nomeCurso);
+    }
+
     @Transactional
     public void gerarTokenMatricula(String email, String nomeCurso) {
         logger.info("Gerando token de matrícula gratuita para: " + email + " | Curso: " + nomeCurso);
         Usuario usuario = buscarUsuarioPorEmailOuFalhar(email);
-        String token = prepararNovoToken(usuario);
+        String token = prepararCodigoToken(usuario);
         enviarEmailConfirmacaoMatriculaGratuita(usuario, token, nomeCurso);
+        salvarToken(usuario, token);
     }
 
     @Transactional
@@ -271,8 +284,9 @@ public class PagamentoService {
     public void gerarTokenMatriculaPagaAposConfirmacaoPagamento(String email, String nomeCurso) {
         logger.info("Pagamento confirmado. Gerando token para: " + email + " | Curso: " + nomeCurso);
         Usuario usuario = buscarUsuarioPorEmailOuFalhar(email);
-        String token = prepararNovoToken(usuario);
+        String token = prepararCodigoToken(usuario);
         enviarEmailConfirmacaoMatriculaPaga(usuario, token, nomeCurso);
+        salvarToken(usuario, token);
     }
 
     @Transactional
@@ -293,15 +307,17 @@ public class PagamentoService {
                 .orElseThrow(() -> new RuntimeException("Código inválido ou inexistente."));
     }
 
-    private String prepararNovoToken(Usuario usuario) {
+    private String prepararCodigoToken(Usuario usuario) {
         tokenRepository.deleteByUsuario(usuario);
         tokenRepository.flush();
-        String token = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
+
+    private void salvarToken(Usuario usuario, String token) {
         TokenRecuperacao novoToken = new TokenRecuperacao(
                 token, usuario, LocalDateTime.now().plusMinutes(TOKEN_EXPIRACAO_MINUTOS)
         );
         tokenRepository.save(novoToken);
-        return token;
     }
 
     private void verificarExpiracaoEDeletar(TokenRecuperacao token, String message) {
@@ -320,7 +336,6 @@ public class PagamentoService {
         };
     }
 
-    @Async
     protected void enviarMimeMessage(String para, String assunto, String htmlContent) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -332,6 +347,7 @@ public class PagamentoService {
             mailSender.send(mimeMessage);
         } catch (Exception e) {
             logger.severe("Erro ao enviar e-mail: " + e.getMessage());
+            throw new IllegalStateException("Não foi possível enviar o token por e-mail. Verifique a configuração SMTP.", e);
         }
     }
 

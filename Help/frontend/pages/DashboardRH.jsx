@@ -29,6 +29,7 @@ const DashboardRH = () => {
     const [vagaParaEditar, setVagaParaEditar] = useState(null);
     const fotoEmpresaRef = useRef(null);
     const [empresa, setEmpresa] = useState({ razaoSocial: '', fotoUrl: null });
+    const [relatorioAberto, setRelatorioAberto] = useState(false);
 
     useEffect(() => {
         api.get('/empresas/me').then(({ data }) => setEmpresa(data)).catch((error) => {
@@ -380,6 +381,9 @@ const DashboardRH = () => {
                                         })()}%
                                     </span>
                                 </div>
+                                <button type="button" className="empresa-save-button" onClick={() => setRelatorioAberto(true)} style={{ marginTop: '16px', width: '100%' }}>
+                                    <FileText size={16} /> Ver relatório completo
+                                </button>
                             </div>
                         </aside>
 
@@ -586,6 +590,24 @@ const DashboardRH = () => {
                     <Talentos talentosFiltrados={talentosFiltrados} />
                 )}
             </main>
+
+            {relatorioAberto && (
+                <div className="modal-overlay" onClick={() => setRelatorioAberto(false)}>
+                    <div className="create-post-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+                        <div className="modal-header">
+                            <h3>Relatório semanal</h3>
+                            <button type="button" onClick={() => setRelatorioAberto(false)}><X size={22} /></button>
+                        </div>
+                        <div className="modal-content" style={{ padding: '24px' }}>
+                            <p><strong>Empresa:</strong> {empresa.razaoSocial || 'Empresa'}</p>
+                            <p><strong>Vagas ativas:</strong> {vagas.filter((vaga) => vaga.status === 'ativa').length}</p>
+                            <p><strong>Total de candidatos:</strong> {vagas.reduce((total, vaga) => total + (vaga.inscritos?.length || 0), 0)}</p>
+                            <p><strong>Aprovados:</strong> {Object.values(statusCandidatos).filter((status) => status === 'aprovado').length}</p>
+                            <p><strong>Vagas encerradas:</strong> {vagas.filter((vaga) => vaga.status === 'encerrada').length}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showModal && (
                 <div className="modal-overlay">
