@@ -32,6 +32,13 @@ const validarCPF = (cpf) => {
   return true;
 };
 
+const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validarTelefone = (telefone) => {
+  const digitos = telefone.replace(/\D/g, '');
+  return digitos.length === 10 || digitos.length === 11;
+};
+
 const extrairValorNumerico = (precoStr) => {
   if (!precoStr) return 199.90;
   const limpo = precoStr.replace(/[R$\s]/g, '').replace('.', '').replace(',', '.');
@@ -283,7 +290,24 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
     setDados({ ...dados, vencimento: v.substring(0, 5) });
   };
 
-  const podeAvancar = dados.nome && dados.email && dados.cidade && dados.uf && dados.situacao;
+  const handleTelefoneChange = (e) => {
+    let valor = e.target.value.replace(/\D/g, '').slice(0, 11);
+    if (valor.length > 10) valor = valor.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+    else if (valor.length > 6) valor = valor.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+    else if (valor.length > 2) valor = valor.replace(/^(\d{2})(\d*)/, '($1) $2');
+    else if (valor.length) valor = `(${valor}`;
+    setDados({ ...dados, telefone: valor });
+  };
+
+  const handleCidadeChange = (e) => {
+    const cidade = e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ'\-\s]/g, '');
+    setDados({ ...dados, cidade });
+  };
+
+  const podeAvancar = Boolean(
+    dados.nome.trim() && validarEmail(dados.email) && validarTelefone(dados.telefone)
+    && dados.cidade.trim() && UFS.includes(dados.uf) && dados.situacao
+  );
 
   const dispararGeracaoToken = async () => {
     setIsLoading(true);
@@ -516,11 +540,14 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
 
               <input className="filter-select" placeholder="Nome Completo" value={dados.nome} onChange={(e) => setDados({ ...dados, nome: e.target.value })} />
               <input className="filter-select" placeholder="E-mail" value={dados.email} onChange={(e) => setDados({ ...dados, email: e.target.value })} />
-              <input className="filter-select" placeholder="Telefone (WhatsApp)" onChange={(e) => setDados({ ...dados, telefone: e.target.value })} />
+              <input className="filter-select" placeholder="Telefone (WhatsApp)" value={dados.telefone} onChange={handleTelefoneChange} inputMode="tel" />
 
               <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                <input className="filter-select" placeholder="Cidade" style={{ flex: 2, minWidth: 0 }} onChange={(e) => setDados({ ...dados, cidade: e.target.value })} />
-                <input className="filter-select" placeholder="UF" maxLength="2" style={{ flex: 1, minWidth: 0 }} onChange={(e) => setDados({ ...dados, uf: e.target.value })} />
+                <input className="filter-select" placeholder="Cidade" value={dados.cidade} style={{ flex: 2, minWidth: 0 }} onChange={handleCidadeChange} />
+                <select className="filter-select" value={dados.uf} style={{ flex: 1, minWidth: 0 }} onChange={(e) => setDados({ ...dados, uf: e.target.value })}>
+                  <option value="">UF</option>
+                  {UFS.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
+                </select>
               </div>
 
               <select className="filter-select" value={dados.situacao} onChange={(e) => setDados({ ...dados, situacao: e.target.value })}>
@@ -718,17 +745,7 @@ const Cursos = () => {//pag principal
   const [filtroNivel, setFiltroNivel] = useState('Todos');
   const [filtroPreco, setFiltroPreco] = useState('Todos');
 
-  const [meusCursosMatriculados, setMeusCursosMatriculados] = useState([
-    {
-      id: 1,
-      titulo: 'Java Spring Boot Profissional',
-      progresso: 45,
-      foto: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg',
-      duracao: '40h',
-      nivel: 'Avançado',
-      instrutor: 'Help Academy',
-    },
-  ]);
+  const [meusCursosMatriculados, setMeusCursosMatriculados] = useState([]);
 
   const [novosCursosData] = useState([
     {

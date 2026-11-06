@@ -9,6 +9,7 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
   const [visibilidade, setVisibilidade] = useState('TODOS');
   const [midia, setMidia] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [publicando, setPublicando] = useState(false);
 
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
@@ -30,6 +31,17 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
 
   const onEmojiClick = (emojiData) => {
     setTexto(prev => prev + emojiData.emoji);
+  };
+
+  const handlePublish = async () => {
+    if (publicando || (!texto.trim() && !midia)) return;
+
+    setPublicando(true);
+    try {
+      await onPublish(texto, midia, { comentarioStatus, visibilidade });
+    } finally {
+      setPublicando(false);
+    }
   };
 
   const getComentarioIcon = () => {
@@ -137,11 +149,11 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
           </div>
 
           <button
-            className={`help-publish-btn ${(!texto.trim() && !midia) ? 'disabled' : ''}`}
-            disabled={!texto.trim() && !midia}
-            onClick={() => onPublish(texto, midia, { comentarioStatus, visibilidade })}
+            className={`help-publish-btn ${(!texto.trim() && !midia) || publicando ? 'disabled' : ''}`}
+            disabled={(!texto.trim() && !midia) || publicando}
+            onClick={handlePublish}
           >
-            Publicar
+            {publicando ? 'Publicando...' : 'Publicar'}
           </button>
         </div>
       </div>

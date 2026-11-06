@@ -26,6 +26,7 @@ const DashboardRH = () => {
     const [pesoSkills, setPesoSkills] = useState(50);
     const [pesoExp, setPesoExp] = useState(50);
     const [abaAtiva, setAbaAtiva] = useState('painel');
+    const [vagaParaEditar, setVagaParaEditar] = useState(null);
     const fotoEmpresaRef = useRef(null);
     const [empresa, setEmpresa] = useState({ razaoSocial: '', fotoUrl: null });
 
@@ -426,7 +427,14 @@ const DashboardRH = () => {
                                                     <>
                                                         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }} onClick={() => setMenuAberto(null)} />
                                                         <div className="dropdown-menu" style={{ zIndex: 10 }}>
-                                                            <div className="dropdown-item"><Edit3 size={14} /> Editar</div>
+                                                            <div
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setVagaParaEditar(vaga);
+                                                                    setMenuAberto(null);
+                                                                    setAbaAtiva('vagas');
+                                                                }}
+                                                            ><Edit3 size={14} /> Editar</div>
                                                             <div className="dropdown-divider"></div>
                                                             <div className="dropdown-item delete" onClick={() => excluirVaga(vaga.id)}><Ban size={14} /> Excluir</div>
                                                         </div>
@@ -569,6 +577,8 @@ const DashboardRH = () => {
                         analisarMatchIA={analisarMatchIA}
                         setAbaAtiva={setAbaAtiva}
                         setVagaSelecionada={setVagaSelecionada}
+                        vagaParaEditar={vagaParaEditar}
+                        onVagaEdicaoAberta={() => setVagaParaEditar(null)}
                     />
                 )}
 
