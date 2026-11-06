@@ -13,6 +13,7 @@ import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
 import api from '../services/api';
 import { deixarDeSeguir, consultarStatus, seguir } from '../services/seguidores';
+import { deduplicarPublicacoes } from '../utils/feed';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ const Feed = () => {
     });
 
     api.get('/publicacoes').then(async ({ data }) => {
-      const publicacoes = data || [];
+      const publicacoes = deduplicarPublicacoes(data || []);
       const autores = [...new Map(publicacoes.map((post) => [
         `${post.autorTipo}:${post.autorId}`,
         { contaId: post.autorId, tipoConta: post.autorTipo }

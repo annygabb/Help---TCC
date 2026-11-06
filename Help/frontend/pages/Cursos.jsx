@@ -398,8 +398,10 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
 
         const result = await response.json();
 
-        if (result.status === 'approved') {
-          await dispararGeracaoToken();
+        if (result.status === 'approved' && result.tokenEnviado) {
+          setEtapa('token');
+        } else if (result.status === 'approved') {
+          setErroPagamento(result.message || 'Pagamento aprovado, mas não foi possível enviar o token. Entre em contato com o suporte.');
         } else if (result.status === 'in_process' || result.status === 'pending') {
           setErroPagamento('Pagamento em análise. Você receberá uma confirmação por e-mail.');
         } else {
@@ -431,7 +433,14 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
         const result = await response.json();
 
         if (result.status === 'approved') {
-          await dispararGeracaoToken();
+          const tokenResponse = await fetch(buildApiUrl('/api/pagamento/pix/gerar-token'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: pixData.id, email: dados.email, nomeCurso: curso.titulo })
+          });
+          const tokenResult = await tokenResponse.json();
+          if (!tokenResponse.ok) throw new Error(tokenResult.error || 'Não foi possível enviar o token.');
+          setEtapa('token');
         } else if (result.status === 'pending' || result.status === 'in_process') {
           setIsLoading(false);
           setErroPagamento('Pagamento PIX ainda não identificado. Após pagar, aguarde alguns segundos e tente novamente.');
@@ -440,9 +449,9 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
           setCompraNegada(true);
           setErroPagamento('Pagamento não localizado. Verifique se o PIX foi concluído no seu banco.');
         }
-      } catch (_) {
+      } catch (error) {
         setIsLoading(false);
-        setErroPagamento('Erro ao verificar pagamento PIX. Tente novamente.');
+        setErroPagamento(error.message || 'Erro ao verificar pagamento PIX. Tente novamente.');
       }
     }
   };
