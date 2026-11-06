@@ -101,10 +101,11 @@ const Feed = () => {
         catch { return [`${autor.tipoConta}:${autor.contaId}`, false]; }
       }));
       const seguindoPorAutor = new Map(status);
-      if (ativo) setPosts(publicacoes.map((post) => ({
-        ...post,
-        seguindoAutor: seguindoPorAutor.get(`${post.autorTipo}:${post.autorId}`) || false
-      })));
+      if (ativo) {
+        setPosts(publicacoes.map((post) => ({ ...post, seguindoAutor: seguindoPorAutor.get(`${post.autorTipo}:${post.autorId}`) || false })));
+        setCurtidas(new Set(publicacoes.filter((post) => post.curtidaPorMim).map((post) => post.id)));
+        setComentarios(Object.fromEntries(publicacoes.map((post) => [post.id, post.comentarios || []])));
+      }
     }).catch((error) => console.error('Erro ao carregar publicações:', error))
       .finally(() => { if (ativo) setCarregandoPosts(false); });
 
@@ -152,13 +153,16 @@ const Feed = () => {
     }
   };
 
-  const alternarCurtida = (postId) => {
-    setCurtidas((anteriores) => {
-      const atualizadas = new Set(anteriores);
-      if (atualizadas.has(postId)) atualizadas.delete(postId);
-      else atualizadas.add(postId);
-      return atualizadas;
-    });
+  const alternarCurtida = async (postId) => {
+    try {
+      const { data } = await api.post(`/publicacoes/${postId}/curtidas`);
+      setCurtidas((anteriores) => {
+        const atualizadas = new Set(anteriores);
+        if (data.curtida) atualizadas.add(postId); else atualizadas.delete(postId);
+        return atualizadas;
+      });
+      setPosts((anteriores) => anteriores.map((post) => post.id === postId ? { ...post, totalCurtidas: data.total, curtidaPorMim: data.curtida } : post));
+    } catch (error) { setErroSocial(mensagemDoErro(error, 'Não foi possível registrar a curtida.')); }
   };
 
   const abrirComentarios = (postId) => {
@@ -166,15 +170,15 @@ const Feed = () => {
     setNovoComentario('');
   };
 
-  const enviarComentario = (event, postId) => {
+  const enviarComentario = async (event, postId) => {
     event.preventDefault();
     const conteudo = novoComentario.trim();
     if (!conteudo) return;
-    setComentarios((anteriores) => ({
-      ...anteriores,
-      [postId]: [...(anteriores[postId] || []), { id: crypto.randomUUID(), autor: displayName, conteudo }]
-    }));
-    setNovoComentario('');
+    try {
+      const { data } = await api.post(`/publicacoes/${postId}/comentarios`, { conteudo });
+      setComentarios((anteriores) => ({ ...anteriores, [postId]: [...(anteriores[postId] || []), data] }));
+      setNovoComentario('');
+    } catch (error) { setErroSocial(mensagemDoErro(error, 'Não foi possível enviar o comentário.')); }
   };
 
   const compartilharPublicacao = async (postId) => {
@@ -388,7 +392,7 @@ const Feed = () => {
 
                 <div className="post-actions">
                   <button className={`action-btn ${usuarioCurtiu ? 'active' : ''}`} onClick={() => alternarCurtida(post.id)}>
-                    <ThumbsUp size={18} fill={usuarioCurtiu ? 'currentColor' : 'none'} /> {usuarioCurtiu ? 'Curtido' : 'Gostei'}
+                    <ThumbsUp size={18} fill={usuarioCurtiu ? 'currentColor' : 'none'} /> {usuarioCurtiu ? 'Curtido' : 'Gostei'}{post.totalCurtidas ? ` (${post.totalCurtidas})` : ''}
                   </button>
 
                   {canUserComment && (
@@ -415,7 +419,7 @@ const Feed = () => {
                   <div className="comments-panel">
                     {comentariosDoPost.map((comentario) => (
                       <div className="comment-item" key={comentario.id}>
-                        <strong>{comentario.autor}</strong>
+                        <strong>{comentario.autorNome || comentario.autor}</strong>
                         <span>{comentario.conteudo}</span>
                       </div>
                     ))}

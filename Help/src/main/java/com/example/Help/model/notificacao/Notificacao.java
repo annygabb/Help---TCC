@@ -66,6 +66,19 @@ public class Notificacao {
         validarDestinatario();
     }
 
+    public static Notificacao avisoDoSistema(ParticipanteSocial destinatario, String titulo, String mensagem) {
+        Notificacao notificacao = new Notificacao();
+        notificacao.atribuirDestinatario(destinatario);
+        notificacao.tipo = TipoNotificacao.AVISO_ADMIN;
+        notificacao.titulo = titulo;
+        notificacao.mensagem = mensagem;
+        notificacao.origemNome = "Administração HELP";
+        notificacao.lida = false;
+        notificacao.dataCriacao = DataHora.agoraUtc();
+        notificacao.validarDestinatario();
+        return notificacao;
+    }
+
     public ParticipanteSocial getDestinatarioSocial() {
         return usuario != null ? usuario : empresa;
     }

@@ -17,13 +17,18 @@ import static org.mockito.Mockito.*;
 class PublicacaoServiceTest {
     private PublicacaoRepository repository;
     private SeguidorService seguidores;
+    private CurtidaPublicacaoRepository curtidas;
+    private ComentarioPublicacaoRepository comentarios;
     private PublicacaoService service;
 
     @BeforeEach
     void configurar() {
         repository = mock(PublicacaoRepository.class);
         seguidores = mock(SeguidorService.class);
-        service = new PublicacaoService(repository, seguidores);
+        curtidas = mock(CurtidaPublicacaoRepository.class);
+        comentarios = mock(ComentarioPublicacaoRepository.class);
+        when(comentarios.findAllByPublicacaoIdOrderByCriadoEmAsc(any())).thenReturn(List.of());
+        service = new PublicacaoService(repository, seguidores, curtidas, comentarios);
         when(repository.save(any(Publicacao.class))).thenAnswer(i -> i.getArgument(0));
     }
 

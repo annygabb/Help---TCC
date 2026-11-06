@@ -17,5 +17,8 @@ public record PublicacaoResponseDTO(
         PermissaoComentario permissaoComentario,
         VisibilidadePublicacao visibilidade,
         boolean podeComentar,
+        long totalCurtidas,
+        boolean curtidaPorMim,
+        java.util.List<ComentarioResponseDTO> comentarios,
         OffsetDateTime criadaEm
 ) {}

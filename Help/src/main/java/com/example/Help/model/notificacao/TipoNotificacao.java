@@ -6,5 +6,6 @@ public enum TipoNotificacao {
     NOVA_VAGA,
     EMPRESA_ATUALIZADA,
     NOVA_VAGA_EMPRESA,
+    AVISO_ADMIN,
     OUTRO
 }
