@@ -1,6 +1,7 @@
 package com.example.Help.model.publicacao;
 
 import com.example.Help.Service.ParticipanteService;
+import com.example.Help.Service.PublicacaoInteracaoService;
 import com.example.Help.Service.PublicacaoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
