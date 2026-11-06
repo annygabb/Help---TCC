@@ -43,6 +43,12 @@ export const buscarEmpresa = (id) => api.get(`/admin/empresas/${id}`, comToken()
 export const alterarStatusEmpresa = (id, ativo) =>
   api.patch(`/admin/empresas/${id}/status`, { ativo }, comToken()).then((r) => r.data);
 
+export const listarDenuncias = ({ status = '', prioridade = '' } = {}) =>
+  api.get('/admin/denuncias', comToken({ params: semVazios({ status, prioridade }) })).then((r) => r.data);
+
+export const moderarDenuncia = (id, dados) =>
+  api.patch(`/admin/denuncias/${id}`, dados, comToken()).then((r) => r.data);
+
 export const encerrarSessao = () => {
     encerrarSessaoGeral('logout-admin');
   localStorage.removeItem('token');

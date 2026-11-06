@@ -1,6 +1,8 @@
 package com.example.Help.model.admin;
 
 import com.example.Help.Service.AdminService;
+import com.example.Help.Service.DenunciaService;
+import com.example.Help.model.denuncia.DenunciaDtos;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,10 +15,15 @@ import java.util.UUID;
 public class AdminController {
 
     private final AdminService adminService;
+    private final DenunciaService denunciaService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, DenunciaService denunciaService) {
         this.adminService = adminService;
+        this.denunciaService = denunciaService;
     }
+
+    @GetMapping("/denuncias") public java.util.List<DenunciaDtos.Resposta> listarDenuncias(@RequestParam(defaultValue="") String status,@RequestParam(defaultValue="") String prioridade){return denunciaService.listar(status,prioridade);}
+    @PatchMapping("/denuncias/{id}") public DenunciaDtos.Resposta moderarDenuncia(@PathVariable UUID id,@RequestBody @jakarta.validation.Valid DenunciaDtos.Moderar dados,Authentication auth){return denunciaService.moderar(id,dados,auth);}
 
     @GetMapping("/resumo")
     public AdminDtos.Resumo resumo() {

@@ -15,6 +15,14 @@ import api from '../services/api';
 import GlobalSearch from '../components/GlobalSearch';
 import { encerrarSessao } from '../services/session';
 
+const normalizarVagaApi = (vaga) => ({
+    ...vaga,
+    data: vaga.data || (vaga.dataPublicacao ? new Date(`${vaga.dataPublicacao}T12:00:00`).toLocaleDateString('pt-BR') : 'Hoje'),
+    inscritos: vaga.inscritos || vaga.inscritosIds || [],
+    skillsExigidas: vaga.skillsExigidas || [],
+    status: vaga.status || 'ativa'
+});
+
 const DashboardRH = () => {
     const navigate = useNavigate();
     const [busca, setBusca] = useState('');
@@ -35,6 +43,8 @@ const DashboardRH = () => {
         api.get('/empresas/me').then(({ data }) => setEmpresa(data)).catch((error) => {
             console.error('Erro ao carregar empresa:', error);
         });
+        vagaService.listarMinhas().then(({ data }) => setVagas(data.map(normalizarVagaApi)))
+            .catch((error) => console.error('Erro ao carregar vagas:', error));
     }, []);
 
     const alterarFotoEmpresa = (event) => {
@@ -176,62 +186,15 @@ const DashboardRH = () => {
         }
     ]);
 
-    const [vagas, setVagas] = useState([
-        {
-            id: 1,
-            cargo: "Desenvolvedor Front-End React",
-            data: "10 de Out",
-            inscritos: [1, 2, 3, 4],
-            skillsExigidas: ["React", "TypeScript", "JavaScript"],
-            experienciaMinima: 3,
-            tipoExperiencia: "anos",
-            modelo: "Remoto",
-            tipo: "CLT",
-            status: "ativa",
-            senioridade: "Pleno",
-            localizacao: "São Paulo, SP",
-            salario: "R$ 6.000 - R$ 8.000",
-            prioridade: "alta",
-            descricao: "Atuação no desenvolvimento de interfaces modernas, integração com APIs e colaboração com o time de produto."
-        },
-        {
-            id: 2,
-            cargo: "Designer UI/UX",
-            data: "12 de Out",
-            inscritos: [2, 6],
-            skillsExigidas: ["Figma", "UI/UX"],
-            experienciaMinima: 2,
-            tipoExperiencia: "anos",
-            modelo: "Híbrido",
-            tipo: "PJ",
-            status: "ativa",
-            senioridade: "Pleno",
-            localizacao: "Goiânia, GO",
-            salario: "R$ 4.500 - R$ 6.500",
-            prioridade: "media",
-            descricao: "Criação de fluxos, protótipos e interfaces para produtos digitais com foco em experiência do usuário."
-        }
-    ]);
+    const [vagas, setVagas] = useState([]);
 
-    const adicionarVaga = () => {
+    const adicionarVaga = async () => {
         if (!novaVaga.cargo.trim()) return;
-
-        const dataAtual = new Date();
-        const dia = dataAtual.getDate();
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        const dataString = `${dia} de ${meses[dataAtual.getMonth()]}`;
-
-        const valorExperiencia = novaVaga.tipoExperiencia === 'nenhuma'
-            ? 0
-            : Number(novaVaga.experienciaMinima) || 0;
-
-        const vaga = {
-            id: Date.now(),
-            cargo: novaVaga.cargo,
-            data: dataString,
-            inscritos: [],
+        const payload = {
+            cargo: novaVaga.cargo.trim(),
             skillsExigidas: novaVaga.skills.split(',').map(s => s.trim()).filter(Boolean),
-            experienciaMinima: valorExperiencia,
+            experienciaMinima: novaVaga.tipoExperiencia === 'nenhuma' ? 0 : Number(novaVaga.experienciaMinima) || 0,
+            salarioBase: Number(String(novaVaga.salario).replace(/[^0-9,]/g, '').replace(',', '.')) || 0,
             tipoExperiencia: novaVaga.tipoExperiencia,
             modelo: novaVaga.modelo,
             tipo: novaVaga.tipo,
@@ -242,10 +205,14 @@ const DashboardRH = () => {
             prioridade: novaVaga.prioridade,
             descricao: novaVaga.descricao || "Descrição da vaga ainda não cadastrada."
         };
-
-        setVagas(prev => [vaga, ...prev]);
-        resetNovaVaga();
-        setShowModal(false);
+        try {
+            const { data } = await vagaService.criar(payload);
+            setVagas(prev => [normalizarVagaApi(data), ...prev]);
+            resetNovaVaga();
+            setShowModal(false);
+        } catch (error) {
+            alert(error.response?.data?.message || error.response?.data?.error || 'Não foi possível salvar a vaga.');
+        }
     };
 
     const calcularMatch = (talento, vaga) => {
@@ -265,11 +232,23 @@ const DashboardRH = () => {
         }
     };
 
-    const excluirVaga = (id) => {
+    const excluirVaga = async (id) => {
         if (window.confirm("Deseja realmente excluir esta vaga?")) {
-            setVagas(vagas.filter(vaga => vaga.id !== id));
-            setMenuAberto(null);
+            try {
+                await vagaService.deletar(id);
+                setVagas(vagas.filter(vaga => vaga.id !== id));
+                setMenuAberto(null);
+            } catch { alert('Não foi possível excluir a vaga.'); }
         }
+    };
+
+    const atualizarVagaPersistida = async (id, dados) => {
+        const atual = vagas.find((vaga) => vaga.id === id);
+        const payload = { ...atual, ...dados, inscritos: undefined, inscritosIds: undefined, data: undefined };
+        const { data } = await vagaService.atualizar(id, payload);
+        const normalizada = normalizarVagaApi(data);
+        setVagas((anteriores) => anteriores.map((vaga) => vaga.id === id ? normalizada : vaga));
+        return normalizada;
     };
 
     const reabrirVaga = (id) => {
@@ -583,6 +562,8 @@ const DashboardRH = () => {
                         setVagaSelecionada={setVagaSelecionada}
                         vagaParaEditar={vagaParaEditar}
                         onVagaEdicaoAberta={() => setVagaParaEditar(null)}
+                        onAtualizarVaga={atualizarVagaPersistida}
+                        onExcluirVaga={excluirVaga}
                     />
                 )}
 

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "vagas_empresa")
@@ -32,6 +33,18 @@ public class VagaEmpresa {
     @Column(name = "salario_base")
     private Double salarioBase;
 
+    private String tipoExperiencia;
+    private String modelo;
+    private String tipo;
+    private String status;
+    private String senioridade;
+    private String localizacao;
+    private String salario;
+    private String prioridade;
+
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+
     // nullable durante a migração: vagas antigas continuam legíveis, mas novas vagas sempre recebem dona.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id")
@@ -47,4 +60,9 @@ public class VagaEmpresa {
     @CollectionTable(name = "vaga_inscritos", joinColumns = @JoinColumn(name = "vaga_id"))
     @Column(name = "inscrito_id")
     private List<UUID> inscritosIds; // IDs dos talentos inscritos
+
+    @JsonProperty("empresaNome")
+    public String getEmpresaNome() {
+        return empresa == null ? null : empresa.getCorporateName();
+    }
 }

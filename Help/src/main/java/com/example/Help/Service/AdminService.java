@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.text.Normalizer;
 
 @Service
 public class AdminService {
@@ -207,7 +208,10 @@ public class AdminService {
     }
 
     private String normalizar(String valor) {
-        return valor == null ? "" : valor.trim().toLowerCase(Locale.ROOT);
+        if (valor == null) return "";
+        return Normalizer.normalize(valor, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .trim().toLowerCase(Locale.ROOT);
     }
 
     private String limparMotivo(String motivo) {

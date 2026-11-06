@@ -19,6 +19,10 @@ export const vagaService = {
         headers: getAuthHeader()
     }),
 
+    listarMinhas: () => api.get(`${API_URL}/minhas`, { headers: getAuthHeader() }),
+
+    atualizar: (id, vaga) => api.put(`${API_URL}/${id}`, vaga, { headers: getAuthHeader() }),
+
     deletar: (id) => api.delete(`${API_URL}/${id}`, {
         headers: getAuthHeader()
     })

@@ -1,18 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, CheckCircle2, ChevronDown, Eye, XCircle } from 'lucide-react';
 import { Aviso } from './adminComponentes';
-
-const DENUNCIAS_INICIAIS = [
-  { id: 'DEN-1042', alvo: 'Publicação de Marina Alves', tipo: 'Conteúdo impróprio', prioridade: 'ALTA', criadaEm: 'Hoje, 10:42', evidencia: 'Captura anexada pela pessoa denunciante.', acesso: 'Publicação pública', status: 'PENDENTE' },
-  { id: 'DEN-1041', alvo: 'Perfil da empresa Nova Trilha', tipo: 'Informação enganosa', prioridade: 'MEDIA', criadaEm: 'Hoje, 09:18', evidencia: 'Link informado na denúncia.', acesso: 'Perfil público', status: 'PENDENTE' },
-  { id: 'DEN-1039', alvo: 'Comentário em publicação', tipo: 'Assédio', prioridade: 'CRITICA', criadaEm: 'Ontem, 18:07', evidencia: 'Trecho protegido: disponível somente para análise desta denúncia.', acesso: 'Motivo de acesso: denúncia registrada', status: 'EM_ANALISE' }
-];
+import { listarDenuncias, mensagemDeErro, moderarDenuncia } from '../../services/adminService';
 
 const rotuloPrioridade = { CRITICA: 'Crítica', ALTA: 'Alta', MEDIA: 'Média', BAIXA: 'Baixa' };
 const rotuloFiltro = { ABERTAS: 'Abertas', PENDENTE: 'Pendentes', EM_ANALISE: 'Em análise', RESOLVIDA: 'Resolvidas', TODAS: 'Todas' };
 
 function AdminDenuncias() {
-  const [denuncias, setDenuncias] = useState(DENUNCIAS_INICIAIS);
+  const [denuncias, setDenuncias] = useState([]);
   const [filtro, setFiltro] = useState('ABERTAS');
   const [prioridade, setPrioridade] = useState('');
   const [selecionada, setSelecionada] = useState(null);
@@ -22,6 +17,11 @@ function AdminDenuncias() {
   const fecharRef = useRef(null);
   const filtroRef = useRef(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(false);
+
+  useEffect(() => {
+    listarDenuncias().then(setDenuncias)
+      .catch((erro) => setAviso({ tipo: 'erro', texto: mensagemDeErro(erro, 'Não foi possível carregar as denúncias.') }));
+  }, []);
 
   useEffect(() => {
     if (!selecionada) return undefined;
@@ -54,16 +54,19 @@ function AdminDenuncias() {
     setAviso(null);
   };
 
-  const registrarDecisao = () => {
+  const registrarDecisao = async () => {
     if (!decisao || !justificativa.trim()) {
       setAviso({ tipo: 'erro', texto: 'Escolha uma decisão e informe uma justificativa para registrar a análise.' });
       return;
     }
-    setDenuncias((atuais) => atuais.map((denuncia) => denuncia.id === selecionada.id
-      ? { ...denuncia, status: 'RESOLVIDA', decisao, justificativa: justificativa.trim() }
-      : denuncia));
-    setSelecionada(null);
-    setAviso({ tipo: 'sucesso', texto: `Decisão de ${selecionada.id} registrada como resolvida.` });
+    try {
+      const atualizada = await moderarDenuncia(selecionada.id, { status: 'RESOLVIDA', decisao, justificativa: justificativa.trim() });
+      setDenuncias((atuais) => atuais.map((denuncia) => denuncia.id === atualizada.id ? atualizada : denuncia));
+      setSelecionada(null);
+      setAviso({ tipo: 'sucesso', texto: 'Decisão registrada como resolvida.' });
+    } catch (erro) {
+      setAviso({ tipo: 'erro', texto: mensagemDeErro(erro, 'Não foi possível registrar a decisão.') });
+    }
   };
 
   return (
@@ -95,8 +98,8 @@ function AdminDenuncias() {
           <thead><tr><th>Prioridade</th><th>Denúncia</th><th>Motivo</th><th>Recebida</th><th>Status</th><th>Ação</th></tr></thead>
           <tbody>{visiveis.length === 0 ? <tr><td colSpan="6" className="adm-vazio">Nenhuma denúncia para este filtro.</td></tr> : visiveis.map((denuncia) => <tr key={denuncia.id}>
             <td data-label="Prioridade"><span className={`adm-prioridade adm-prioridade-${denuncia.prioridade.toLowerCase()}`}>{rotuloPrioridade[denuncia.prioridade]}</span></td>
-            <td data-label="Denúncia"><strong>{denuncia.id}</strong><br /><span className="adm-texto-suave">{denuncia.alvo}</span></td>
-            <td data-label="Motivo">{denuncia.tipo}</td><td data-label="Recebida">{denuncia.criadaEm}</td><td data-label="Status"><span className="adm-badge adm-badge-tipo">{denuncia.status.replace('_', ' ')}</span></td>
+            <td data-label="Denúncia"><strong>{String(denuncia.id).slice(0, 8)}</strong><br /><span className="adm-texto-suave">{denuncia.alvoNome}</span></td>
+            <td data-label="Motivo">{denuncia.motivo}</td><td data-label="Recebida">{new Date(denuncia.criadaEm).toLocaleString('pt-BR')}</td><td data-label="Status"><span className="adm-badge adm-badge-tipo">{denuncia.status.replace('_', ' ')}</span></td>
             <td data-label="Ação"><button className="adm-botao adm-botao-secundario" onClick={() => abrir(denuncia)}><Eye size={15} /> Analisar</button></td>
           </tr>)}</tbody>
         </table>
@@ -104,8 +107,8 @@ function AdminDenuncias() {
 
       {selecionada && <div className="adm-modal-overlay" role="presentation">
         <section className="adm-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-denuncia">
-          <div className="adm-modal-topo"><div><span className={`adm-prioridade adm-prioridade-${selecionada.prioridade.toLowerCase()}`}>{rotuloPrioridade[selecionada.prioridade]}</span><h2 id="titulo-denuncia">{selecionada.id}: {selecionada.tipo}</h2></div><button ref={fecharRef} className="adm-botao adm-botao-secundario" onClick={() => setSelecionada(null)}>Fechar</button></div>
-          <div className="adm-paineis"><div className="adm-painel"><h2>Alvo e evidência</h2><p><strong>{selecionada.alvo}</strong></p><p className="adm-texto-suave">{selecionada.evidencia}</p></div><div className="adm-painel"><h2>Limite de privacidade</h2><p className="adm-texto-suave">{selecionada.acesso}</p><p className="adm-texto-suave">Conversas privadas não são exibidas integralmente nesta tela.</p></div></div>
+          <div className="adm-modal-topo"><div><span className={`adm-prioridade adm-prioridade-${selecionada.prioridade.toLowerCase()}`}>{rotuloPrioridade[selecionada.prioridade]}</span><h2 id="titulo-denuncia">{selecionada.motivo}</h2></div><button ref={fecharRef} className="adm-botao adm-botao-secundario" onClick={() => setSelecionada(null)}>Fechar</button></div>
+          <div className="adm-paineis"><div className="adm-painel"><h2>Alvo e relato</h2><p><strong>{selecionada.alvoNome}</strong></p><p className="adm-texto-suave">{selecionada.descricao || 'Sem detalhes adicionais.'}</p></div><div className="adm-painel"><h2>Denunciante</h2><p className="adm-texto-suave">{selecionada.denuncianteNome}</p><p className="adm-texto-suave">Os dados são exibidos apenas para moderação.</p></div></div>
           <label className="adm-label">Decisão <span className="adm-obrigatorio">obrigatória</span><select value={decisao} onChange={(event) => setDecisao(event.target.value)}><option value="">Selecione</option><option value="SEM_ACAO">Sem ação</option><option value="ADVERTIR">Advertir</option><option value="REMOVER_CONTEUDO">Remover conteúdo</option><option value="SUSPENDER_CONTA">Suspender conta</option></select></label>
           <label className="adm-label">Justificativa <span className="adm-obrigatorio">obrigatória</span><textarea value={justificativa} onChange={(event) => setJustificativa(event.target.value)} maxLength="1000" placeholder="Explique a decisão para auditoria futura." /></label>
           <div className="adm-acoes"><button className="adm-botao adm-botao-secundario" onClick={() => setSelecionada(null)}><XCircle size={15} /> Cancelar</button><button className="adm-botao adm-botao-primario" onClick={registrarDecisao} disabled={!decisao || !justificativa.trim()}><CheckCircle2 size={15} /> Registrar decisão</button></div>

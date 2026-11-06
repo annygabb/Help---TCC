@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, Building2, MessageSquare, UserMinus, UserPlus } from 'lucide-react';
+import { ArrowLeft, Building2, Flag, MessageSquare, UserMinus, UserPlus } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { obterContato } from '../services/comunicacao';
 import { consultarContagem, consultarStatus, deixarDeSeguir, seguir } from '../services/seguidores';
 import { obterSessao } from '../services/session';
 import './PerfilPublico.css';
+import DenunciaModal from '../components/DenunciaModal';
 
 const mensagemDoErro = (erro, padrao) =>
   erro?.response?.data?.mensagem || erro?.response?.data?.message || erro?.response?.data || padrao;
@@ -17,6 +18,7 @@ export default function PerfilPublico() {
   const [carregando, setCarregando] = useState(true);
   const [atualizandoSeguimento, setAtualizandoSeguimento] = useState(false);
   const [erro, setErro] = useState('');
+  const [denunciando, setDenunciando] = useState(false);
 
   const carregar = useCallback(async () => {
     const referencia = { contaId: id, tipoConta: tipo };
@@ -95,8 +97,10 @@ export default function PerfilPublico() {
             </button>
           )}
           {!contaEhDoUsuarioAtual && <button className="secundario" onClick={() => navigate('/mensagens', { state: { iniciarCom: conta } })}><MessageSquare size={18} /> Mensagem</button>}
+          {!contaEhDoUsuarioAtual && <button className="secundario" onClick={() => setDenunciando(true)}><Flag size={18} /> Denunciar</button>}
         </div>
       </section>
+      {denunciando && <DenunciaModal alvoTipo={conta.tipoConta} alvoId={conta.contaId} alvoNome={conta.nome} onClose={() => setDenunciando(false)} />}
     </main>
   );
 }
