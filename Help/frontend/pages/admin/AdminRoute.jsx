@@ -43,7 +43,7 @@ function AdminRoute({ children }) {
   }
 
   if (estado === 'sem-login') {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   if (estado === 'negado') {
