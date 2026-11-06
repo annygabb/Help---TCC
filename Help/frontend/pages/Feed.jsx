@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
-  Home, BookOpen, Briefcase, MessageSquare, Bell, Search, ShieldCheck,
+  Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
   Share2, ThumbsUp, MessageCircle, Image, Video, MapPin, Users, Flag
 } from 'lucide-react';
 import './Feed.css';
@@ -253,12 +253,6 @@ const Feed = () => {
               </div>
               <span>Notificações</span>
             </Link>
-            {user.tipoConta === 'ADMIN' && (
-              <Link to="/admin" className={`nav-item ${location.pathname.startsWith('/admin') ? 'active' : ''}`}>
-                <ShieldCheck size={22} />
-                <span>Painel admin</span>
-              </Link>
-            )}
           </div>
         </div>
       </nav>

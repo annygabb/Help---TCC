@@ -46,7 +46,7 @@ function Login() {
 
         estabelecerSessao(token, usuarioParaSalvar);
 
-        navigate(tipoConta === 'ADMIN' ? '/admin' : '/feed');
+        navigate('/feed');
       } else {
         alert("O servidor não retornou um token de acesso.");
       }

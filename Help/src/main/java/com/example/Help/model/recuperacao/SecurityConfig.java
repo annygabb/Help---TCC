@@ -51,6 +51,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll()//autenticar e cadastrar usuario
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/login/admin").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios/login/admin").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/cadastrar").permitAll()
 

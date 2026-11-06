@@ -58,16 +58,30 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data, Authentication sessaoAtual) {
+        return autenticar(data, sessaoAtual, false);
+    }
+
+    @PostMapping("/login/admin")
+    public ResponseEntity<?> loginAdmin(@RequestBody @Valid LoginRequestDTO data, Authentication sessaoAtual) {
+        return autenticar(data, sessaoAtual, true);
+    }
+
+    private ResponseEntity<?> autenticar(LoginRequestDTO data, Authentication sessaoAtual, boolean acessoAdmin) {
         try {
             var authenticationToken = new UsernamePasswordAuthenticationToken(data.email(), data.password());
             var novaAutenticacao = manager.authenticate(authenticationToken);
             var usuario = (Usuario) novaAutenticacao.getPrincipal();
+            boolean ehAdmin = usuario.getTipoConta() == TipoConta.ADMIN;
+            if (ehAdmin != acessoAdmin) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
+            }
             sessaoService.invalidarContaAnterior(sessaoAtual, usuario);
             usuario.setSessionVersion(UUID.randomUUID().toString());
             repository.save(usuario);
             var tokenJWT = tokenService.gerarToken(usuario);
 
-            return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuario.getId(), usuario.getName(), usuario.getEmail()));
+            return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuario.getId(), usuario.getName(),
+                    usuario.getEmail(), usuario.getTipoConta().name()));
         } catch (BadCredentialsException | DisabledException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (Exception e) {

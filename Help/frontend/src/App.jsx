@@ -32,6 +32,7 @@ import AdminDenuncias from '../pages/admin/AdminDenuncias.jsx';
 import AdminMensagens from '../pages/admin/AdminMensagens.jsx';
 import AdminNotificacoes from '../pages/admin/AdminNotificacoes.jsx';
 import AdminAvisos from '../pages/admin/AdminAvisos.jsx';
+import AdminLogin from '../pages/admin/AdminLogin.jsx';
 import { observarSessao, obterSessao } from '../services/session';
 
 const SessionSynchronizer = () => {
@@ -68,6 +69,7 @@ function App() {
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/recuperar-senha" element={<RecuperarSenha />} />
         <Route path="/login-empresa" element={<LoginEmpresa />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
 
         {/* Rotas Protegidas do Candidato */}
