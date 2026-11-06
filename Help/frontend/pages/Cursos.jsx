@@ -39,6 +39,13 @@ const validarTelefone = (telefone) => {
   return digitos.length === 10 || digitos.length === 11;
 };
 
+const fetchComTimeout = async (url, options = {}, timeoutMs = 20000) => {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try { return await fetch(url, { ...options, signal: controller.signal }); }
+  finally { window.clearTimeout(timeout); }
+};
+
 const extrairValorNumerico = (precoStr) => {
   if (!precoStr) return 199.90;
   const limpo = precoStr.replace(/[R$\s]/g, '').replace('.', '').replace(',', '.');
@@ -312,7 +319,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
   const dispararGeracaoToken = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(buildApiUrl('/api/matricula/gerar-token'), {
+      const response = await fetchComTimeout(buildApiUrl('/api/matricula/gerar-token'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: dados.email, nomeCurso: curso.titulo }),
@@ -323,8 +330,8 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
         const erro = await response.json();
         alert('Erro ao enviar token: ' + (erro.error || 'Tente novamente.'));
       }
-    } catch (_) {
-      alert('Servidor indisponível.');
+    } catch (error) {
+      alert(error.name === 'AbortError' ? 'O envio do e-mail demorou demais. Tente novamente em instantes.' : 'Servidor indisponível.');
     } finally {
       setIsLoading(false);
     }
@@ -459,15 +466,15 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//for
   const handleAtivarMatricula = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(buildApiUrl('/api/matricula/confirmar'), {
+      const response = await fetchComTimeout(buildApiUrl('/api/matricula/confirmar'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenInput }),
       });
       if (response.ok) onFinalizar(curso);
       else alert('Token inválido ou expirado.');
-    } catch (_) {
-      alert('Erro ao validar token.');
+    } catch (error) {
+      alert(error.name === 'AbortError' ? 'A validação demorou demais. Tente novamente.' : 'Erro ao validar token.');
     } finally {
       setIsLoading(false);
     }

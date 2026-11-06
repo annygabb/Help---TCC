@@ -13,7 +13,7 @@ test('campos livres do painel administrativo possuem limites seguros', async () 
 
   assert.match(mensagens, /aria-label="Resposta oficial"[\s\S]*maxLength="1000"/);
   assert.match(denuncias, /Justificativa[\s\S]*maxLength="1000"/);
-  assert.match(avisos, /contaAlvo[\s\S]*maxLength="120"/);
+  assert.doesNotMatch(avisos, /contaAlvo/);
   assert.match(avisos, /titulo[\s\S]*maxLength="90"/);
   assert.match(avisos, /mensagem[\s\S]*maxLength="500"/);
 });

@@ -13,10 +13,15 @@ import java.util.List;
 public class PublicacaoService {
     private final PublicacaoRepository repository;
     private final SeguidorService seguidores;
+    private final CurtidaPublicacaoRepository curtidas;
+    private final ComentarioPublicacaoRepository comentarios;
 
-    public PublicacaoService(PublicacaoRepository repository, SeguidorService seguidores) {
+    public PublicacaoService(PublicacaoRepository repository, SeguidorService seguidores,
+                             CurtidaPublicacaoRepository curtidas, ComentarioPublicacaoRepository comentarios) {
         this.repository = repository;
         this.seguidores = seguidores;
+        this.curtidas = curtidas;
+        this.comentarios = comentarios;
     }
 
     @Transactional
@@ -68,6 +73,9 @@ public class PublicacaoService {
         return new PublicacaoResponseDTO(p.getId(), autor.getId(), autor.getTipoParticipante(),
                 autor.getNomeSocial(), subtitulo, autor.getFotoUrl(), p.getConteudo(), p.getMidiaUrl(),
                 p.getMidiaTipo(), p.getPermissaoComentario(), p.getVisibilidade(), podeComentar,
+                curtidas.countByPublicacaoId(p.getId()),
+                curtidas.findByPublicacaoIdAndParticipante(p.getId(), atual.getId(), atual.getTipoParticipante()).isPresent(),
+                comentarios.findAllByPublicacaoIdOrderByCriadoEmAsc(p.getId()).stream().map(ComentarioResponseDTO::from).toList(),
                 DataHora.comoUtc(p.getCriadaEm()));
     }
 }
