@@ -34,6 +34,11 @@ const Feed = () => {
   const [contaAtual, setContaAtual] = useState(null);
   const [atualizandoAutor, setAtualizandoAutor] = useState(null);
   const [erroSocial, setErroSocial] = useState('');
+  const [curtidas, setCurtidas] = useState(() => new Set());
+  const [comentarioAberto, setComentarioAberto] = useState(null);
+  const [novoComentario, setNovoComentario] = useState('');
+  const [comentarios, setComentarios] = useState({});
+  const [compartilhadoId, setCompartilhadoId] = useState(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -106,9 +111,12 @@ const Feed = () => {
   }, [navigate]);
 
   const formatTimeAgo = (dateString) => {
+    if (!dateString) return 'agora';
     const now = new Date();
     const past = new Date(dateString);
+    if (Number.isNaN(past.getTime())) return 'agora';
     const diffInSeconds = Math.floor((now - past) / 1000);
+    if (diffInSeconds < 0) return 'agora';
     if (diffInSeconds < 60) return `${diffInSeconds}seg`;
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     if (diffInMinutes < 60) return `${diffInMinutes}min`;
@@ -138,6 +146,43 @@ const Feed = () => {
     } catch (error) {
       const dados = error.response?.data;
       alert(dados?.mensagem || dados?.message || dados?.error || (typeof dados === 'string' ? dados : 'Não foi possível publicar.'));
+    }
+  };
+
+  const alternarCurtida = (postId) => {
+    setCurtidas((anteriores) => {
+      const atualizadas = new Set(anteriores);
+      if (atualizadas.has(postId)) atualizadas.delete(postId);
+      else atualizadas.add(postId);
+      return atualizadas;
+    });
+  };
+
+  const abrirComentarios = (postId) => {
+    setComentarioAberto((aberto) => aberto === postId ? null : postId);
+    setNovoComentario('');
+  };
+
+  const enviarComentario = (event, postId) => {
+    event.preventDefault();
+    const conteudo = novoComentario.trim();
+    if (!conteudo) return;
+    setComentarios((anteriores) => ({
+      ...anteriores,
+      [postId]: [...(anteriores[postId] || []), { id: crypto.randomUUID(), autor: displayName, conteudo }]
+    }));
+    setNovoComentario('');
+  };
+
+  const compartilharPublicacao = async (postId) => {
+    const url = `${window.location.origin}${window.location.pathname}#/feed?publicacao=${postId}`;
+    try {
+      if (navigator.share) await navigator.share({ title: 'Publicação no HELP', url });
+      else await navigator.clipboard.writeText(url);
+      setCompartilhadoId(postId);
+      window.setTimeout(() => setCompartilhadoId(null), 2500);
+    } catch (error) {
+      if (error.name !== 'AbortError') alert('Não foi possível compartilhar esta publicação.');
     }
   };
 
@@ -313,6 +358,8 @@ const Feed = () => {
             const isOff = post.permissaoComentario === 'DESATIVADO';
             const isOnlyFollowers = post.permissaoComentario === 'SEGUIDORES';
             const canUserComment = post.podeComentar;
+            const usuarioCurtiu = curtidas.has(post.id);
+            const comentariosDoPost = comentarios[post.id] || [];
 
             return (
               <div className="post" key={post.id}>
@@ -343,10 +390,14 @@ const Feed = () => {
                 </div>
 
                 <div className="post-actions">
-                  <button className="action-btn"><ThumbsUp size={18} /> Gostei</button>
+                  <button className={`action-btn ${usuarioCurtiu ? 'active' : ''}`} onClick={() => alternarCurtida(post.id)}>
+                    <ThumbsUp size={18} fill={usuarioCurtiu ? 'currentColor' : 'none'} /> {usuarioCurtiu ? 'Curtido' : 'Gostei'}
+                  </button>
 
                   {canUserComment && (
-                    <button className="action-btn"><MessageCircle size={18} /> Comentar</button>
+                    <button className={`action-btn ${comentarioAberto === post.id ? 'active' : ''}`} onClick={() => abrirComentarios(post.id)}>
+                      <MessageCircle size={18} /> Comentar{comentariosDoPost.length ? ` (${comentariosDoPost.length})` : ''}
+                    </button>
                   )}
 
                   {isOnlyFollowers && !canUserComment && (
@@ -357,19 +408,49 @@ const Feed = () => {
 
                   {isOff && <div className="comment-restricted-info"><span>Comentários desativados</span></div>}
 
-                  <button className="action-btn"><Share2 size={18} /> Compartilhar</button>
+                  <button className="action-btn" onClick={() => compartilharPublicacao(post.id)}>
+                    <Share2 size={18} /> {compartilhadoId === post.id ? 'Link copiado' : 'Compartilhar'}
+                  </button>
                 </div>
+
+                {comentarioAberto === post.id && canUserComment && (
+                  <div className="comments-panel">
+                    {comentariosDoPost.map((comentario) => (
+                      <div className="comment-item" key={comentario.id}>
+                        <strong>{comentario.autor}</strong>
+                        <span>{comentario.conteudo}</span>
+                      </div>
+                    ))}
+                    <form onSubmit={(event) => enviarComentario(event, post.id)} className="comment-form">
+                      <input
+                        value={novoComentario}
+                        onChange={(event) => setNovoComentario(event.target.value)}
+                        placeholder="Escreva um comentário"
+                        aria-label="Novo comentário"
+                      />
+                      <button type="submit">Enviar</button>
+                    </form>
+                  </div>
+                )}
               </div>
             );
           })}
         </section>
 
         <aside className="right-column">
-          <div className="rec-card">
-            <h4>Vagas Recomendadas</h4>
-            <div className="rec-item"><strong>Desenvolvedor Java</strong><span>Anápolis, GO</span></div>
-            <button className="view-all" onClick={() => navigate('/vagas')}>Ver todas as vagas</button>
-          </div>
+          {user.tipoConta === 'EMPRESA' ? (
+            <div className="rec-card">
+              <h4>Gestão de vagas</h4>
+              <div className="rec-item"><strong>Publique e acompanhe suas vagas</strong></div>
+              <button className="view-all" onClick={() => navigate('/dashboard-rh')}>Abrir painel da empresa</button>
+            </div>
+          ) : (
+            <div className="rec-card">
+              <h4>Vagas Recomendadas</h4>
+              <div className="rec-item"><strong>Desenvolvedor Java</strong><span>Anápolis, GO</span></div>
+              <button className="view-all" onClick={() => navigate('/vagas')}>Ver todas as vagas</button>
+            </div>
+          )}
         </aside>
       </main>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search, MapPin,
@@ -30,6 +30,8 @@ const Vagas = () => {
   const [filtroLocal, setFiltroLocal] = useState('');
   const [filtroRegime, setFiltroRegime] = useState('Todos');
   const [filtroModalidade, setFiltroModalidade] = useState('Todas');
+  const [regimeMenuOpen, setRegimeMenuOpen] = useState(false);
+  const regimeMenuRef = useRef(null);
 
   const [dadosExtraidos, setDadosExtraidos] = useState({
     nome: '', email: '', telefone: '', localizacao: '',
@@ -72,6 +74,23 @@ const Vagas = () => {
     const matchModalidade = filtroModalidade === 'Todas' || vaga.modalidade === filtroModalidade;
     return matchTexto && matchLocal && matchRegime && matchModalidade;
   });
+
+  const filtrosAtivos = Boolean(termoBusca || filtroLocal || filtroRegime !== 'Todos' || filtroModalidade !== 'Todas');
+
+  const limparFiltros = () => {
+    setTermoBusca('');
+    setFiltroLocal('');
+    setFiltroRegime('Todos');
+    setFiltroModalidade('Todas');
+  };
+
+  useEffect(() => {
+    const fecharAoClicarFora = (event) => {
+      if (!regimeMenuRef.current?.contains(event.target)) setRegimeMenuOpen(false);
+    };
+    document.addEventListener('mousedown', fecharAoClicarFora);
+    return () => document.removeEventListener('mousedown', fecharAoClicarFora);
+  }, []);
 
   const extractTextFromPDF = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
@@ -500,17 +519,45 @@ const Vagas = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '30px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>Regime:</span>
-                    <select
-                      value={filtroRegime}
-                      onChange={(e) => setFiltroRegime(e.target.value)}
-                      style={{ background: '#121217', color: 'white', border: '1px solid #333', padding: '8px 12px', borderRadius: '6px', outline: 'none', cursor: 'pointer' }}
-                    >
-                      <option value="Todos">Todos</option>
-                      <option value="CLT">CLT</option>
-                      <option value="PJ">PJ</option>
-                    </select>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <span style={{ color: '#d8b4fe', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                      <Briefcase size={16} /> Regime de contratação
+                    </span>
+                    <div ref={regimeMenuRef} style={{ position: 'relative', minWidth: '210px' }}>
+                      <button
+                        type="button"
+                        className="regime-filter-trigger"
+                        onClick={() => setRegimeMenuOpen((aberto) => !aberto)}
+                        aria-expanded={regimeMenuOpen}
+                        aria-haspopup="listbox"
+                        aria-label="Filtrar vagas por regime de contratação"
+                        style={{
+                          width: '100%', textAlign: 'left', background: 'linear-gradient(135deg, #24103f, #160923)', color: 'white',
+                          border: '1px solid #7e22ce', padding: '10px 38px 10px 14px', borderRadius: '9px', outline: 'none', cursor: 'pointer',
+                          fontSize: '14px', fontWeight: '600', boxShadow: filtroRegime === 'Todos' ? 'none' : '0 0 0 3px rgba(167, 85, 247, 0.16)'
+                        }}
+                      >{filtroRegime === 'Todos' ? 'Todos os regimes' : filtroRegime}</button>
+                      <ChevronDown size={17} color="#d8b4fe" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', transition: 'transform 0.2s', rotate: regimeMenuOpen ? '180deg' : '0deg' }} />
+                      {regimeMenuOpen && (
+                        <div role="listbox" aria-label="Regimes de contratação" style={{ position: 'absolute', top: 'calc(100% + 7px)', width: '100%', zIndex: 20, overflow: 'hidden', borderRadius: '9px', border: '1px solid #7e22ce', background: '#170725', boxShadow: '0 12px 28px rgba(0, 0, 0, 0.42)' }}>
+                          {[
+                            ['Todos', 'Todos os regimes'],
+                            ['CLT', 'CLT'],
+                            ['PJ', 'Pessoa Jurídica (PJ)']
+                          ].map(([valor, rotulo]) => (
+                            <button
+                              type="button"
+                              className="regime-filter-option"
+                              role="option"
+                              aria-selected={filtroRegime === valor}
+                              key={valor}
+                              onClick={() => { setFiltroRegime(valor); setRegimeMenuOpen(false); }}
+                              style={{ width: '100%', border: 0, borderBottom: '1px solid rgba(216, 180, 254, 0.12)', padding: '11px 14px', textAlign: 'left', cursor: 'pointer', color: filtroRegime === valor ? '#fff' : '#d8b4fe', background: filtroRegime === valor ? '#7e22ce' : 'transparent', fontSize: '14px', fontWeight: filtroRegime === valor ? '700' : '500' }}
+                            >{rotulo}</button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -532,6 +579,13 @@ const Vagas = () => {
                       ))}
                     </div>
                   </div>
+                  {filtrosAtivos && (
+                    <button
+                      type="button"
+                      onClick={limparFiltros}
+                      style={{ alignSelf: 'flex-start', background: 'transparent', color: '#c084fc', border: 'none', cursor: 'pointer', fontSize: '13px', padding: 0 }}
+                    >Limpar filtros</button>
+                  )}
                 </div>
               </div>
             )}

@@ -354,6 +354,57 @@
   background: rgba(167, 85, 247, 0.1);
 }
 
+.post-actions button.active {
+  background: #a755f7;
+  color: #fff;
+}
+
+.comments-panel {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.comment-item strong { color: #c084fc; }
+
+.comment-form {
+  display: flex;
+  gap: 8px;
+}
+
+.comment-form input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  padding: 9px 13px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.comment-form button {
+  flex: 0 0 auto;
+  border: 1px solid #a755f7;
+  border-radius: 20px;
+  padding: 8px 14px;
+  background: transparent;
+  color: #c084fc;
+  cursor: pointer;
+}
+
 .comment-restricted-info {
   flex: 1;
   display: flex;

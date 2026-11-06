@@ -201,3 +201,12 @@
   background: #9333ea;
   box-shadow: 0 4px 15px rgba(167, 85, 247, 0.4);
 }
+.regime-filter-trigger:hover {
+  background: linear-gradient(135deg, #35155c, #220d36) !important;
+  border-color: #c084fc !important;
+}
+
+.regime-filter-option:hover {
+  background: rgba(167, 85, 247, 0.28) !important;
+  color: #ffffff !important;
+}

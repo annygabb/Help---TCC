@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     AlertCircle,
     Ban,
@@ -55,7 +55,9 @@ const VagasRH = ({
     calcularMatch,
     analisarMatchIA,
     setAbaAtiva,
-    setVagaSelecionada
+    setVagaSelecionada,
+    vagaParaEditar,
+    onVagaEdicaoAberta
 }) => {
     const [filtroStatus, setFiltroStatus] = useState('todas');
     const [filtroModelo, setFiltroModelo] = useState('todos');
@@ -150,6 +152,12 @@ const VagasRH = ({
             descricao: vaga.descricao
         });
     };
+
+    useEffect(() => {
+        if (!vagaParaEditar) return;
+        abrirEdicao(vagaParaEditar);
+        onVagaEdicaoAberta?.();
+    }, [vagaParaEditar, onVagaEdicaoAberta]);
 
     const salvarEdicao = () => {
         if (!form.cargo?.trim()) return;
