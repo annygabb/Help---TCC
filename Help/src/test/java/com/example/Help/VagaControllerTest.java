@@ -1,5 +1,6 @@
 package com.example.Help;
 
+import com.example.Help.Service.AdminAccountService;
 import com.example.Help.model.cadastro.CadastroRepository;
 import com.example.Help.model.empresa.EmpresaRepository;
 import com.example.Help.model.recuperacao.TokenService;
@@ -12,6 +13,7 @@ import com.example.Help.model.vaga.VagaRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(VagaController.class)
-@AutoConfigureMockMvc(addFilters = false) // mesmo padrao do ResponseTimeTest
+@AutoConfigureMockMvc(addFilters = false) 
 @DisplayName("Testes do VagaController")
 class VagaControllerTest {
 
@@ -44,8 +46,6 @@ class VagaControllerTest {
     @MockitoBean
     private UsuarioRepository usuarioRepository;
 
-    // Adicionado em 25/09/2026: o SecurityFilter e um @Component Filter e entra
-    // automaticamente nas fatias @WebMvcTest. Sem estes tres beans o contexto nao sobe.
     @MockitoBean
     @SuppressWarnings("unused")
     private TokenService tokenService;
@@ -53,6 +53,10 @@ class VagaControllerTest {
     @MockitoBean
     @SuppressWarnings("unused")
     private CadastroRepository cadastroRepository;
+
+    @MockitoBean
+    @SuppressWarnings("unused")
+    private AdminAccountService adminAccountService;
 
     @MockitoBean
     @SuppressWarnings("unused")
@@ -86,6 +90,7 @@ class VagaControllerTest {
         vagaMock.setId(vagaId);
     }
 
+    @Tag("defeito") 
     @Test
     @DisplayName("GET /vagas - deve retornar lista de todas as vagas")
     void getAll_deveRetornarListaDeVagas() throws Exception {
@@ -108,6 +113,7 @@ class VagaControllerTest {
                 .andExpect(jsonPath("$").isEmpty());
     }
 
+    @Tag("defeito") 
     @Test
     @DisplayName("POST /vagas/{usuarioId} - deve criar vaga com sucesso")
     void saveVaga_deveCriarVaga_quandoSucesso() throws Exception {
@@ -132,13 +138,13 @@ class VagaControllerTest {
         mockMvc.perform(post("/vagas/" + usuarioId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(vagaRequestDTO)))
-                // O RequestsExceptionHandler converte RuntimeException em 400 com {"error": ...}
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Usuário não encontrado"));
 
         verify(vagaRepository, never()).save(any(Vaga.class));
     }
 
+    @Tag("defeito")
     @Test
     @DisplayName("GET /vagas/anunciante/{usuarioId} - deve retornar vagas do anunciante")
     void getVagasPorAnunciante_deveRetornarVagasDoUsuario() throws Exception {

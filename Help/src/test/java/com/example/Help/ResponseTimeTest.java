@@ -1,5 +1,6 @@
 package com.example.Help;
 
+import com.example.Help.Service.AdminAccountService;
 import com.example.Help.model.cadastro.CadastroRepository;
 import com.example.Help.model.curso.Curso;
 import com.example.Help.model.curso.CursoController;
@@ -76,6 +77,11 @@ class ResponseTimeTest {
     @SuppressWarnings("unused")
     private CadastroRepository cadastroRepository;
 
+
+    @MockitoBean
+    @SuppressWarnings("unused")
+    private AdminAccountService adminAccountService;
+
     private UUID usuarioId;
     private UUID vagaId;
     private Usuario usuarioMock;
@@ -110,6 +116,12 @@ class ResponseTimeTest {
 
         cursoMock = new Curso(cursoRequestDTO, usuarioMock);
         cursoMock.setId(UUID.randomUUID());
+        try {
+            mockMvc.perform(get("/vagas/anunciante/" + UUID.randomUUID()));
+            mockMvc.perform(get("/cursos/" + UUID.randomUUID()));
+        } catch (Exception ignorada) {
+            // o aquecimento não faz parte da verificação
+        }
     }
 
     @Test

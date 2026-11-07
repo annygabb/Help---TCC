@@ -1,9 +1,12 @@
 package com.example.Help;
 
-import com.example.Help.model.usuario.Usuario;
-import com.example.Help.model.usuario.UsuarioRepository;
+import com.example.Help.Service.AdminAccountService;
+import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.empresa.EmpresaRepository;
 import com.example.Help.model.recuperacao.AutenticacaoService;
+import com.example.Help.model.usuario.TipoConta;
+import com.example.Help.model.usuario.Usuario;
+import com.example.Help.model.usuario.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,15 +20,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do AutenticacaoService")
 class AutenticacaoServiceTest {
-
-    @InjectMocks
-    private AutenticacaoService autenticacaoService;
 
     @Mock
     private UsuarioRepository usuarioRepository;
@@ -33,62 +37,108 @@ class AutenticacaoServiceTest {
     @Mock
     private EmpresaRepository empresaRepository;
 
-    private Usuario usuarioMock;
+    @Mock
+    private AdminAccountService adminAccountService;
+
+    @InjectMocks
+    private AutenticacaoService autenticacaoService;
+
+    private Usuario usuario;
 
     @BeforeEach
     void setUp() {
-        usuarioMock = new Usuario();
-        usuarioMock.setId(UUID.randomUUID());
-        usuarioMock.setName("Anny Gabrielly");
-        usuarioMock.setEmail("anny@email.com");
-        usuarioMock.setSenha("$2a$10$hash");
+        usuario = new Usuario();
+        usuario.setId(UUID.randomUUID());
+        usuario.setName("Anny Gabrielly");
+        usuario.setEmail("anny@email.com");
+        usuario.setSenha("$2a$10$hash");
     }
 
     @Test
-    @DisplayName("loadUserByUsername - deve retornar UserDetails quando e-mail de usuário for encontrado")
-    void loadUserByUsername_deveRetornarUserDetails_quandoEmailEncontrado() {
-        when(usuarioRepository.findByEmail("anny@email.com")).thenReturn(Optional.of(usuarioMock));
+    @DisplayName("CT-UN-AUT-01: e-mail de candidato encontrado devolve a conta sincronizada")
+    void devolveUsuarioSincronizado() {
+        when(usuarioRepository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
+        when(adminAccountService.sincronizar(usuario)).thenReturn(usuario);
 
         UserDetails resultado = autenticacaoService.loadUserByUsername("anny@email.com");
 
-        assertThat(resultado).isNotNull();
+        assertThat(resultado).isSameAs(usuario);
         assertThat(resultado.getUsername()).isEqualTo("anny@email.com");
-        verify(usuarioRepository, times(1)).findByEmail("anny@email.com");
     }
 
     @Test
-    @DisplayName("loadUserByUsername - deve lançar UsernameNotFoundException quando e-mail não for encontrado em nenhum repositório")
-    void loadUserByUsername_deveLancarExcecao_quandoEmailNaoEncontrado() {
-        when(usuarioRepository.findByEmail("naoexiste@email.com")).thenReturn(Optional.empty());
-        when(empresaRepository.findByEmail("naoexiste@email.com")).thenReturn(Optional.empty());
+    @DisplayName("CT-UN-AUT-02: e-mail com maiúsculas e espaços é normalizado antes da busca")
+    void normalizaEmailAntesDeBuscar() {
+        when(usuarioRepository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
+        when(adminAccountService.sincronizar(usuario)).thenReturn(usuario);
 
-        assertThatThrownBy(() -> autenticacaoService.loadUserByUsername("naoexiste@email.com"))
+        autenticacaoService.loadUserByUsername("  ANNY@Email.COM  ");
+
+        verify(usuarioRepository).findByEmailIgnoreCase("anny@email.com");
+    }
+
+    @Test
+    @DisplayName("CT-UN-AUT-03: sem candidato com o e-mail, procura e devolve a empresa")
+    void devolveEmpresaQuandoNaoHaCandidato() {
+        Empresa empresa = new Empresa();
+        empresa.setId(UUID.randomUUID());
+        empresa.setEmail("rh@empresa.com");
+        when(usuarioRepository.findByEmailIgnoreCase("rh@empresa.com")).thenReturn(Optional.empty());
+        when(empresaRepository.findByEmailIgnoreCase("rh@empresa.com")).thenReturn(Optional.of(empresa));
+
+        UserDetails resultado = autenticacaoService.loadUserByUsername("rh@empresa.com");
+
+        assertThat(resultado).isSameAs(empresa);
+        assertThat(resultado.getAuthorities()).extracting("authority").containsExactly("ROLE_EMPRESA");
+        verify(adminAccountService, never()).sincronizar(any());
+    }
+
+    @Test
+    @DisplayName("CT-UN-AUT-04: e-mail desconhecido lança UsernameNotFoundException com mensagem clara")
+    void emailDesconhecidoLancaExcecao() {
+        when(usuarioRepository.findByEmailIgnoreCase("nao@existe.com")).thenReturn(Optional.empty());
+        when(empresaRepository.findByEmailIgnoreCase("nao@existe.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> autenticacaoService.loadUserByUsername("nao@existe.com"))
                 .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining("naoexiste@email.com");
-
-        verify(usuarioRepository, times(1)).findByEmail("naoexiste@email.com");
-        verify(empresaRepository, times(1)).findByEmail("naoexiste@email.com");
+                .hasMessage("Usuário ou empresa não cadastrados com o e-mail informado.");
     }
 
     @Test
-    @DisplayName("loadUserByUsername - deve retornar o próprio objeto Usuario como UserDetails")
-    void loadUserByUsername_deveRetornarInstanciaDeUsuario() {
-        when(usuarioRepository.findByEmail("anny@email.com")).thenReturn(Optional.of(usuarioMock));
+    @DisplayName("CT-UN-AUT-05: candidato comum tem a permissão ROLE_USER")
+    void candidatoTemRoleUser() {
+        when(usuarioRepository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
+        when(adminAccountService.sincronizar(usuario)).thenReturn(usuario);
 
         UserDetails resultado = autenticacaoService.loadUserByUsername("anny@email.com");
 
-        assertThat(resultado).isInstanceOf(Usuario.class);
-        assertThat(((Usuario) resultado).getId()).isEqualTo(usuarioMock.getId());
+        assertThat(resultado.getAuthorities()).extracting("authority").containsExactly("ROLE_USER");
     }
 
     @Test
-    @DisplayName("loadUserByUsername - UserDetails deve ter role USER")
-    void loadUserByUsername_deveConterRoleUser() {
-        when(usuarioRepository.findByEmail("anny@email.com")).thenReturn(Optional.of(usuarioMock));
+    @DisplayName("CT-UN-AUT-06: e-mail configurado como administrador é promovido a ROLE_ADMIN no login")
+    void emailConfiguradoViraAdmin() {
+        AdminAccountService adminReal = new AdminAccountService(usuarioRepository, " ANNY@email.com , outra@help.test ");
+        AutenticacaoService servico = new AutenticacaoService(usuarioRepository, empresaRepository, adminReal);
+        when(usuarioRepository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(usuario)).thenReturn(usuario);
+
+        UserDetails resultado = servico.loadUserByUsername("anny@email.com");
+
+        assertThat(((Usuario) resultado).getTipoConta()).isEqualTo(TipoConta.ADMIN);
+        assertThat(resultado.getAuthorities()).extracting("authority").containsExactly("ROLE_ADMIN");
+    }
+
+    @Test
+    @DisplayName("CT-UN-AUT-07: conta desativada continua sendo encontrada, mas fica bloqueada")
+    void contaDesativadaFicaBloqueada() {
+        usuario.setAtivo(false);
+        when(usuarioRepository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
+        when(adminAccountService.sincronizar(usuario)).thenReturn(usuario);
 
         UserDetails resultado = autenticacaoService.loadUserByUsername("anny@email.com");
 
-        assertThat(resultado.getAuthorities())
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"));
+        assertThat(resultado.isEnabled()).isFalse();
+        assertThat(resultado.isAccountNonLocked()).isFalse();
     }
 }
