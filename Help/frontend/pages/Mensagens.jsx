@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
-  Send, ArrowLeft, UserPlus, X
+  Send, ArrowLeft, UserPlus, X, Flag, User
 } from 'lucide-react';
 
 import './Mensagens.css';
@@ -11,6 +11,8 @@ import { abrirConversaTipada, enviarMensagem as enviarMensagemParaConta, listarC
 import { obterSessao } from '../services/session';
 import useUnreadCounts from './useUnreadCounts';
 import GlobalSearch from '../components/GlobalSearch';
+import MenuAcoes from '../components/MenuAcoes';
+import DenunciaModal from '../components/DenunciaModal';
 import { normalizarContato } from '../utils/contatos';
 
 const Mensagens = () => {
@@ -35,6 +37,7 @@ const Mensagens = () => {
   const [buscaUsuario, setBuscaUsuario] = useState('');
   const [carregandoContatos, setCarregandoContatos] = useState(false);
   const [erroContatos, setErroContatos] = useState('');
+  const [alvoDenuncia, setAlvoDenuncia] = useState(null);
 
   const scrollRef = useRef(null);
 
@@ -275,6 +278,29 @@ const Mensagens = () => {
                     <div className="chat-header-nome">{conversaAtiva.nome}</div>
                     {conversaAtiva.subtitulo && <div className="chat-header-cargo">{conversaAtiva.subtitulo}</div>}
                   </div>
+                  <MenuAcoes
+                    className="menu-acoes--direita"
+                    rotulo={`Mais opções da conversa com ${conversaAtiva.nome}`}
+                    itens={[
+                      {
+                        chave: 'perfil',
+                        rotulo: 'Ver perfil',
+                        icone: User,
+                        onSelecionar: () => navigate(`/perfil/${conversaAtiva.tipoConta}/${conversaAtiva.contaId}`)
+                      },
+                      {
+                        chave: 'denunciar',
+                        rotulo: `Denunciar ${conversaAtiva.nome}`,
+                        icone: Flag,
+                        perigo: true,
+                        onSelecionar: () => setAlvoDenuncia({
+                          alvoTipo: conversaAtiva.tipoConta,
+                          alvoId: conversaAtiva.contaId,
+                          alvoNome: conversaAtiva.nome
+                        })
+                      }
+                    ]}
+                  />
                 </div>
 
                 <div className="chat-mensagens" ref={scrollRef}>
@@ -360,6 +386,15 @@ const Mensagens = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {alvoDenuncia && (
+        <DenunciaModal
+          alvoTipo={alvoDenuncia.alvoTipo}
+          alvoId={alvoDenuncia.alvoId}
+          alvoNome={alvoDenuncia.alvoNome}
+          onClose={() => setAlvoDenuncia(null)}
+        />
       )}
     </div>
   );

@@ -1,0 +1,17 @@
+/* Barra de ações do post só com ícones (curtir, comentar, compartilhar). */
+.post-actions.post-actions-icones { gap: 10px; padding: 10px 14px; }
+.post-actions .action-btn-icone { flex: 0 0 auto; min-width: 60px; gap: 6px; padding: 7px 16px; }
+.post-actions .action-btn-icone:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 2px; }
+.action-contagem { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Indicador quando a pessoa não pode comentar (desativado ou só seguidores). */
+.action-btn-bloqueado { display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 60px; padding: 7px 16px; border: 1px dashed rgba(255, 255, 255, .18); border-radius: 20px; color: #8b8597; cursor: help; }
+
+/* No celular, o botão ⋯ ocupa menos espaço para o nome do autor caber melhor. */
+@media (max-width: 560px) {
+  .post-header .menu-acoes { margin-left: -6px; }
+  .post-header .menu-acoes-gatilho { width: 30px; height: 30px; }
+  .post-actions.post-actions-icones { gap: 8px; }
+  .post-actions .action-btn-icone,
+  .action-btn-bloqueado { min-width: 54px; padding: 7px 12px; }
+}

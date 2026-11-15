@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
-  Share2, ThumbsUp, MessageCircle, Image, Video, MapPin, Users, Flag
+  Share2, ThumbsUp, MessageCircle, MessageCircleOff, Image, Video, MapPin, Lock, Check, Flag
 } from 'lucide-react';
 import './Feed.css';
+import './FeedPostAcoes.css';
 import './Badges.css';
 import logoImg from '../assets/logo.png';
 import CriarPublicacao from './CriarPublicacao';
@@ -14,6 +15,8 @@ import api from '../services/api';
 import { deixarDeSeguir, consultarStatus, seguir } from '../services/seguidores';
 import { deduplicarPublicacoes } from '../utils/feed';
 import DenunciaModal from '../components/DenunciaModal';
+import MenuAcoes from '../components/MenuAcoes';
+import { alvosDeDenunciaDaPublicacao } from '../utils/denuncias';
 import { avatarPadrao } from '../utils/avatar';
 
 const Feed = () => {
@@ -41,7 +44,7 @@ const Feed = () => {
   const [novoComentario, setNovoComentario] = useState('');
   const [comentarios, setComentarios] = useState({});
   const [compartilhadoId, setCompartilhadoId] = useState(null);
-  const [postDenunciado, setPostDenunciado] = useState(null);
+  const [alvoDenuncia, setAlvoDenuncia] = useState(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuarioLogado');
@@ -199,6 +202,7 @@ const Feed = () => {
   const contaDoAutor = (post) => ({ contaId: post.autorId, tipoConta: post.autorTipo, nome: post.autorNome, subtitulo: post.autorSubtitulo, fotoUrl: post.autorFotoUrl });
   const autorEhContaAtual = (post) => contaAtual?.contaId === post.autorId && contaAtual?.tipoConta === post.autorTipo;
   const mensagemDoErro = (error, padrao) => error?.response?.data?.mensagem || error?.response?.data?.message || (typeof error?.response?.data === 'string' ? error.response.data : padrao);
+  const rotuloComContagem = (acao, total, singular, plural) => (total > 0 ? `${acao} (${total} ${total === 1 ? singular : plural})` : acao);
 
   const alternarSeguimentoDoAutor = async (post) => {
     if (autorEhContaAtual(post) || atualizandoAutor) return;
@@ -380,6 +384,18 @@ const Feed = () => {
                     </button>
                     <button onClick={() => navigate('/mensagens', { state: { iniciarCom: contaDoAutor(post) } })}>Mensagem</button>
                   </div>}
+                  {!autorEhContaAtual(post) && (
+                    <MenuAcoes
+                      rotulo={`Mais opções da publicação de ${post.autorNome}`}
+                      itens={alvosDeDenunciaDaPublicacao(post).map((alvo) => ({
+                        chave: alvo.chave,
+                        rotulo: alvo.rotulo,
+                        icone: Flag,
+                        perigo: true,
+                        onSelecionar: () => setAlvoDenuncia(alvo)
+                      }))}
+                    />
+                  )}
                 </div>
                 <div className="post-body">
                   <p>{post.conteudo}</p>
@@ -390,29 +406,55 @@ const Feed = () => {
                   )}
                 </div>
 
-                <div className="post-actions">
-                  <button className={`action-btn ${usuarioCurtiu ? 'active' : ''}`} onClick={() => alternarCurtida(post.id)}>
-                    <ThumbsUp size={18} fill={usuarioCurtiu ? 'currentColor' : 'none'} /> {usuarioCurtiu ? 'Curtido' : 'Gostei'}{post.totalCurtidas ? ` (${post.totalCurtidas})` : ''}
+                <div className="post-actions post-actions-icones">
+                  <button
+                    type="button"
+                    className={`action-btn action-btn-icone ${usuarioCurtiu ? 'active' : ''}`}
+                    onClick={() => alternarCurtida(post.id)}
+                    aria-pressed={usuarioCurtiu}
+                    aria-label={rotuloComContagem('Curtir', post.totalCurtidas, 'curtida', 'curtidas')}
+                    title={usuarioCurtiu ? 'Remover curtida' : 'Curtir'}
+                  >
+                    <ThumbsUp size={18} fill={usuarioCurtiu ? 'currentColor' : 'none'} aria-hidden="true" />
+                    {post.totalCurtidas > 0 && <span className="action-contagem">{post.totalCurtidas}</span>}
                   </button>
 
                   {canUserComment && (
-                    <button className={`action-btn ${comentarioAberto === post.id ? 'active' : ''}`} onClick={() => abrirComentarios(post.id)}>
-                      <MessageCircle size={18} /> Comentar{comentariosDoPost.length ? ` (${comentariosDoPost.length})` : ''}
+                    <button
+                      type="button"
+                      className={`action-btn action-btn-icone ${comentarioAberto === post.id ? 'active' : ''}`}
+                      onClick={() => abrirComentarios(post.id)}
+                      aria-expanded={comentarioAberto === post.id}
+                      aria-label={rotuloComContagem('Comentar', comentariosDoPost.length, 'comentário', 'comentários')}
+                      title="Comentar"
+                    >
+                      <MessageCircle size={18} aria-hidden="true" />
+                      {comentariosDoPost.length > 0 && <span className="action-contagem">{comentariosDoPost.length}</span>}
                     </button>
                   )}
 
                   {isOnlyFollowers && !canUserComment && (
-                    <div className="comment-restricted-info">
-                       <Users size={14} /> <span>Apenas seguidores podem comentar</span>
-                    </div>
+                    <span className="action-btn-bloqueado" role="img" aria-label="Apenas seguidores podem comentar" title="Apenas seguidores podem comentar">
+                      <MessageCircle size={18} aria-hidden="true" />
+                      <Lock size={12} aria-hidden="true" />
+                    </span>
                   )}
 
-                  {isOff && <div className="comment-restricted-info"><span>Comentários desativados</span></div>}
+                  {isOff && (
+                    <span className="action-btn-bloqueado" role="img" aria-label="Comentários desativados" title="Comentários desativados">
+                      <MessageCircleOff size={18} aria-hidden="true" />
+                    </span>
+                  )}
 
-                  <button className="action-btn" onClick={() => compartilharPublicacao(post.id)}>
-                    <Share2 size={18} /> {compartilhadoId === post.id ? 'Link copiado' : 'Compartilhar'}
+                  <button
+                    type="button"
+                    className="action-btn action-btn-icone"
+                    onClick={() => compartilharPublicacao(post.id)}
+                    aria-label={compartilhadoId === post.id ? 'Link da publicação copiado' : 'Compartilhar publicação'}
+                    title={compartilhadoId === post.id ? 'Link copiado' : 'Compartilhar'}
+                  >
+                    {compartilhadoId === post.id ? <Check size={18} aria-hidden="true" /> : <Share2 size={18} aria-hidden="true" />}
                   </button>
-                  {!autorEhContaAtual(post) && <button className="action-btn" onClick={() => setPostDenunciado(post)}><Flag size={18} /> Denunciar</button>}
                 </div>
 
                 {comentarioAberto === post.id && canUserComment && (
@@ -466,7 +508,14 @@ const Feed = () => {
           }}
         />
       )}
-      {postDenunciado && <DenunciaModal alvoTipo="PUBLICACAO" alvoId={postDenunciado.id} alvoNome={`publicação de ${postDenunciado.autorNome}`} onClose={() => setPostDenunciado(null)} />}
+      {alvoDenuncia && (
+        <DenunciaModal
+          alvoTipo={alvoDenuncia.alvoTipo}
+          alvoId={alvoDenuncia.alvoId}
+          alvoNome={alvoDenuncia.alvoNome}
+          onClose={() => setAlvoDenuncia(null)}
+        />
+      )}
     </div>
   );
 };
