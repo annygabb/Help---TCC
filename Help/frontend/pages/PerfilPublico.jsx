@@ -43,9 +43,10 @@ export default function PerfilPublico() {
   useEffect(() => { carregar(); }, [carregar]);
 
   const sessao = obterSessao();
+  // Pessoas entram com tipoConta CANDIDATO (ou ADMIN); no perfil social elas são USUARIO.
+  const tipoDaSessao = String(sessao?.conta?.tipoConta || '').toUpperCase() === 'EMPRESA' ? 'EMPRESA' : 'USUARIO';
   const contaEhDoUsuarioAtual = Boolean(
-    conta && sessao?.conta?.id === conta.contaId
-    && String(sessao.conta.tipoConta || 'USUARIO').toUpperCase() === conta.tipoConta
+    conta && sessao?.conta?.id === conta.contaId && tipoDaSessao === conta.tipoConta
   );
 
   const alternarSeguir = async () => {
