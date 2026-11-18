@@ -2,6 +2,7 @@ package com.example.Help.model.usuario;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -178,6 +179,7 @@ public class Usuario implements UserDetails, ParticipanteSocial {
     }
 
     @Override
+    @JsonIgnore
     public String getPassword() {
         return this.senha;
     }

@@ -98,6 +98,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         String caminho = request.getRequestURI();
         return caminho.equals("/api/usuarios/login")
                 || caminho.equals("/usuarios/login")
+                || caminho.equals("/usuarios/login/admin")
                 || caminho.equals("/api/empresas/login")
                 || caminho.equals("/empresas/login");
     }

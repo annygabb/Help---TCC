@@ -59,7 +59,11 @@ public class VagaEmpresa {
     @ElementCollection
     @CollectionTable(name = "vaga_inscritos", joinColumns = @JoinColumn(name = "vaga_id"))
     @Column(name = "inscrito_id")
+    @JsonIgnore
     private List<UUID> inscritosIds; // IDs dos talentos inscritos
+
+    @JsonProperty("totalInscritos")
+    public int getTotalInscritos() { return inscritosIds == null ? 0 : inscritosIds.size(); }
 
     @JsonProperty("empresaNome")
     public String getEmpresaNome() {

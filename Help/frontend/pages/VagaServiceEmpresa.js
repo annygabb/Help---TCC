@@ -21,6 +21,8 @@ export const vagaService = {
 
     listarMinhas: () => api.get(`${API_URL}/minhas`, { headers: getAuthHeader() }),
 
+    candidatar: (id) => api.post(`${API_URL}/${id}/candidaturas`, {}, { headers: getAuthHeader() }),
+
     atualizar: (id, vaga) => api.put(`${API_URL}/${id}`, vaga, { headers: getAuthHeader() }),
 
     deletar: (id) => api.delete(`${API_URL}/${id}`, {

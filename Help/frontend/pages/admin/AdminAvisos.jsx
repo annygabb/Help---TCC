@@ -5,12 +5,12 @@ import api from '../../services/api';
 const INICIAL={titulo:'',mensagem:'',publico:'TODOS',prioridade:'INFORMATIVA',destino:'/feed'};
 const PUBLICOS={TODOS:'Todas as contas',USUARIOS:'Pessoas usuárias',EMPRESAS:'Empresas'};
 export default function AdminAvisos(){
- const [formulario,setFormulario]=useState(INICIAL),[avisos,setAvisos]=useState([]),[mensagem,setMensagem]=useState(''),[enviando,setEnviando]=useState(false);
- const carregar=async()=>{try{const{data}=await api.get('/admin/avisos');setAvisos(data||[]);}catch{setMensagem('Não foi possível carregar o histórico de avisos.');}};
+ const [formulario,setFormulario]=useState(INICIAL),[avisos,setAvisos]=useState([]),[mensagem,setMensagem]=useState(''),[tipoMensagem,setTipoMensagem]=useState('erro'),[enviando,setEnviando]=useState(false);
+ const carregar=async()=>{try{const{data}=await api.get('/admin/avisos');setAvisos(data||[]);}catch{setTipoMensagem('erro');setMensagem('Não foi possível carregar o histórico de avisos.');}};
  useEffect(()=>{carregar();},[]);
  const atualizar=(campo,valor)=>setFormulario(a=>({...a,[campo]:valor}));
- const publicar=async(event)=>{event.preventDefault();if(!formulario.titulo.trim()||!formulario.mensagem.trim())return setMensagem('Preencha o título e a mensagem.');setEnviando(true);setMensagem('');try{const{data}=await api.post('/admin/avisos',formulario);setAvisos(a=>[data,...a]);setFormulario(INICIAL);setMensagem(`Aviso publicado e entregue para ${data.entregues} conta(s).`);}catch(erro){setMensagem(erro.response?.data?.message||erro.response?.data?.error||'Não foi possível publicar o aviso.');}finally{setEnviando(false);}};
- return <section><div className="adm-titulo-pagina"><h1>Criador de avisos</h1><p>Comunicados oficiais entregues nas notificações das contas selecionadas.</p></div><Aviso>{mensagem}</Aviso>
+ const publicar=async(event)=>{event.preventDefault();setTipoMensagem('erro');if(!formulario.titulo.trim()||!formulario.mensagem.trim())return setMensagem('Preencha o título e a mensagem.');setEnviando(true);setMensagem('');try{const{data}=await api.post('/admin/avisos',formulario);setAvisos(a=>[data,...a]);setFormulario(INICIAL);setTipoMensagem('sucesso');setMensagem(`Aviso publicado e entregue para ${data.entregues} conta(s).`);}catch(erro){setMensagem(erro.response?.data?.message||erro.response?.data?.error||'Não foi possível publicar o aviso.');}finally{setEnviando(false);}};
+ return <section><div className="adm-titulo-pagina"><h1>Criador de avisos</h1><p>Comunicados oficiais entregues nas notificações das contas selecionadas.</p></div><Aviso tipo={tipoMensagem}>{mensagem}</Aviso>
  <div className="adm-avisos-grid"><form className="adm-painel adm-aviso-form" onSubmit={publicar}><h2>Novo aviso</h2>
  <label className="adm-label">Público<select value={formulario.publico} onChange={e=>atualizar('publico',e.target.value)}>{Object.entries(PUBLICOS).map(([v,r])=><option key={v} value={v}>{r}</option>)}</select></label>
  <label className="adm-label">Título<input value={formulario.titulo} onChange={e=>atualizar('titulo',e.target.value)} maxLength="90" required/></label>

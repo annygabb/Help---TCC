@@ -1,7 +1,7 @@
 package com.example.Help.model.vaga;
 
 import com.example.Help.model.usuario.Usuario;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -36,7 +36,7 @@ public class Vaga {
 
     @ManyToOne(fetch = FetchType.EAGER)//isso faz com quem muitas vagas podem ser criadas por uma pessoa
     @JoinColumn(name = "usuario_id", nullable = false)//isso faz que toda vaga seja atribuida para um perfil, ou seja, precisa de um criador e faz uma busca pelo id
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
+    @JsonIgnore
     private Usuario anunciante;
 
     @CreationTimestamp

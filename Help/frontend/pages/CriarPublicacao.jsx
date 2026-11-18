@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Image as ImageIcon, Video, Smile, MessageSquare, Users } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import './CriarPublicacao.css';
+import fotoPadrao from '../assets/fotoperfil.png';
 
 const CriarPublicacao = ({ onClose, onPublish, user }) => {
   const [texto, setTexto] = useState("");
@@ -61,9 +62,9 @@ const CriarPublicacao = ({ onClose, onPublish, user }) => {
       <div className="help-modal-card">
         <div className="help-modal-header">
           <div className="help-user-section">
-            <img src={user?.fotoPerfil || "https://via.placeholder.com/40"} alt="Perfil" className="help-avatar" />
+            <img src={user?.fotoPerfil || fotoPadrao} alt="Perfil" className="help-avatar" />
             <div className="help-user-info">
-              <span className="help-user-name">{user?.nome || "Ennie"}</span>
+              <span className="help-user-name">{user?.nome || "Usuário"}</span>
               <div className="help-selectors-container">
                 <button
                   type="button"

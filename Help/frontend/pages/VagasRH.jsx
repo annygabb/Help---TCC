@@ -132,9 +132,14 @@ const VagasRH = ({
             });
     }, [vagasNormalizadas, busca, filtroStatus, filtroModelo, filtroTipo, ordenacao]);
 
-    const atualizarVaga = (id, dados) => {
-        setVagas(prev => prev.map(v => v.id === id ? { ...v, ...dados } : v));
-        setVagaDetalhe(prev => prev?.id === id ? normalizarVaga({ ...prev, ...dados }) : prev);
+    const atualizarVaga = async (id, dados) => {
+        try {
+            if (!onAtualizarVaga) throw new Error('Serviço de vagas indisponível.');
+            const salva = await onAtualizarVaga(id, dados);
+            setVagaDetalhe(prev => prev?.id === id ? normalizarVaga(salva) : prev);
+        } catch (error) {
+            alert(error.response?.data?.message || error.response?.data?.error || 'Não foi possível atualizar a vaga.');
+        }
     };
 
     const abrirEdicao = (vaga) => {
@@ -186,20 +191,10 @@ const VagasRH = ({
         }
     };
 
-    const duplicarVaga = (vaga) => {
-        const novaVaga = { ...vaga, id: Date.now(), cargo: `${vaga.cargo} - Copia`, data: 'Hoje', inscritos: [], status: 'ativa' };
-        setVagas(prev => [novaVaga, ...prev]);
-    };
-
     const excluirVaga = async (id) => {
-        if (window.confirm('Deseja realmente excluir esta vaga?')) {
-            try {
-                if (onExcluirVaga) await onExcluirVaga(id);
-                else setVagas(prev => prev.filter(v => v.id !== id));
-                setVagaDetalhe(null);
-                setVagaEditando(null);
-            } catch { alert('Não foi possível excluir a vaga.'); }
-        }
+        if (!onExcluirVaga || !(await onExcluirVaga(id))) return;
+        setVagaDetalhe(null);
+        setVagaEditando(null);
     };
 
     const compartilharVaga = async (vaga) => {
@@ -245,7 +240,6 @@ const VagasRH = ({
             <div className="vagas-summary-grid">
                 <div className="post vagas-summary-card"><Briefcase size={20} /><span>Vagas ativas</span><strong>{resumo.ativas}</strong></div>
                 <div className="post vagas-summary-card"><Users size={20} /><span>Candidatos</span><strong>{resumo.candidatos}</strong></div>
-                <div className="post vagas-summary-card"><Clock size={20} /><span>Entrevistas</span><strong>{resumo.entrevistas}</strong></div>
                 <div className="post vagas-summary-card"><CheckCircle size={20} /><span>Encerradas</span><strong>{resumo.encerradas}</strong></div>
             </div>
 
@@ -253,7 +247,7 @@ const VagasRH = ({
             <div className="create-post-container vagas-rh-header">
                 <div>
                     <h3>Gerenciar Vagas</h3>
-                    <p>Acompanhe status, requisitos, matches, pipeline e detalhes das oportunidades.</p>
+                    <p>Acompanhe status, requisitos e candidaturas das oportunidades.</p>
                 </div>
                 <button className="btn-primary-rh" onClick={() => setShowModal(true)}>
                     <Plus size={18} /> Nova Vaga
@@ -285,7 +279,6 @@ const VagasRH = ({
                 <select value={ordenacao} onChange={e => setOrdenacao(e.target.value)}>
                     <option value="recentes">Mais recentes</option>
                     <option value="candidatos">Mais candidatos</option>
-                    <option value="match">Melhor match</option>
                 </select>
             </div>
 
@@ -320,10 +313,6 @@ const VagasRH = ({
                         <div className="vagas-rh-metrics">
                             <div><p>Inscritos</p><strong>{vaga.inscritos.length}</strong></div>
                             <div>
-                                <p>Melhor match</p>
-                                <strong className={match >= 75 ? 'match-good' : 'match-medium'}>{match}%</strong>
-                            </div>
-                            <div>
                                 <p>Experiência</p>
                                 <strong>
                                     {vaga.tipoExperiencia === 'nenhuma' || vaga.experienciaMinima === 0
@@ -338,15 +327,6 @@ const VagasRH = ({
                             <span><MapPin size={14} /> {vaga.localizacao}</span>
                             <span><Clock size={14} /> {vaga.modelo}</span>
                             <span><DollarSign size={14} /> {vaga.salario}</span>
-                        </div>
-
-                        <div className="pipeline-mini">
-                            {pipelineEtapas.map((etapa, index) => (
-                                <div key={etapa}>
-                                    <span>{etapa}</span>
-                                    <strong>{Math.max(vaga.inscritos.length - index, 0)}</strong>
-                                </div>
-                            ))}
                         </div>
 
                         <div className="vagas-rh-skills">
@@ -364,7 +344,6 @@ const VagasRH = ({
                         </div>
 
                         <div className="vagas-rh-quick-actions">
-                            <button onClick={() => duplicarVaga(vaga)}><Copy size={14} /> Duplicar</button>
                             <button onClick={() => compartilharVaga(vaga)}><Share2 size={14} /> Compartilhar</button>
                             <button className="danger" onClick={() => excluirVaga(vaga.id)}><Ban size={14} /> Excluir</button>
                         </div>
@@ -385,7 +364,7 @@ const VagasRH = ({
                         </div>
 
                         <div className="vaga-modal-tabs">
-                            {['resumo', 'candidatos', 'pipeline', 'configuracoes'].map(aba => (
+                            {['resumo', 'candidatos', 'configuracoes'].map(aba => (
                                 <button key={aba} className={abaDetalhe === aba ? 'active' : ''} onClick={() => setAbaDetalhe(aba)}>{aba}</button>
                             ))}
                         </div>
@@ -404,55 +383,19 @@ const VagasRH = ({
 
                             {abaDetalhe === 'candidatos' && (
                                 <div className="modal-candidates-list">
-                                    {candidatosDaVaga(vagaDetalhe).map(candidato => {
-                                        const chave = `${vagaDetalhe.id}-${candidato.id}`;
-                                        const analise = analisesGemini[chave] || obterAnaliseIA(candidato, vagaDetalhe);
-                                        const carregando = iaCarregando === chave;
-                                        return (
-                                            <div key={candidato.id} className="modal-candidate-ia">
-                                                <div>
-                                                    <strong>{candidato.nome}</strong>
-                                                    <span>{candidato.formacao}</span>
-                                                </div>
-                                                <b style={{ color: analise.cor }}>{analise.score}%</b>
-                                                <small>{analise.recomendacao}</small>
-                                                <p>{analise.resumo}</p>
-                                                {analise.pontosFortes?.length > 0 && (
-                                                    <ul>{analise.pontosFortes.slice(0, 2).map(p => <li key={p}>{p}</li>)}</ul>
-                                                )}
-                                                {analise.perguntasEntrevista?.length > 0 && (
-                                                    <div className="ia-questions">
-                                                        <strong>Perguntas sugeridas</strong>
-                                                        {analise.perguntasEntrevista.slice(0, 2).map(p => <span key={p}>{p}</span>)}
-                                                    </div>
-                                                )}
-                                                {analise.aviso && <em>{analise.aviso}</em>}
-                                                <button className="btn-gemini-analysis" onClick={() => analisarCandidatoComGemini(candidato, vagaDetalhe)} disabled={carregando}>
-                                                    <Sparkles size={14} />
-                                                    {carregando ? 'Analisando...' : analise.origem === 'gemini' ? 'Reanalisar com Gemini' : 'Analisar com Gemini'}
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
-                                    {candidatosDaVaga(vagaDetalhe).length === 0 && <p>Nenhum candidato inscrito ainda.</p>}
-                                </div>
-                            )}
-
-                            {abaDetalhe === 'pipeline' && (
-                                <div className="pipeline-large">
-                                    {pipelineEtapas.map((etapa, index) => (
-                                        <div key={etapa}>
-                                            <span>{etapa}</span>
-                                            <strong>{Math.max(vagaDetalhe.inscritos.length - index, 0)}</strong>
+                                    {candidatosDaVaga(vagaDetalhe).map(candidato => (
+                                        <div key={candidato.id} className="modal-candidate-ia">
+                                            <strong>{candidato.nome}</strong>
+                                            <p>{candidato.cargo || candidato.formacao || 'Perfil profissional'}</p>
                                         </div>
                                     ))}
+                                    {vagaDetalhe.inscritos.length === 0 && <p>Nenhum candidato inscrito ainda.</p>}
                                 </div>
                             )}
 
                             {abaDetalhe === 'configuracoes' && (
                                 <div className="config-actions">
                                     <button onClick={() => abrirEdicao(vagaDetalhe)}><Edit3 size={16} /> Editar vaga</button>
-                                    <button onClick={() => duplicarVaga(vagaDetalhe)}><Copy size={16} /> Duplicar vaga</button>
                                     <button className="danger" onClick={() => excluirVaga(vagaDetalhe.id)}><AlertCircle size={16} /> Excluir vaga</button>
                                 </div>
                             )}

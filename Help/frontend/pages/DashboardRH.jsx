@@ -14,6 +14,7 @@ import { calcularMatchIA } from './matchIA';
 import api from '../services/api';
 import GlobalSearch from '../components/GlobalSearch';
 import { encerrarSessao } from '../services/session';
+import { salarioInicial } from '../utils/salario';
 
 const normalizarVagaApi = (vaga) => ({
     ...vaga,
@@ -45,6 +46,8 @@ const DashboardRH = () => {
         });
         vagaService.listarMinhas().then(({ data }) => setVagas(data.map(normalizarVagaApi)))
             .catch((error) => console.error('Erro ao carregar vagas:', error));
+        api.get('/api/vagas/talentos').then(({ data }) => setTalentos((Array.isArray(data) ? data : []).map(t => ({ ...t, experiencia: 0, certificacoes: [] }))))
+            .catch(() => setTalentos([]));
     }, []);
 
     const alterarFotoEmpresa = (event) => {
@@ -66,8 +69,13 @@ const DashboardRH = () => {
                 fotoUrl: empresa.fotoUrl
             });
             setEmpresa(data);
-            const sessao = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
-            localStorage.setItem('usuarioLogado', JSON.stringify({ ...sessao, nome: data.razaoSocial, fotoPerfil: data.fotoUrl }));
+            try {
+                const { fotoPerfil: _fotoAntiga, ...sessao } = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+                localStorage.setItem('usuarioLogado', JSON.stringify({
+                    ...sessao, nome: data.razaoSocial,
+                    ...(data.fotoUrl?.length <= 60000 ? { fotoPerfil: data.fotoUrl } : {})
+                }));
+            } catch { console.warn('Perfil salvo, mas os dados locais não puderam ser atualizados.'); }
             alert('Perfil da empresa atualizado.');
         } catch (error) {
             const dados = error.response?.data;
@@ -105,86 +113,7 @@ const DashboardRH = () => {
         });
     };
 
-    const [talentos] = useState([
-        {
-            id: 1,
-            nome: "Lucas Silva",
-            skills: ["React", "Node.js", "TypeScript", "AWS"],
-            experiencia: 5,
-            formacao: "Bacharel em Engenharia de Software",
-            certificacoes: ["AWS Certified Solutions Architect"],
-            senioridade: "Pleno",
-            area: "Devs",
-            pretensaoSalarial: 9000,
-            localizacao: "São Paulo, SP",
-            disponibilidade: "Disponivel"
-        },
-        {
-            id: 2,
-            nome: "Ana Costa",
-            skills: ["Figma", "UI/UX", "Adobe XD"],
-            experiencia: 3,
-            formacao: "Design de Produto",
-            certificacoes: ["Google UX Design Professional"],
-            senioridade: "Pleno",
-            area: "Designers",
-            pretensaoSalarial: 7000,
-            localizacao: "Goiânia, GO",
-            disponibilidade: "Disponivel"
-        },
-        {
-            id: 3,
-            nome: "Bruno Melo",
-            skills: ["Python", "Django", "PostgreSQL", "Docker"],
-            experiencia: 4,
-            formacao: "Ciência da Computação",
-            certificacoes: [],
-            senioridade: "Pleno",
-            area: "Devs",
-            pretensaoSalarial: 8500,
-            localizacao: "Remoto",
-            disponibilidade: "Em análise"
-        },
-        {
-            id: 4,
-            nome: "Carla Souza",
-            skills: ["React", "JavaScript", "Tailwind"],
-            experiencia: 2,
-            formacao: "Sistemas de Informação",
-            certificacoes: ["React Developer Certification"],
-            senioridade: "Junior",
-            area: "Devs",
-            pretensaoSalarial: 5000,
-            localizacao: "Anápolis, GO",
-            disponibilidade: "Disponivel"
-        },
-        {
-            id: 5,
-            nome: "Diego Lima",
-            skills: ["Java", "Spring Boot", "MySQL"],
-            experiencia: 8,
-            formacao: "Mestrado em Engenharia",
-            certificacoes: ["Oracle Certified Professional"],
-            senioridade: "Senior",
-            area: "Devs",
-            pretensaoSalarial: 14000,
-            localizacao: "Brasília, DF",
-            disponibilidade: "Disponivel"
-        },
-        {
-            id: 6,
-            nome: "Mateus Oliveira",
-            skills: ["React", "Node.js", "AWS"],
-            experiencia: 5,
-            formacao: "Análise de Sistemas",
-            certificacoes: [],
-            senioridade: "Pleno",
-            area: "Devs",
-            pretensaoSalarial: 8000,
-            localizacao: "Remoto",
-            disponibilidade: "Disponivel"
-        }
-    ]);
+    const [talentos, setTalentos] = useState([]);
 
     const [vagas, setVagas] = useState([]);
 
@@ -194,7 +123,7 @@ const DashboardRH = () => {
             cargo: novaVaga.cargo.trim(),
             skillsExigidas: novaVaga.skills.split(',').map(s => s.trim()).filter(Boolean),
             experienciaMinima: novaVaga.tipoExperiencia === 'nenhuma' ? 0 : Number(novaVaga.experienciaMinima) || 0,
-            salarioBase: Number(String(novaVaga.salario).replace(/[^0-9,]/g, '').replace(',', '.')) || 0,
+            salarioBase: salarioInicial(novaVaga.salario),
             tipoExperiencia: novaVaga.tipoExperiencia,
             modelo: novaVaga.modelo,
             tipo: novaVaga.tipo,
@@ -223,12 +152,10 @@ const DashboardRH = () => {
         return calcularMatchIA(talento, vaga, { pesoSkills, pesoExp });
     };
 
-    const encerrarVaga = (id) => {
+    const encerrarVaga = async (id) => {
         if (window.confirm("Deseja realmente encerrar esta vaga?")) {
-            setVagas(vagas.map(vaga =>
-                vaga.id === id ? { ...vaga, status: "encerrada" } : vaga
-            ));
-            setMenuAberto(null);
+            try { await atualizarVagaPersistida(id, { status: 'encerrada' }); setMenuAberto(null); }
+            catch { alert('Não foi possível encerrar a vaga.'); }
         }
     };
 
@@ -238,24 +165,25 @@ const DashboardRH = () => {
                 await vagaService.deletar(id);
                 setVagas(vagas.filter(vaga => vaga.id !== id));
                 setMenuAberto(null);
-            } catch { alert('Não foi possível excluir a vaga.'); }
+                return true;
+            } catch { alert('Não foi possível excluir a vaga.'); return false; }
         }
+        return false;
     };
 
     const atualizarVagaPersistida = async (id, dados) => {
         const atual = vagas.find((vaga) => vaga.id === id);
         const payload = { ...atual, ...dados, inscritos: undefined, inscritosIds: undefined, data: undefined };
+        if (Object.hasOwn(dados, 'salario')) payload.salarioBase = salarioInicial(dados.salario);
         const { data } = await vagaService.atualizar(id, payload);
         const normalizada = normalizarVagaApi(data);
         setVagas((anteriores) => anteriores.map((vaga) => vaga.id === id ? normalizada : vaga));
         return normalizada;
     };
 
-    const reabrirVaga = (id) => {
-        setVagas(vagas.map(vaga =>
-            vaga.id === id ? { ...vaga, status: "ativa" } : vaga
-        ));
-        setMenuAberto(null);
+    const reabrirVaga = async (id) => {
+        try { await atualizarVagaPersistida(id, { status: 'ativa' }); setMenuAberto(null); }
+        catch { alert('Não foi possível reabrir a vaga.'); }
     };
 
     const talentosFiltrados = talentos.filter(t => {
@@ -344,25 +272,9 @@ const DashboardRH = () => {
                                     </span>
                                 </div>
                                 <div className="rh-stat-item">
-                                    <span>Total Aprovados</span>
-                                    <span className="text-purple" style={{ color: '#22c55e' }}>
-                                        {Object.values(statusCandidatos).filter(s => s === 'aprovado').length}
-                                    </span>
+                                    <span>Candidaturas recebidas</span>
+                                    <span className="text-purple">{vagas.reduce((total, vaga) => total + (vaga.inscritos?.length || 0), 0)}</span>
                                 </div>
-                                <div className="rh-stat-item" style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <span style={{ fontSize: '12px', color: '#b8b8b8' }}>Taxa de Aprovação</span>
-                                    <span style={{ fontSize: '12px' }}>
-                                        {(() => {
-                                            const totalInscritos = vagas.reduce((acc, v) => acc + (v.inscritos?.length || 0), 0);
-                                            const totalAprovados = Object.values(statusCandidatos).filter(s => s === 'aprovado').length;
-                                            if (totalInscritos === 0) return "0";
-                                            return Math.round((totalAprovados / totalInscritos) * 100);
-                                        })()}%
-                                    </span>
-                                </div>
-                                <button type="button" className="empresa-save-button" onClick={() => setRelatorioAberto(true)} style={{ marginTop: '16px', width: '100%' }}>
-                                    <FileText size={16} /> Ver relatório completo
-                                </button>
                             </div>
                         </aside>
 
@@ -427,100 +339,15 @@ const DashboardRH = () => {
                                         </div>
 
                                         {vagaSelecionada === vaga.id && (
-                                            <div
-                                                className="candidates-list"
-                                                onScroll={carregarMaisItens}
-                                                style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)', maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}
-                                            >
-                                                <div style={{ background: 'rgba(167, 85, 247, 0.05)', padding: '15px', borderRadius: '12px', marginBottom: '10px', border: '1px dashed rgba(167, 85, 247, 0.3)' }}>
-                                                    <h5 style={{ color: '#a755f7', fontSize: '11px', letterSpacing: '1px', marginBottom: '10px' }}>
-                                                        PESOS DO MATCH
-                                                    </h5>
-                                                    <div style={{ display: 'flex', gap: '20px' }}>
-                                                        <div style={{ flex: 1 }}>
-                                                            <label style={{ fontSize: '9px', color: '#b8b8b8', display: 'block', marginBottom: '5px' }}>TÉCNICO: {pesoSkills}%</label>
-                                                            <input type="range" min="0" max="100" value={pesoSkills} onChange={(e) => { const val = Number(e.target.value); setPesoSkills(val); setPesoExp(100 - val); }} style={{ width: '100%', accentColor: '#a755f7' }} />
-                                                        </div>
-                                                        <div style={{ flex: 1 }}>
-                                                            <label style={{ fontSize: '9px', color: '#b8b8b8', display: 'block', marginBottom: '5px' }}>EXPERIÊNCIA: {pesoExp}%</label>
-                                                            <input type="range" min="0" max="100" value={pesoExp} onChange={(e) => { const val = Number(e.target.value); setPesoExp(val); setPesoSkills(100 - val); }} style={{ width: '100%', accentColor: '#a755f7' }} />
-                                                        </div>
+                                            <div className="candidates-list" style={{ padding: '20px' }}>
+                                                {talentos.filter(t => vaga.inscritos.includes(t.id)).map(candidato => (
+                                                    <div className="candidate-item" key={candidato.id}>
+                                                        <strong>{candidato.nome}</strong>
+                                                        <p>{candidato.cargo || candidato.formacao || 'Perfil profissional'}</p>
+                                                        <button type="button" onClick={() => navigate(`/perfil/USUARIO/${candidato.id}`)}>Ver perfil</button>
                                                     </div>
-                                                </div>
-
-                                                {talentos
-                                                    .filter(t =>
-                                                        vaga.inscritos?.includes(t.id) &&
-                                                        (t.nome.toLowerCase().includes(busca.toLowerCase()) || t.skills.join(' ').toLowerCase().includes(busca.toLowerCase()))
-                                                    )
-                                                    .sort((a, b) => calcularMatch(b, vaga) - calcularMatch(a, vaga))
-                                                    .slice(0, itensVisiveis)
-                                                    .map(candidato => {
-                                                        const chave = `${vaga.id}-${candidato.id}`;
-                                                        const status = statusCandidatos[chave];
-                                                        const analiseIA = analisarMatchIA(candidato, vaga);
-                                                        const score = analiseIA.score;
-                                                        const corMatch = analiseIA.cor;
-
-                                                        return (
-                                                            <div
-                                                                key={candidato.id}
-                                                                className={`candidate-item ${status || ''}`}
-                                                                style={{ display: 'flex', flexDirection: 'column', padding: '16px', borderRadius: '12px', background: status === 'aprovado' ? 'rgba(34, 197, 94, 0.1)' : status === 'reprovado' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${status ? 'transparent' : 'rgba(255,255,255,0.05)'}` }}
-                                                            >
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                                        <div className="avatar-mini-rh" style={{ width: '40px', height: '40px' }}></div>
-                                                                        <div>
-                                                                            <p style={{ fontSize: '15px', fontWeight: '600', color: '#fff', margin: 0 }}>
-                                                                                {candidato.nome} {status === 'aprovado' && '✓'}
-                                                                            </p>
-                                                                            <p style={{ fontSize: '11px', color: '#b8b8b8', margin: '4px 0 0' }}>
-                                                                                {candidato.formacao} • {candidato.skills.join(' • ')}
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div style={{ textAlign: 'right' }}>
-                                                                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: corMatch }}>{score}%</span>
-                                                                        <p style={{ fontSize: '9px', color: '#b8b8b8', letterSpacing: '1px', margin: 0 }}>MATCH</p>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', marginTop: '12px' }}>
-                                                                    <div style={{ width: `${score}%`, height: '100%', background: corMatch, borderRadius: '10px' }}></div>
-                                                                </div>
-
-                                                                <div className="ia-match-box">
-                                                                    <strong>IA: {analiseIA.recomendacao}</strong>
-                                                                    <span>{analiseIA.resumo}</span>
-                                                                    <div>
-                                                                        {analiseIA.pontosFortes.slice(0, 2).map((ponto) => (
-                                                                            <small key={ponto} className="ia-positive">{ponto}</small>
-                                                                        ))}
-                                                                        {analiseIA.pontosAtencao.slice(0, 2).map((ponto) => (
-                                                                            <small key={ponto} className="ia-warning">{ponto}</small>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', alignItems: 'center' }}>
-                                                                    <span style={{ fontSize: '11px', color: '#a755f7', fontWeight: '500' }}>
-                                                                        {candidato.experiencia} anos de experiência
-                                                                    </span>
-                                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                                        <button onClick={() => alterarStatusCandidato(vaga.id, candidato.id, 'aprovado')} style={{ background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>Aprovar</button>
-                                                                        <button onClick={() => alterarStatusCandidato(vaga.id, candidato.id, 'reprovado')} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px' }}>Reprovar</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-
-                                                {(!vaga.inscritos || vaga.inscritos.length === 0) && (
-                                                    <p style={{ textAlign: 'center', color: '#b8b8b8', fontSize: '13px', padding: '20px' }}>
-                                                        Nenhum candidato inscrito para esta vaga ainda.
-                                                    </p>
-                                                )}
+                                                ))}
+                                                {vaga.inscritos.length === 0 && <p>Nenhum candidato inscrito para esta vaga ainda.</p>}
                                             </div>
                                         )}
                                     </div>

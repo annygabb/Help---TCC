@@ -4,10 +4,14 @@ import com.example.Help.model.empresa.VagaEmpresa;
 import com.example.Help.model.empresa.VagaEmpresaRequestDTO;
 import com.example.Help.model.empresa.VagaEmpresaRepository;
 import com.example.Help.model.empresa.Empresa;
+import com.example.Help.model.empresa.TalentoResumoDTO;
+import com.example.Help.model.usuario.TipoConta;
 import com.example.Help.model.usuario.UsuarioRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -85,14 +89,31 @@ public class VagaEmpresaService {
         repository.delete(vaga);
     }
 
-    public List<Object> listarCandidatosDisponiveis() { // busca todos os candidatos
+    @Transactional
+    public boolean candidatar(UUID vagaId, UUID usuarioId) {
+        VagaEmpresa vaga = repository.buscarParaCandidatura(vagaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vaga não encontrada."));
+        if (vaga.getStatus() != null && !"ativa".equalsIgnoreCase(vaga.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta vaga não está recebendo candidaturas.");
+        }
+        if (vaga.getInscritosIds() == null) vaga.setInscritosIds(new ArrayList<>());
+        if (vaga.getInscritosIds().contains(usuarioId)) return false;
+        vaga.getInscritosIds().add(usuarioId);
+        repository.save(vaga);
+        return true;
+    }
+
+    public List<TalentoResumoDTO> listarCandidatosDisponiveis() {
         return usuarioRepository.findAll().stream()
-                .map(usuario -> (Object) usuario)
+                .filter(usuario -> usuario.isAtivo() && usuario.getTipoConta() == TipoConta.CANDIDATO)
+                .map(TalentoResumoDTO::de)
                 .collect(Collectors.toList());
     }
 
-    public Object buscarCandidatoPorId(UUID id) { // busca um candidato específico pelo id
+    public TalentoResumoDTO buscarCandidatoPorId(UUID id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Candidato não encontrado com o ID: " + id));
+                .filter(usuario -> usuario.isAtivo() && usuario.getTipoConta() == TipoConta.CANDIDATO)
+                .map(TalentoResumoDTO::de)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidato não encontrado."));
     }
 }

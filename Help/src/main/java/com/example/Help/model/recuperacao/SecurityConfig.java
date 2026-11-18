@@ -84,8 +84,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/pagamento/**").permitAll()
                         .requestMatchers("/pagamento/**").permitAll()
 
-                        .requestMatchers("/api/banco/login").permitAll()
-                        .requestMatchers("/api/banco/listar-todos").authenticated()
+                        .requestMatchers("/api/banco/**").hasRole("ADMIN")
                         .requestMatchers("/api/matricula/**").permitAll()
                         .requestMatchers("/matricula/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
@@ -97,16 +96,19 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/vagas/**").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/matriculas/gratuitas/**").hasRole("USER")
+                        .requestMatchers("/cursos/**", "/api/cursos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/empresas/me", "/api/empresas/me").hasRole("EMPRESA")
 
                         // Criação e exclusão de vagas restritas a empresas autenticadas
                         .requestMatchers(HttpMethod.POST, "/api/vagas").hasAnyRole("EMPRESA", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/vagas/*/candidaturas").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/vagas/minhas").hasRole("EMPRESA")
                         .requestMatchers(HttpMethod.DELETE, "/api/vagas/**").hasAnyRole("EMPRESA", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/vagas/**").hasAnyRole("EMPRESA", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/vagas/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/vagas/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/vagas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/vagas/**").hasRole("ADMIN")
 
                         // Banco de talentos restrito a empresas autenticadas
                         .requestMatchers("/api/vagas/talentos/**").hasAnyRole("EMPRESA", "ADMIN")
@@ -114,6 +116,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.PUT, "/api/usuarios/**").authenticated()//rotas autenticada
                         .requestMatchers(HttpMethod.PUT, "/usuarios/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/listar", "/usuarios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/usuarios/**").authenticated()
 

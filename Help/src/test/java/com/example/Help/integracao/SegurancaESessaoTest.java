@@ -20,6 +20,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SegurancaESessaoTest extends IntegracaoBase {
 
     @Test
+    @DisplayName("Login administrativo usa a rota existente e recusa outros tipos de conta")
+    void loginAdministrativoEContaDeTipoErrado() throws Exception {
+        Conta admin = novoAdmin();
+        Conta candidata = novoUsuario("Ana");
+        mockMvc.perform(post("/usuarios/login/admin").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(admin.email(), SENHA)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.tipoConta").value("ADMIN"));
+        mockMvc.perform(post("/usuarios/login/admin").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(candidata.email(), SENHA)))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/empresas/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(candidata.email(), SENHA)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @DisplayName("CT-BE-SEG-01: rota protegida sem token é recusada (403)")
     void rotaProtegidaSemToken() throws Exception {
         mockMvc.perform(get("/perfis/me")).andExpect(status().isForbidden());

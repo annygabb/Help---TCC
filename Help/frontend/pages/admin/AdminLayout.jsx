@@ -11,8 +11,6 @@ const LINKS = [
   { para: '/admin/usuarios', rotulo: 'Usuários', icone: Users },
   { para: '/admin/empresas', rotulo: 'Empresas', icone: Building2 },
   { para: '/admin/denuncias', rotulo: 'Denúncias', icone: AlertTriangle },
-  { para: '/admin/mensagens', rotulo: 'Mensagens', icone: MessageSquareText },
-  { para: '/admin/notificacoes', rotulo: 'Notificações', icone: BellRing },
   { para: '/admin/avisos', rotulo: 'Avisos', icone: Megaphone },
 ];
 

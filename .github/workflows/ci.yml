@@ -20,7 +20,7 @@ jobs:
           java-version: '21'
           cache: maven
       - name: Validar isolamento, configuração e comunicação social
-        run: mvn -B -Dtest=BackendIdentityIsolationTest,PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest,ParticipanteAutenticadoServiceTest,SocialSchemaMappingTest,SeguidorSocialPersistenceTest,MensagemServiceSocialTest,MensagemControllerCompatibilityTest,NotificacaoServiceSocialTest,SeguidorServiceSocialTest,EmpresaSocialEventsTest,SessaoServiceTest,TokenServiceTest,DataHoraTest test
+        run: mvn -B -Dtest=BackendIdentityIsolationTest,PerfilServiceIsolationTest,UsuarioSchemaMappingTest,CorsConfigurationTest,ParticipanteAutenticadoServiceTest,SocialSchemaMappingTest,SeguidorSocialPersistenceTest,MensagemServiceSocialTest,MensagemControllerCompatibilityTest,NotificacaoServiceSocialTest,SeguidorServiceSocialTest,EmpresaSocialEventsTest,SessaoServiceTest,TokenServiceTest,DataHoraTest,VagasEmpresaTest,MatriculaGratuitaTest,SegurancaESessaoTest,AdminTest,AdminServiceTest test
       - name: Compilar e empacotar o backend
         run: mvn -B package -DskipTests
 
@@ -38,7 +38,7 @@ jobs:
           cache: npm
           cache-dependency-path: Help/frontend/package-lock.json
       - run: npm ci
-      - run: npm run test:config
+      - run: npm test
       - run: npm run build
         env:
           VITE_API_URL: https://help-api.example.com

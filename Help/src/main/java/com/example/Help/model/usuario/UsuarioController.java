@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +71,9 @@ public class UsuarioController {
         try {
             var authenticationToken = new UsernamePasswordAuthenticationToken(data.email(), data.password());
             var novaAutenticacao = manager.authenticate(authenticationToken);
-            var usuario = (Usuario) novaAutenticacao.getPrincipal();
+            if (!(novaAutenticacao.getPrincipal() instanceof Usuario usuario)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Use uma conta de pessoa para acessar esta área.");
+            }
             boolean ehAdmin = usuario.getTipoConta() == TipoConta.ADMIN;
             if (ehAdmin != acessoAdmin) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
@@ -82,7 +85,9 @@ public class UsuarioController {
 
             return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuario.getId(), usuario.getName(),
                     usuario.getEmail(), usuario.getTipoConta().name()));
-        } catch (BadCredentialsException | DisabledException e) {
+        } catch (DisabledException | LockedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
+        } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor.");
