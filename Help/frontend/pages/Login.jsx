@@ -27,7 +27,6 @@ function Login() {
     try {
       const response = await api.post('/api/usuarios/login', dados);
 
-      console.log("Resposta da API:", response.data);
 
       const { token, id, nome, email: userEmail } = response.data;
 
@@ -55,15 +54,9 @@ function Login() {
       console.error("Erro na autenticação:", error);
 
       if (error.response) {
-        const mensagemErro = error.response.data;
-
-        if (error.response.status === 401) {
-          alert(typeof mensagemErro === 'string' ? mensagemErro : "E-mail ou senha incorretos.");
-        } else if (error.response.status === 403) {
-          alert("Acesso negado. O filtro de segurança barrou a requisição.");
-        } else {
-          alert("Erro no servidor: " + (mensagemErro || "Tente novamente mais tarde."));
-        }
+        const resposta = error.response.data;
+        const mensagem = typeof resposta === 'string' ? resposta : resposta?.mensagem || resposta?.error || resposta?.message;
+        alert(mensagem || (error.response.status === 401 ? 'E-mail ou senha incorretos.' : 'Não foi possível entrar. Tente novamente.'));
       } else {
         alert("Não foi possível conectar ao servidor. Verifique se o Backend está rodando.");
       }

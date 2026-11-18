@@ -14,6 +14,7 @@ import GlobalSearch from '../components/GlobalSearch';
 import MenuAcoes from '../components/MenuAcoes';
 import DenunciaModal from '../components/DenunciaModal';
 import { normalizarContato } from '../utils/contatos';
+import { mensagemDaApi } from '../utils/validacoes';
 
 const Mensagens = () => {
   const navigate = useNavigate();
@@ -41,8 +42,7 @@ const Mensagens = () => {
 
   const scrollRef = useRef(null);
 
-  const mensagemDoErro = (erro, padrao) =>
-    erro?.response?.data?.mensagem || erro?.response?.data?.message || erro?.response?.data || padrao;
+  const mensagemDoErro = mensagemDaApi;
 
   useEffect(() => {
     const sessao = obterSessao();

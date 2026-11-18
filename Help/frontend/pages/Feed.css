@@ -151,6 +151,7 @@
 
 .user-details-text {
   flex: 1;
+  min-width: 0;
 }
 
 .user-details-text h3 {

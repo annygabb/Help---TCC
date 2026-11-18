@@ -18,6 +18,7 @@ import DenunciaModal from '../components/DenunciaModal';
 import MenuAcoes from '../components/MenuAcoes';
 import { alvosDeDenunciaDaPublicacao } from '../utils/denuncias';
 import { avatarPadrao } from '../utils/avatar';
+import { nomeCurto } from '../utils/nomeCurto';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -309,8 +310,8 @@ const Feed = () => {
       </div>
 
       <div className="user-details-text">
-        <h3 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>
-          {displayName}
+        <h3 title={displayName} style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '700' }}>
+          {user.tipoConta === 'EMPRESA' ? displayName : nomeCurto(displayName)}
         </h3>
         <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0' }}>
           {user.role || 'Perfil profissional'}
@@ -488,13 +489,7 @@ const Feed = () => {
               <div className="rec-item"><strong>Publique e acompanhe suas vagas</strong></div>
               <button className="view-all" onClick={() => navigate('/dashboard-rh')}>Abrir painel da empresa</button>
             </div>
-          ) : (
-            <div className="rec-card">
-              <h4>Vagas Recomendadas</h4>
-              <div className="rec-item"><strong>Desenvolvedor Java</strong><span>Anápolis, GO</span></div>
-              <button className="view-all" onClick={() => navigate('/vagas')}>Ver todas as vagas</button>
-            </div>
-          )}
+          ) : null}
         </aside>
       </main>
 

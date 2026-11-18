@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -106,7 +107,9 @@ public class EmpresaController {
                     senhaLogin
             );
             Authentication authentication = manager.authenticate(authenticationToken);
-            Empresa empresa = (Empresa) authentication.getPrincipal();
+            if (!(authentication.getPrincipal() instanceof Empresa empresa)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Use uma conta de empresa para acessar esta área.");
+            }
 
             if (!empresa.isAtivo()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
@@ -117,7 +120,9 @@ public class EmpresaController {
             repository.save(empresa);
             var tokenJWT = tokenService.gerarToken(empresa);
             return ResponseEntity.ok(new TokenDadosEmpresaDTO(tokenJWT));
-        } catch (BadCredentialsException | DisabledException e) {
+        } catch (DisabledException | LockedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
+        } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor.");

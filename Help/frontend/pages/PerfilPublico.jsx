@@ -6,9 +6,9 @@ import { consultarContagem, consultarStatus, deixarDeSeguir, seguir } from '../s
 import { obterSessao } from '../services/session';
 import './PerfilPublico.css';
 import DenunciaModal from '../components/DenunciaModal';
+import { mensagemDaApi } from '../utils/validacoes';
 
-const mensagemDoErro = (erro, padrao) =>
-  erro?.response?.data?.mensagem || erro?.response?.data?.message || erro?.response?.data || padrao;
+const mensagemDoErro = mensagemDaApi;
 
 export default function PerfilPublico() {
   const { tipo, id } = useParams();

@@ -7,51 +7,11 @@ import {
 import './Cursos.css';
 import logoImg from '../assets/logo.png';
 import logoImgperfil from '../assets/fotoperfil.png';
-import qrCodePix from '../assets/qrcode-pix.png';
+import api from '../services/api';
+import { mensagemDaApi } from '../utils/validacoes';
 import { buildApiUrl } from '../services/apiConfig';
 import { obterSessao } from '../services/session';
 import useCurrentProfile from './useCurrentProfile';
-
-const MP_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY
-  || 'TEST-15a6874e-0b27-41d1-8b04-407f5068e780';
-
-const validarCPF = (cpf) => {
-  if (!cpf) return false;
-  const limpo = cpf.replace(/[^\d]+/g, '');
-  if (limpo.length !== 11 || !!limpo.match(/(\d)\1{10}/)) return false;
-  let soma = 0, resto;
-  for (let i = 1; i <= 9; i++) soma += parseInt(limpo.substring(i - 1, i)) * (11 - i);
-  resto = (soma * 10) % 11;
-  if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(limpo.substring(9, 10))) return false;
-  soma = 0;
-  for (let i = 1; i <= 10; i++) soma += parseInt(limpo.substring(i - 1, i)) * (12 - i);
-  resto = (soma * 10) % 11;
-  if (resto === 10 || resto === 11) resto = 0;
-  if (resto !== parseInt(limpo.substring(10, 11))) return false;
-  return true;
-};
-
-const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
-const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validarTelefone = (telefone) => {
-  const digitos = telefone.replace(/\D/g, '');
-  return digitos.length === 10 || digitos.length === 11;
-};
-
-const fetchComTimeout = async (url, options = {}, timeoutMs = 20000) => {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
-  try { return await fetch(url, { ...options, signal: controller.signal }); }
-  finally { window.clearTimeout(timeout); }
-};
-
-const extrairValorNumerico = (precoStr) => {
-  if (!precoStr) return 199.90;
-  const limpo = precoStr.replace(/[R$\s]/g, '').replace('.', '').replace(',', '.');
-  const val = parseFloat(limpo);
-  return isNaN(val) ? 199.90 : val;
-};
 
 const DetalhesCursoModal = ({ curso, onFechar, onMatricular }) => {
   if (!curso) return null;
@@ -144,9 +104,10 @@ const DetalhesCursoModal = ({ curso, onFechar, onMatricular }) => {
           <button
             className="publish-button"
             style={{ width: '100%', height: '48px', fontSize: '15px', borderRadius: '12px', background: '#a755f7', fontWeight: 'bold' }}
+            disabled={!isGratuito}
             onClick={() => onMatricular(curso)}
           >
-            Matricular-se agora
+            {isGratuito ? 'Matricular-se agora' : 'Matrícula em breve'}
           </button>
         </div>
       </div>
@@ -154,599 +115,41 @@ const DetalhesCursoModal = ({ curso, onFechar, onMatricular }) => {
   );
 };
 
-const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {//formulário de matrícula
+const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {
   const [etapa, setEtapa] = useState('dados');
-  const [metodoPagamento, setMetodoPagamento] = useState('cartao');
-  const [tokenInput, setTokenInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [recaptchaChecked, setRecaptchaChecked] = useState(false);
-  const [compraNegada, setCompraNegada] = useState(false);
-  const [erroPagamento, setErroPagamento] = useState('');
-  const [parcelas, setParcelas] = useState(1);
-  const [pixCopiado, setPixCopiado] = useState(false);
+  const [codigo, setCodigo] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState('');
 
-    const [pixData, setPixData] = useState(null);//pix dinamico
-    const [pixGerandoFalhou, setPixGerandoFalhou] = useState(false);
-    const codigoPix = '00020126480014BR.GOV.BCB.PIX0126annygabbyoficial@gmail.com5204000053039865802BR5901N6001C62080504HELP6304876A';
-
-    const [dados, setDados] = useState({
-      nome: usuarioDados?.name || '',
-      email: usuarioDados?.email || '',
-      telefone: '', cidade: '', uf: '', situacao: '',
-      titular: '', cpf: '', numeroCartao: '', vencimento: '', cvv: ''
-    });
-
-    const gerarPagamentoPix = async () => {
-      setIsLoading(true);
-      setErroPagamento('');
-      setPixGerandoFalhou(false);
-
-      try {
-        const valorNumerico = extrairValorNumerico(curso.preco);
-        const nomeParts = (dados.nome || usuarioDados?.name || 'Aluno Academy').trim().split(' ');
-        const firstName = nomeParts[0] || 'Aluno';
-        const lastName = nomeParts.slice(1).join(' ') || 'Academy';
-        const cpfLimpo = (dados.cpf || '').replace(/[^0-9]/g, '');
-
-        const response = await fetch(buildApiUrl('/api/pagamento/pix'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            transaction_amount: valorNumerico,
-            description: curso.titulo,
-            payer: {
-              email: dados.email || usuarioDados?.email || 'test_user_123456@testuser.com',
-              first_name: firstName,
-              last_name: lastName,
-              identification: {
-                type: 'CPF',
-                number: cpfLimpo
-              }
-            }
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro na resposta do servidor');
-        }
-
-        const result = await response.json();
-
-        if (result.status === 'error') {
-            setPixGerandoFalhou(true);
-            setErroPagamento(result.message || 'Não foi possível gerar o PIX. Tente novamente.');
-        }
-        setPixData(result);
-        console.log('PIX DATA RECEBIDO:', JSON.stringify(result, null, 2));
-
-      } catch (err) {
-        console.error('Erro ao gerar PIX:', err);
-        setPixData({
-          id: 999999999,
-          qr_code: codigoPix,
-          status: 'pending'
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    useEffect(() => {
-      if (metodoPagamento === 'pix' && etapa === 'pagamento' && !pixData && !pixGerandoFalhou) {
-        gerarPagamentoPix();
-      }
-    }, [metodoPagamento, etapa, pixData, pixGerandoFalhou]);
-
-    const copiarCodigoPix = async () => {
-      const codigo = pixData?.qr_code || codigoPix;
-      try {
-        await navigator.clipboard.writeText(codigo);
-        setPixCopiado(true);
-        setTimeout(() => setPixCopiado(false), 3000);
-      } catch (_) {
-        alert('Erro ao copiar código PIX.');
-      }
-    };
-
-    const gerarOpcoesParcelamento = () => {
-      const valorBase = extrairValorNumerico(curso.preco);
-      return Array.from({ length: 12 }, (_, i) => {
-        const n = i + 1;
-        const taxa = n === 1 ? 0 : 0.02 * n;
-        const total = valorBase * (1 + taxa);
-        const parcela = total / n;
-        return {
-          num: n,
-          valor: parcela.toFixed(2),
-          total: total.toFixed(2),
-          texto: `${n}x de R$ ${parcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}${n === 1 ? ' (Sem Juros)' : ''}`,
-        };
-      });
-    };
-
-  const opcoes = gerarOpcoesParcelamento();
-
-  const handleCPFChange = (e) => {
-    let v = e.target.value.replace(/\D/g, '');
-
-    if (v.length <= 17) {
-      v = v.replace(/(\d{3})(\d)/, '$1.$2');
-      v = v.replace(/(\d{3})(\d)/, '$1.$2');
-      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    }
-
-    setDados({ ...dados, cpf: v.substring(0, 17) });//limite de 17
-  };
-
-  const handleCartaoChange = (e) => {
-    let v = e.target.value.replace(/\D/g, '');//remove o que não é numero
-    v = v.replace(/(\d{4})(\d)/, '$1 $2');
-    v = v.replace(/(\d{4})(\d)/, '$1 $2');
-    v = v.replace(/(\d{4})(\d)/, '$1 $2');
-
-    setDados({ ...dados, numeroCartao: v.substring(0, 19) });//limite de 19 caracteres no cartão
-  };
-
-  const handleVencimentoChange = (e) => {
-    let v = e.target.value.replace(/\D/g, '');
-
-    if (v.length > 2) {
-      v = v.substring(0, 2) + '/' + v.substring(2, 4);
-    }
-
-    setDados({ ...dados, vencimento: v.substring(0, 5) });
-  };
-
-  const handleTelefoneChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, '').slice(0, 11);
-    if (valor.length > 10) valor = valor.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
-    else if (valor.length > 6) valor = valor.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-    else if (valor.length > 2) valor = valor.replace(/^(\d{2})(\d*)/, '($1) $2');
-    else if (valor.length) valor = `(${valor}`;
-    setDados({ ...dados, telefone: valor });
-  };
-
-  const handleCidadeChange = (e) => {
-    const cidade = e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ'\-\s]/g, '');
-    setDados({ ...dados, cidade });
-  };
-
-  const podeAvancar = Boolean(
-    dados.nome.trim() && validarEmail(dados.email) && validarTelefone(dados.telefone)
-    && dados.cidade.trim() && UFS.includes(dados.uf) && dados.situacao
-  );
-
-  const dispararGeracaoToken = async () => {
-    setIsLoading(true);
+  const solicitarCodigo = async () => {
+    setCarregando(true); setErro('');
     try {
-      const response = await fetchComTimeout(buildApiUrl('/api/matricula/gerar-token'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: dados.email, nomeCurso: curso.titulo }),
-      });
-      if (response.ok) {
-        setEtapa('token');
-      } else {
-        const erro = await response.json();
-        alert('Erro ao enviar token: ' + (erro.error || 'Tente novamente.'));
-      }
-    } catch (error) {
-      alert(error.name === 'AbortError' ? 'O envio do e-mail demorou demais. Tente novamente em instantes.' : 'Servidor indisponível.');
-    } finally {
-      setIsLoading(false);
-    }
+      await api.post(`/matriculas/gratuitas/${curso.codigo}/solicitar`);
+      setEtapa('codigo');
+    } catch (falha) { setErro(mensagemDaApi(falha, 'Não foi possível enviar o código. Tente novamente.')); }
+    finally { setCarregando(false); }
   };
-
-  const handleProximoPasso = () => {
-    if (curso.valor === 'Gratuito') dispararGeracaoToken();
-    else setEtapa('pagamento');
-  };
-
-  const handleConfirmarCompra = async () => {//confirmar compra
-    setErroPagamento('');
-    setCompraNegada(false);
-
-    if (metodoPagamento === 'cartao') {//cartao
-      if (!recaptchaChecked) { alert('Por favor, confirme que você não é um robô.'); return; }
-      if (dados.numeroCartao.replace(/\s/g, '').length < 15) { alert('Por favor, verifique os dados do cartão.'); return; }
-      if (!dados.vencimento || dados.vencimento.length < 5) { alert('Por favor, informe a data de vencimento do cartão.'); return; }
-      if (!dados.cvv || dados.cvv.length < 3) { alert('Por favor, informe o CVV do cartão.'); return; }
-      if (!dados.titular) { alert('Por favor, informe o nome impresso no cartão.'); return; }
-      if (!validarCPF(dados.cpf)) { alert('CPF inválido. Por favor, verifique.'); return; }
-
-      setIsLoading(true);
-      try {
-        if (!window.MercadoPago) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://sdk.mercadopago.com/js/v2';
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('Falha ao carregar SDK MercadoPago'));
-            document.head.appendChild(script);
-          });
-        }
-
-        const mp = new window.MercadoPago(MP_PUBLIC_KEY);
-        const [mesVenc, anoVenc2d] = dados.vencimento.split('/');
-
-        const cardToken = await mp.createCardToken({
-          cardNumber: dados.numeroCartao.replace(/\s/g, ''),
-          cardholderName: dados.titular,
-          cardExpirationMonth: mesVenc,
-          cardExpirationYear: '20' + anoVenc2d,
-          securityCode: dados.cvv,
-          identificationType: 'CPF',
-          identificationNumber: dados.cpf.replace(/\D/g, ''),
-        });
-
-        if (!cardToken || cardToken.error || !cardToken.id) {
-          setCompraNegada(true);
-          setErroPagamento('Dados do cartão inválidos. Verifique e tente novamente.');
-          setIsLoading(false);
-          return;
-        }
-
-        const valorTotal = parseFloat(opcoes[parseInt(parcelas) - 1]?.total || extrairValorNumerico(curso.preco));
-
-        const response = await fetch(buildApiUrl('/api/pagamento/cartao'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token: cardToken.id,
-            installments: parseInt(parcelas),
-            transaction_amount: valorTotal,
-            description: curso.titulo,
-            payer: {
-              email: dados.email,
-              identification: { type: 'CPF', number: dados.cpf.replace(/\D/g, '') },
-            },
-          }),
-        });
-
-        const result = await response.json();
-
-        if (result.status === 'approved' && result.tokenEnviado) {
-          setEtapa('token');
-        } else if (result.status === 'approved') {
-          setErroPagamento(result.message || 'Pagamento aprovado, mas não foi possível enviar o token. Entre em contato com o suporte.');
-        } else if (result.status === 'in_process' || result.status === 'pending') {
-          setErroPagamento('Pagamento em análise. Você receberá uma confirmação por e-mail.');
-        } else {
-          setCompraNegada(true);
-          setErroPagamento(result.message || 'Compra negada pela operadora. Verifique os dados ou tente outro cartão.');
-        }
-      } catch (err) {
-        console.error('Erro no pagamento com cartão:', err);
-        setCompraNegada(true);
-        setErroPagamento('Erro ao processar pagamento. Tente novamente em instantes.');
-      } finally {
-        setIsLoading(false);
-      }
-
-    } else {//pix
-      setIsLoading(true);
-      if (!pixData?.id) {
-        setIsLoading(false);
-        setErroPagamento(
-          pixGerandoFalhou
-            ? 'O PIX dinâmico está indisponível. Efetue o pagamento pelo código estático e aguarde a confirmação manual em até 24h.'
-            : 'Aguarde o QR Code ser gerado antes de confirmar.'
-        );
-        return;
-      }
-
-      try {
-        const response = await fetch(buildApiUrl(`/api/pagamento/pix/status/${pixData.id}`));
-        const result = await response.json();
-
-        if (result.status === 'approved') {
-          const tokenResponse = await fetch(buildApiUrl('/api/pagamento/pix/gerar-token'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: pixData.id, email: dados.email, nomeCurso: curso.titulo })
-          });
-          const tokenResult = await tokenResponse.json();
-          if (!tokenResponse.ok) throw new Error(tokenResult.error || 'Não foi possível enviar o token.');
-          setEtapa('token');
-        } else if (result.status === 'pending' || result.status === 'in_process') {
-          setIsLoading(false);
-          setErroPagamento('Pagamento PIX ainda não identificado. Após pagar, aguarde alguns segundos e tente novamente.');
-        } else {
-          setIsLoading(false);
-          setCompraNegada(true);
-          setErroPagamento('Pagamento não localizado. Verifique se o PIX foi concluído no seu banco.');
-        }
-      } catch (error) {
-        setIsLoading(false);
-        setErroPagamento(error.message || 'Erro ao verificar pagamento PIX. Tente novamente.');
-      }
-    }
-  };
-
-  const handleAtivarMatricula = async () => {
-    setIsLoading(true);
+  const confirmar = async (evento) => {
+    evento.preventDefault(); setCarregando(true); setErro('');
     try {
-      const response = await fetchComTimeout(buildApiUrl('/api/matricula/confirmar'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenInput }),
-      });
-      if (response.ok) onFinalizar(curso);
-      else alert('Token inválido ou expirado.');
-    } catch (error) {
-      alert(error.name === 'AbortError' ? 'A validação demorou demais. Tente novamente.' : 'Erro ao validar token.');
-    } finally {
-      setIsLoading(false);
-    }
+      await api.post(`/matriculas/gratuitas/${curso.codigo}/confirmar`, { codigo: codigo.trim() });
+      onFinalizar(curso);
+    } catch (falha) { setErro(mensagemDaApi(falha, 'Não foi possível confirmar a matrícula. Tente novamente.')); }
+    finally { setCarregando(false); }
   };
-
-  const inputStyle = {
-    width: '100%', height: '42px', padding: '0 15px', borderRadius: '10px',
-    background: '#1a1a21', border: '1px solid #333', color: 'white',
-    boxSizing: 'border-box', fontSize: '13px',
-  };
-
-  const metodoBtnStyle = (ativo) => ({
-    flex: 1, height: '42px', color: 'white', fontWeight: '700',
-    border: ativo ? '1px solid #a855f7' : '1px solid #333',
-    background: ativo ? 'rgba(168,85,247,0.1)' : 'transparent',
-    borderRadius: '12px', cursor: 'pointer',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0,
-    transition: 'all 0.2s ease',
-  });
-
-  return (
-    <div
-      className="modal-overlay" onClick={onFechar}
-      style={{
-        zIndex: 1200, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-        background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', padding: '20px', boxSizing: 'border-box',
-      }}
-    >
-      <div
-        className="create-post-modal" onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '100%', maxWidth: '620px', background: '#13131a', borderRadius: '22px',
-          border: '1px solid #2d2d3a', position: 'relative', overflow: 'hidden',
-          boxShadow: '0 0 40px rgba(167,85,247,0.18)', boxSizing: 'border-box',
-          maxHeight: '90vh', display: 'flex', flexDirection: 'column',
-        }}
-      >
-        {isLoading && (
-          <div style={{
-            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 200,
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', borderRadius: '22px',
-          }}>
-            <Loader2 size={50} color="#a855f7" style={{ animation: 'spin 1s linear infinite' }} />
-            <p style={{ color: 'white', marginTop: '15px', fontWeight: '600' }}>Processando sua solicitação...</p>
-            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-          </div>
-        )}
-
-        <div className="modal-header" style={{ padding: '20px 28px', borderBottom: '1px solid #2d2d3a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ color: 'white', margin: 0, fontSize: '20px', fontWeight: '700' }}>Finalizar Matrícula</h3>
-          <button onClick={onFechar} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <X size={28} color="white" />
-          </button>
-        </div>
-
-        <div className="modal-content" style={{ padding: '20px 28px 28px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch', boxSizing: 'border-box', width: '100%', overflowY: 'auto', flex: 1 }}>
-
-          {(compraNegada || erroPagamento) && (//erro
-            <div style={{
-              background: compraNegada ? 'rgba(239,68,68,0.15)' : 'rgba(251,191,36,0.1)',
-              border: `1px solid ${compraNegada ? '#ef4444' : '#fbbf24'}`,
-              padding: '14px', borderRadius: '12px',
-              color: compraNegada ? '#ef4444' : '#fbbf24',
-              textAlign: 'center', width: '100%', boxSizing: 'border-box',
-              fontSize: '13px', lineHeight: '1.5',
-            }}>
-              {erroPagamento || 'Compra negada pela operadora.'}
-            </div>
-          )}
-
-          {etapa === 'dados' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch', width: '100%' }}>
-              <div style={{ background: 'rgba(167,85,247,0.08)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(167,85,247,0.15)', width: '100%', boxSizing: 'border-box', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <p style={{ color: '#bdbdbd', margin: 0, fontSize: '11px', whiteSpace: 'nowrap' }}>Matriculando em:</p>
-                <h4 style={{ color: 'white', fontSize: '16px', fontWeight: '700', margin: 0 }}>{curso.titulo}</h4>
-              </div>
-
-              <input className="filter-select" placeholder="Nome Completo" value={dados.nome} onChange={(e) => setDados({ ...dados, nome: e.target.value })} />
-              <input className="filter-select" placeholder="E-mail" value={dados.email} onChange={(e) => setDados({ ...dados, email: e.target.value })} />
-              <input className="filter-select" placeholder="Telefone (WhatsApp)" value={dados.telefone} onChange={handleTelefoneChange} inputMode="tel" />
-
-              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                <input className="filter-select" placeholder="Cidade" value={dados.cidade} style={{ flex: 2, minWidth: 0 }} onChange={handleCidadeChange} />
-                <select className="filter-select" value={dados.uf} style={{ flex: 1, minWidth: 0 }} onChange={(e) => setDados({ ...dados, uf: e.target.value })}>
-                  <option value="">UF</option>
-                  {UFS.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
-                </select>
-              </div>
-
-              <select className="filter-select" value={dados.situacao} onChange={(e) => setDados({ ...dados, situacao: e.target.value })}>
-                <option value="">Você trabalha na área?</option>
-                <option value="Sim">Trabalho na área</option>
-                <option value="Estudo">Só estudo</option>
-                <option value="TrabalhoEstudo">Trabalho e Estudo</option>
-                <option value="Nenhum">Nenhum</option>
-              </select>
-
-              <button
-                className="publish-button"
-                disabled={!podeAvancar}
-                style={{ marginTop: '10px', height: '50px', borderRadius: '14px', fontSize: '15px', fontWeight: '700', opacity: podeAvancar ? 1 : 0.5 }}
-                onClick={handleProximoPasso}
-              >
-                {curso.valor === 'Gratuito' ? 'Confirmar Dados' : 'Avançar para Pagamento'}
-              </button>
-            </div>
-          )}
-
-          {etapa === 'pagamento' && (//pagamento
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-              <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                <button onClick={() => { setMetodoPagamento('cartao'); setErroPagamento(''); setCompraNegada(false); }} style={metodoBtnStyle(metodoPagamento === 'cartao')}>
-                  💳 Cartão
-                </button>
-                <button onClick={() => { setMetodoPagamento('pix'); setErroPagamento(''); setCompraNegada(false); }} style={metodoBtnStyle(metodoPagamento === 'pix')}>
-                  ⚡ PIX
-                </button>
-              </div>
-
-              {metodoPagamento === 'cartao' ? (//cartao
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <input className="filter-select" placeholder="Número do Cartão" value={dados.numeroCartao} onChange={handleCartaoChange} style={inputStyle} />
-                  <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-                    <input className="filter-select" placeholder="MM/AA" value={dados.vencimento} onChange={handleVencimentoChange} style={{ ...inputStyle, flex: 1, minWidth: 0 }} />
-                    <input className="filter-select" placeholder="CVV" maxLength="3" onChange={(e) => setDados({ ...dados, cvv: e.target.value })} style={{ ...inputStyle, flex: 1, minWidth: 0 }} />
-                  </div>
-                  <input className="filter-select" placeholder="Nome impresso no cartão" onChange={(e) => setDados({ ...dados, titular: e.target.value })} style={inputStyle} />
-                  <input className="filter-select" placeholder="CPF do Titular" value={dados.cpf} onChange={handleCPFChange} style={inputStyle} />
-
-                  <div
-                    style={{ background: '#1a1a21', padding: '14px', borderRadius: '12px', border: '1px solid #333', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', boxSizing: 'border-box' }}
-                    onClick={() => setRecaptchaChecked(!recaptchaChecked)}
-                  >
-                    <div style={{ width: '22px', height: '22px', border: '2px solid #a855f7', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: recaptchaChecked ? 'rgba(168,85,247,0.15)' : 'transparent', transition: 'background 0.2s' }}>
-                      {recaptchaChecked && <CheckCircle size={16} color="#a855f7" />}
-                    </div>
-                    <span style={{ color: '#d1d5db', fontSize: '13px' }}>Verify you are not a robot</span>
-                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-                      <ShieldCheck size={20} color="#9ca3af" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ color: '#9ca3af', fontSize: '12px', marginBottom: '8px', display: 'block' }}>Opções de Parcelamento</label>
-                    <select className="filter-select" value={parcelas} onChange={(e) => setParcelas(e.target.value)} style={{ width: '100%', boxSizing: 'border-box' }}>
-                      {opcoes.map((op) => <option key={op.num} value={op.num}>{op.texto}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-              ) : (
-                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(167,85,247,0.15)', borderRadius: '18px', padding: '20px 20px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px', boxSizing: 'border-box' }}>
-                  <h3 style={{ color: 'white', margin: 0, fontSize: '18px' }}>Pagamento via PIX</h3>
-
-                  {isLoading && !pixData ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '20px 0' }}>
-                      <Loader2 size={36} color="#a855f7" style={{ animation: 'spin 1s linear infinite' }} />
-                      <p style={{ color: '#9ca3af', fontSize: '13px', margin: 0 }}>Gerando QR Code PIX...</p>
-                    </div>
-                  ) : (
-                    <>
-                      <div style={{ background: 'white', padding: '10px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(168,85,247,0.2)' }}>
-                        <img
-                          src={pixData?.qr_code_base64 ? `data:image/png;base64,${pixData.qr_code_base64}` : qrCodePix}
-                          alt="QR CODE PIX"
-                          style={{ width: '150px', height: '150px', objectFit: 'contain', borderRadius: '8px', display: 'block' }}
-                        />
-                      </div>
-
-                      <p style={{ color: '#9ca3af', fontSize: '12px', lineHeight: '1.4', maxWidth: '420px', margin: 0 }}>
-                        Escaneie o QRCode com o aplicativo do seu banco ou copie o código PIX abaixo.
-                      </p>
-
-                      <div style={{ width: '100%', background: '#1a1a21', border: '1px solid #333', borderRadius: '12px', padding: '10px 14px', wordBreak: 'break-all', color: '#d1d5db', fontSize: '11px', lineHeight: '1.5', boxSizing: 'border-box', textAlign: 'left' }}>
-                        {pixData?.qr_code || codigoPix}
-                      </div>
-
-                      <button
-                        onClick={copiarCodigoPix}
-                        style={{
-                          width: '100%', height: '42px', borderRadius: '12px', border: 'none', cursor: 'pointer',
-                          background: pixCopiado ? 'linear-gradient(90deg,#059669,#10b981)' : 'linear-gradient(90deg,#9333ea,#a855f7)',
-                          color: 'white', fontWeight: '700', fontSize: '13px',
-                          boxShadow: '0 0 25px rgba(168,85,247,0.35)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                          transition: 'background 0.3s ease',
-                        }}
-                      >
-                        {pixCopiado ? <><CheckCircle size={16} /> Copiado!</> : <><Copy size={16} /> Copiar Código PIX</>}
-                      </button>
-
-                      {pixGerandoFalhou && (
-                        <button
-                          onClick={() => { setPixGerandoFalhou(false); setPixData(null); gerarPagamentoPix(); }}
-                          style={{ background: 'none', border: '1px solid #4b5563', color: '#9ca3af', fontSize: '12px', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer' }}
-                        >
-                          🔄 Tentar gerar PIX dinâmico novamente
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
-              <div style={{ borderTop: '1px solid #333', paddingTop: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'white', fontWeight: '700', fontSize: '14px' }}>Total Final:</span>
-                  <span style={{ color: '#a855f7', fontSize: '18px', fontWeight: '800' }}>
-                    {metodoPagamento === 'cartao'
-                      ? `R$ ${parseFloat(opcoes[parcelas - 1]?.total || 0).toFixed(2).replace('.', ',')}`
-                      : (curso.preco || 'R$ 199,90')}
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button
-                  className="publish-button"
-                  disabled={metodoPagamento === 'cartao' && !recaptchaChecked}
-                  style={{
-                    height: '44px', borderRadius: '12px', fontWeight: '700', fontSize: '14px',
-                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    opacity: (metodoPagamento === 'cartao' && !recaptchaChecked) ? 0.5 : 1,
-                    cursor: (metodoPagamento === 'cartao' && !recaptchaChecked) ? 'not-allowed' : 'pointer',
-                  }}
-                  onClick={handleConfirmarCompra}
-                >
-                  Confirmar Compra
-                </button>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button
-                    style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '12px', cursor: 'pointer', padding: '4px 0' }}
-                    onClick={() => { setEtapa('dados'); setErroPagamento(''); setCompraNegada(false); }}
-                  >
-                    ← Voltar aos dados
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {etapa === 'token' && (//token
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <div style={{ background: 'rgba(52,211,153,0.1)', width: '90px', height: '90px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                <CheckCircle size={50} color="#34d399" />
-              </div>
-              <h3 style={{ color: 'white', marginBottom: '10px' }}>Token Enviado!</h3>
-              <p style={{ color: '#9ca3af', marginBottom: '25px', lineHeight: '1.6' }}>
-                Verifique seu e-mail <strong style={{ color: 'white' }}>{dados.email}</strong>
-              </p>
-              <input
-                className="filter-select"
-                placeholder="DIGITE O TOKEN"
-                style={{ textAlign: 'center', fontSize: '22px', letterSpacing: '8px', fontWeight: 'bold', width: '100%', boxSizing: 'border-box' }}
-                onChange={(e) => setTokenInput(e.target.value)}
-              />
-              <button
-                className="publish-button"
-                style={{ marginTop: '25px', width: '100%', height: '50px', borderRadius: '14px', fontWeight: '700' }}
-                onClick={handleAtivarMatricula}
-              >
-                Ativar minha Matrícula
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+  return <div className="modal-overlay" onClick={onFechar} style={{ zIndex: 1200 }}>
+    <div className="create-post-modal" onClick={evento => evento.stopPropagation()} style={{ maxWidth: 560, background: '#13131a', padding: 28 }}>
+      <div className="modal-header"><h3>Matricular-se em {curso.titulo}</h3><button type="button" onClick={onFechar} aria-label="Fechar"><X size={22}/></button></div>
+      <p style={{ color: '#d1d5db' }}>A confirmação será enviada para <strong>{usuarioDados.email || 'o e-mail da sua conta'}</strong>.</p>
+      {erro && <p role="alert" style={{ color: '#fca5a5' }}>{erro}</p>}
+      {etapa === 'dados' ? <button className="publish-button" type="button" disabled={carregando} onClick={solicitarCodigo}>{carregando ? 'Enviando...' : 'Enviar código por e-mail'}</button> :
+        <form onSubmit={confirmar}>
+          <label htmlFor="codigo-matricula" style={{ color: 'white' }}>Código recebido por e-mail</label>
+          <input id="codigo-matricula" className="filter-select" inputMode="numeric" autoComplete="one-time-code" maxLength={8} pattern="[0-9]{8}" required value={codigo} onChange={e => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 8))} />
+          <button className="publish-button" type="submit" disabled={carregando}>{carregando ? 'Confirmando...' : 'Confirmar matrícula'}</button>
+        </form>}
     </div>
-  );
+  </div>;
 };
 
 const Cursos = () => {//pag principal
@@ -766,6 +169,7 @@ const Cursos = () => {//pag principal
   const [novosCursosData] = useState([
     {
       id: 1,
+      codigo: 'java-spring-boot',
       titulo: 'Java Spring Boot Profissional',
       instrutor: 'Help Academy',
       categoria: 'Programação',
@@ -794,6 +198,19 @@ const Cursos = () => {//pag principal
       modulos: ['Fundamentos Cloud', 'EC2 e S3', 'Lambda e Serverless', 'VPC e Segurança', 'Monitoramento CloudWatch'],
     },
   ]);
+
+  useEffect(() => {
+    if (!obterSessao()) return;
+    let ativa = true;
+    api.get('/matriculas/gratuitas/minhas').then(({ data }) => {
+      if (!ativa) return;
+      setMeusCursosMatriculados((Array.isArray(data) ? data : []).map(m => {
+        const curso = novosCursosData.find(item => item.codigo === m.codigo);
+        return curso ? { ...curso, progresso: 0 } : null;
+      }).filter(Boolean));
+    }).catch(() => { if (ativa) setMeusCursosMatriculados([]); });
+    return () => { ativa = false; };
+  }, [novosCursosData]);
 
   const cursosFiltrados = novosCursosData.filter(curso => {
     const matchesCategoria = filtroCategoria === 'Todos' || curso.categoria.toLowerCase() === filtroCategoria.toLowerCase();

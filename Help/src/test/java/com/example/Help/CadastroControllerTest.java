@@ -99,7 +99,7 @@ class CadastroControllerTest {
     }
 
     @Test
-    @DisplayName("Listar usuários não deve expor senhas/hashes na resposta")
+    @DisplayName("Candidato não pode listar dados privados das demais contas")
     void validarListarUsuariosNaoExpoeSenha() throws Exception {
        
         String email = "listar_" + System.currentTimeMillis() + "@gmail.com";
@@ -117,9 +117,6 @@ class CadastroControllerTest {
         String token = JsonPath.read(respostaLogin, "$.token");
 
         mockMvc.perform(get("/api/usuarios/listar").header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].email").isNotEmpty())
-                .andExpect(jsonPath("$[*].password").doesNotExist())
-                .andExpect(jsonPath("$[*].senha").doesNotExist());
+                .andExpect(status().isForbidden());
     }
 }

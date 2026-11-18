@@ -5,6 +5,7 @@ import api from '../../services/api';
 import { estabelecerSessao } from '../../services/session';
 import { CampoSenha } from '../../components/CampoSenha';
 import logoImg from '../../assets/logo.png';
+import { mensagemDaApi } from '../../utils/validacoes';
 import '../Login.css';
 
 export default function AdminLogin() {
@@ -17,12 +18,12 @@ export default function AdminLogin() {
   const entrar = async (event) => {
     event.preventDefault(); setLoading(true); setErro('');
     try {
-      const { data } = await api.post('/api/usuarios/login/admin', { email, password });
+      const { data } = await api.post('/usuarios/login/admin', { email, password });
       if (!data?.token || data?.tipoConta !== 'ADMIN') throw new Error('Resposta administrativa inválida.');
       estabelecerSessao(data.token, { id: data.id, nome: data.nome, email: data.email, tipoConta: 'ADMIN' });
       navigate('/admin', { replace: true });
     } catch (error) {
-      setErro(error.response?.status === 401 ? 'E-mail ou senha inválidos.' : 'Não foi possível acessar o painel administrativo.');
+      setErro(mensagemDaApi(error, 'Não foi possível acessar o painel administrativo.'));
     } finally { setLoading(false); }
   };
 

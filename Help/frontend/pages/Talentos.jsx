@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Calendar,
     CheckCircle,
@@ -21,27 +22,18 @@ const senioridades = ['Estagiário', 'Júnior', 'Pleno', 'Sênior'];
 const areas = ['Todos', 'Devs', 'Designers', 'Favoritos'];
 
 const normalizarTalento = (talento) => {
-    const senioridade =
-        talento.senioridade ||
-        (talento.experiencia >= 7 ? 'Sênior' :
-            talento.experiencia >= 3 ? 'Pleno' :
-                talento.experiencia >= 1 ? 'Júnior' : 'Estagiário');
+    const senioridade = talento.senioridade || 'Não informada';
 
     const area =
         talento.area ||
         (talento.skills?.some(skill => ['Figma', 'UI/UX', 'Adobe XD', 'Design'].includes(skill))
-            ? 'Designers'
-            : 'Devs');
+            ? 'Designers' : talento.skills?.length ? 'Devs' : 'Não informada');
 
-    const pretensaoSalarial =
-        talento.pretensaoSalarial ||
-        (senioridade === 'Sênior' ? 14000 :
-            senioridade === 'Pleno' ? 9000 :
-                senioridade === 'Júnior' ? 5000 : 2500);
+    const pretensaoSalarial = talento.pretensaoSalarial ?? null;
 
     return {
-        localizacao: 'Brasil',
-        disponibilidade: 'Disponível',
+        localizacao: 'Não informada',
+        disponibilidade: 'Não informada',
         certificacoes: [],
         ...talento,
         senioridade,
@@ -51,22 +43,16 @@ const normalizarTalento = (talento) => {
 };
 
 const Talentos = () => {
+    const navigate = useNavigate();
     const [talentosDB, setTalentosDB] = useState([]);
     const [carregando, setCarregando] = useState(true);
+    const [erroCarregamento, setErroCarregamento] = useState('');
 
     const [favoritos, setFavoritos] = useState(() => {
-        const favoritosSalvos = localStorage.getItem('favoritosTalentosRH');
-        return favoritosSalvos ? new Set(JSON.parse(favoritosSalvos)) : new Set();
-    });
-
-    const [convidados, setConvidados] = useState(() => {
-        const convidadosSalvos = localStorage.getItem('convidadosTalentosRH');
-        return convidadosSalvos ? new Set(JSON.parse(convidadosSalvos)) : new Set();
-    });
-
-    const [entrevistas, setEntrevistas] = useState(() => {
-        const entrevistasSalvas = localStorage.getItem('entrevistasTalentosRH');
-        return entrevistasSalvas ? new Set(JSON.parse(entrevistasSalvas)) : new Set();
+        try {
+            const salvos = JSON.parse(localStorage.getItem('favoritosTalentosRH') || '[]');
+            return new Set(Array.isArray(salvos) ? salvos : []);
+        } catch { return new Set(); }
     });
 
     const [talentoSelecionado, setTalentoSelecionado] = useState(null);
@@ -74,8 +60,7 @@ const Talentos = () => {
     const [senioridadesSelecionadas, setSenioridadesSelecionadas] = useState([]);
     const [salario, setSalario] = useState(20000);
     const [areaAtiva, setAreaAtiva] = useState('Todos');
-    const [ordenacao, setOrdenacao] = useState('match');
-    const [mensagem, setMensagem] = useState('');
+    const [ordenacao, setOrdenacao] = useState('nome');
 
     useEffect(() => {
         const buscarDados = async () => {
@@ -86,9 +71,9 @@ const Talentos = () => {
                     config.headers = { Authorization: `Bearer ${token}` };
                 }
                 const response = await api.get('/api/vagas/talentos', config);
-                setTalentosDB(response.data);
+                setTalentosDB(Array.isArray(response.data) ? response.data : []);
             } catch (error) {
-                console.error("Erro ao carregar talentos:", error);
+                setErroCarregamento('Não foi possível carregar os talentos. Tente novamente.');
             } finally {
                 setCarregando(false);
             }
@@ -97,16 +82,9 @@ const Talentos = () => {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('favoritosTalentosRH', JSON.stringify([...favoritos]));
+        try { localStorage.setItem('favoritosTalentosRH', JSON.stringify([...favoritos])); }
+        catch { /* Os favoritos continuam disponíveis nesta aba. */ }
     }, [favoritos]);
-
-    useEffect(() => {
-        localStorage.setItem('convidadosTalentosRH', JSON.stringify([...convidados]));
-    }, [convidados]);
-
-    useEffect(() => {
-        localStorage.setItem('entrevistasTalentosRH', JSON.stringify([...entrevistas]));
-    }, [entrevistas]);
 
     const talentosBase = useMemo(
         () => talentosDB.map(normalizarTalento),
@@ -134,7 +112,7 @@ const Talentos = () => {
                     senioridadesSelecionadas.length === 0 ||
                     senioridadesSelecionadas.includes(talento.senioridade);
 
-                const bateSalario = talento.pretensaoSalarial <= salario;
+                const bateSalario = talento.pretensaoSalarial == null || talento.pretensaoSalarial <= salario;
                 const bateArea = areaAtiva === 'Todos' || areaAtiva === 'Favoritos' || talento.area === areaAtiva;
                 const bateFavorito = areaAtiva !== 'Favoritos' || favoritos.has(talento.id);
 
@@ -150,10 +128,8 @@ const Talentos = () => {
 
     const resumo = useMemo(() => ({
         total: talentosBase.length,
-        favoritos: favoritos.size,
-        convidados: convidados.size,
-        entrevistas: entrevistas.size
-    }), [talentosBase.length, favoritos.size, convidados.size, entrevistas.size]);
+        favoritos: favoritos.size
+    }), [talentosBase.length, favoritos.size]);
 
     const toggleFavorito = (e, id) => {
         e.stopPropagation();
@@ -177,43 +153,19 @@ const Talentos = () => {
         setSenioridadesSelecionadas([]);
         setSalario(20000);
         setAreaAtiva('Todos');
-        setOrdenacao('match');
-    };
-
-    const mostrarMensagem = (texto) => {
-        setMensagem(texto);
-        window.setTimeout(() => setMensagem(''), 2400);
-    };
-
-    const convidarTalento = (e, talento) => {
-        e.stopPropagation();
-        setConvidados(prev => new Set(prev).add(talento.id));
-        setTalentoSelecionado(talento);
-        mostrarMensagem(`${talento.nome} foi convidado para o processo.`);
+        setOrdenacao('nome');
     };
 
     const iniciarChat = (e, talento) => {
         e.stopPropagation();
-        setTalentoSelecionado(talento);
-        mostrarMensagem(`Conversa com ${talento.nome} iniciada.`);
+        navigate('/mensagens', { state: { iniciarCom: { contaId: talento.id, tipoConta: 'USUARIO', nome: talento.nome, fotoUrl: talento.fotoUrl } } });
     };
 
-    const agendarEntrevista = (talento) => {
-        setEntrevistas(prev => new Set(prev).add(talento.id));
-        mostrarMensagem(`Entrevista com ${talento.nome} agendada.`);
-    };
-
-    if (carregando) return null;
+    if (carregando) return <main className="talentos-page-container"><p>Carregando talentos...</p></main>;
+    if (erroCarregamento) return <main className="talentos-page-container"><p role="alert">{erroCarregamento}</p><button type="button" onClick={() => window.location.reload()}>Tentar novamente</button></main>;
 
     return (
         <div className="talentos-layout-wrapper">
-            {mensagem && (
-                <div className="talentos-toast">
-                    <CheckCircle size={16} />
-                    {mensagem}
-                </div>
-            )}
-
             <aside className="talentos-sidebar">
                 <div className="sidebar-header">
                     <Filter size={18} color="#a755f7" />
@@ -276,7 +228,6 @@ const Talentos = () => {
                         value={ordenacao}
                         onChange={(e) => setOrdenacao(e.target.value)}
                     >
-                        <option value="match">Melhor match</option>
                         <option value="experiencia">Mais experiência</option>
                         <option value="salario">Menor salário</option>
                         <option value="nome">Nome</option>
@@ -299,16 +250,6 @@ const Talentos = () => {
                         <Heart size={18} />
                         <span>Favoritos</span>
                         <strong>{resumo.favoritos}</strong>
-                    </div>
-                    <div className="talentos-summary-card">
-                        <UserPlus size={18} />
-                        <span>Convidados</span>
-                        <strong>{resumo.convidados}</strong>
-                    </div>
-                    <div className="talentos-summary-card">
-                        <Calendar size={18} />
-                        <span>Entrevistas</span>
-                        <strong>{resumo.entrevistas}</strong>
                     </div>
                 </div>
 
@@ -342,11 +283,8 @@ const Talentos = () => {
                                 compatibilidade={calcularCompatibilidade(talento)}
                                 isSelected={talentoSelecionado?.id === talento.id}
                                 isFavorito={favoritos.has(talento.id)}
-                                isConvidado={convidados.has(talento.id)}
-                                isEntrevista={entrevistas.has(talento.id)}
                                 onSelect={() => setTalentoSelecionado(talento)}
                                 onToggleFavorito={toggleFavorito}
-                                onConvidar={convidarTalento}
                                 onChat={iniciarChat}
                             />
                         ))
@@ -366,14 +304,7 @@ const Talentos = () => {
                     compatibilidade={calcularCompatibilidade(normalizarTalento(talentoSelecionado))}
                     analiseIA={analisarTalentoIA(normalizarTalento(talentoSelecionado))}
                     isFavorito={favoritos.has(talentoSelecionado.id)}
-                    isConvidado={convidados.has(talentoSelecionado.id)}
-                    isEntrevista={entrevistas.has(talentoSelecionado.id)}
                     onClose={() => setTalentoSelecionado(null)}
-                    onAgendar={agendarEntrevista}
-                    onConvidar={(t) => {
-                        setConvidados(prev => new Set(prev).add(t.id));
-                        mostrarMensagem(`${t.nome} foi convidado para o processo.`);
-                    }}
                 />
             )}
         </div>
@@ -385,22 +316,14 @@ const TalentoCard = ({
     compatibilidade,
     isSelected,
     isFavorito,
-    isConvidado,
-    isEntrevista,
     onSelect,
     onToggleFavorito,
-    onConvidar,
     onChat
 }) => (
     <div
         className={`talento-card-v2 ${isSelected ? 'selected' : ''}`}
         onClick={onSelect}
     >
-        <div className="match-badge-container">
-            <Zap size={12} />
-            {compatibilidade}% match
-        </div>
-
         <button
             className={`fav-btn ${isFavorito ? 'active' : ''}`}
             onClick={(e) => onToggleFavorito(e, talento.id)}
@@ -418,33 +341,30 @@ const TalentoCard = ({
                 <div className="talento-avatar-v2">
                     {talento.nome?.charAt(0)}
                 </div>
-                <div className="status-indicator online"></div>
             </div>
 
             <div className="main-meta">
                 <h3>{talento.nome}</h3>
-                <p>{talento.formacao}</p>
+                <p>{talento.cargo || talento.formacao || 'Perfil profissional'}</p>
 
                 <div className="talento-meta-row">
                     <span>{talento.senioridade}</span>
                     <span>{talento.area}</span>
-                    <span>R$ {talento.pretensaoSalarial?.toLocaleString('pt-BR')}</span>
+                    <span>{talento.pretensaoSalarial == null ? 'Pretensão não informada' : `R$ ${talento.pretensaoSalarial.toLocaleString('pt-BR')}`}</span>
                 </div>
 
                 <div className="exp-label">
                     <Star size={14} className="star-icon" />
-                    <span>{talento.experiencia} anos exp.</span>
+                    <span>{talento.experiencia == null ? 'Experiência não informada' : `${talento.experiencia} anos exp.`}</span>
                 </div>
             </div>
         </div>
 
         <div className="talento-badges">
-            <span className="badge-disponivel">{talento.disponibilidade}</span>
+            {talento.disponibilidade !== 'Não informada' && <span className="badge-disponivel">{talento.disponibilidade}</span>}
             {talento.certificacoes?.length > 0 && (
                 <span className="badge-cert">Certificado</span>
             )}
-            {isConvidado && <span className="badge-convidado">Convidado</span>}
-            {isEntrevista && <span className="badge-entrevista">Entrevista</span>}
         </div>
 
         <div className="skills-section">
@@ -464,13 +384,6 @@ const TalentoCard = ({
                 Chat
             </button>
 
-            <button
-                className={`btn-convidar-primario ${isConvidado ? 'done' : ''}`}
-                onClick={(e) => onConvidar(e, talento)}
-            >
-                {isConvidado ? <CheckCircle size={18} /> : <UserPlus size={18} />}
-                {isConvidado ? 'Convidado' : 'Convidar'}
-            </button>
         </div>
     </div>
 );
@@ -480,11 +393,7 @@ const ResumoAI = ({
     compatibilidade,
     analiseIA,
     isFavorito,
-    isConvidado,
-    isEntrevista,
     onClose,
-    onAgendar,
-    onConvidar
 }) => (
     <aside className="resumo-ai-sidebar">
         <button className="btn-close-ai" onClick={onClose}>
@@ -501,66 +410,10 @@ const ResumoAI = ({
             </div>
         </div>
 
-        <div className="ai-match-stats">
-            <div className="match-info-header">
-                <div className="ai-tag">
-                    <Zap size={14} />
-                    Match IA
-                </div>
-                <span className="match-percentage">{compatibilidade}%</span>
-            </div>
-
-            <div className="match-progress-bg">
-                <div
-                    className="match-progress-fill"
-                    style={{ width: `${compatibilidade}%` }}
-                />
-            </div>
-        </div>
-
         <div className="ai-profile-facts">
-            <div>
-                <span>Senioridade</span>
-                <strong>{talento.senioridade}</strong>
-            </div>
-            <div>
-                <span>Pretensão</span>
-                <strong>R$ {talento.pretensaoSalarial?.toLocaleString('pt-BR')}</strong>
-            </div>
-            <div>
-                <span>Status</span>
-                <strong>
-                    {isEntrevista ? 'Entrevista' : isConvidado ? 'Convidado' : isFavorito ? 'Favorito' : 'Novo'}
-                </strong>
-            </div>
-        </div>
-
-        <div className="ai-analysis-box">
-            <div className="ai-tag">
-                <Sparkles size={14} />
-                Resumo Inteligente
-            </div>
-            <p>
-                {analiseIA?.resumo || ''} O candidato demonstra alinhamento para projetos de tecnologia, colaboração técnica e evolução de produto.
-            </p>
-        </div>
-
-        <div className="ai-action-stack">
-            <button
-                className={`btn-sidebar-action ${isConvidado ? 'done' : ''}`}
-                onClick={() => onConvidar(talento)}
-            >
-                {isConvidado ? <CheckCircle size={18} /> : <UserPlus size={18} />}
-                {isConvidado ? 'Já convidado' : 'Convidar candidato'}
-            </button>
-
-            <button
-                className={`btn-agendar-entrevista ${isEntrevista ? 'done' : ''}`}
-                onClick={() => onAgendar(talento)}
-            >
-                {isEntrevista ? <CheckCircle size={18} /> : <Calendar size={18} />}
-                {isEntrevista ? 'Entrevista agendada' : 'Agendar entrevista'}
-            </button>
+            <div><span>Localização</span><strong>{talento.localizacao || 'Não informada'}</strong></div>
+            <div><span>Área de atuação</span><strong>{talento.cargo || 'Não informada'}</strong></div>
+            <div><span>Habilidades</span><strong>{talento.skills?.join(', ') || 'Não informadas'}</strong></div>
         </div>
     </aside>
 );

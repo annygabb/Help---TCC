@@ -34,11 +34,9 @@ function LoginEmpresa() {
             navigate('/dashboard-rh');
         } catch (error) {
             console.error("Erro ao realizar login:", error);
-            if (error.response?.status === 401) {
-                alert("E-mail ou senha incorretos.");
-            } else {
-                alert("Erro ao conectar com o servidor. Tente novamente mais tarde.");
-            }
+            const resposta = error.response?.data;
+            const mensagem = typeof resposta === 'string' ? resposta : resposta?.mensagem || resposta?.error || resposta?.message;
+            alert(mensagem || (error.response?.status === 401 ? 'E-mail ou senha incorretos.' : 'Não foi possível conectar ao servidor. Tente novamente.'));
         } finally {
             setLoading(false);
         }

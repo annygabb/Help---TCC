@@ -1,7 +1,7 @@
 package com.example.Help.model.curso;
 
 import com.example.Help.model.usuario.Usuario;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
@@ -32,7 +32,7 @@ public class Curso {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private Usuario aluno;
 
     public Curso(CursoRequestDTO data, Usuario aluno) {

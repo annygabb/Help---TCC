@@ -5,11 +5,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Integração: vagas publicadas por empresas (/api/vagas)")
 class VagasEmpresaTest extends IntegracaoBase {
@@ -17,6 +20,38 @@ class VagasEmpresaTest extends IntegracaoBase {
     private static final String VAGA = """
             {"cargo":"Desenvolvedor Java","skillsExigidas":["Java","Spring"],"experienciaMinima":2,"salarioBase":8000}
             """;
+
+    @Test
+    @DisplayName("Candidatura persiste uma vez e só a empresa vê os inscritos")
+    void candidaturaRealSemExporIdentidadeNaListaPublica() throws Exception {
+        Conta empresa = novaEmpresa("Alfa");
+        Conta ana = novoUsuario("Ana Clara Rodrigues");
+        String criada = postComo(empresa, "/api/vagas", VAGA).andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String id = new ObjectMapper().readTree(criada).path("id").asText();
+        postComo(ana, "/api/vagas/" + id + "/candidaturas", "{}").andExpect(status().isCreated());
+        postComo(ana, "/api/vagas/" + id + "/candidaturas", "{}").andExpect(status().isOk());
+        getComo(empresa, "/api/vagas/minhas").andExpect(jsonPath("$[0].inscritosIds", hasItem(ana.id())));
+        String publica = mockMvc.perform(get("/api/vagas")).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(publica).doesNotContain(ana.id()).doesNotContain("inscritosIds");
+    }
+
+    @Test
+    @DisplayName("Banco de talentos contém apenas dados profissionais seguros")
+    void talentosNaoExpoemDadosSensiveis() throws Exception {
+        Conta empresa = novaEmpresa("Alfa");
+        Conta ana = novoUsuario("Ana Clara Rodrigues");
+        String resposta = getComo(empresa, "/api/vagas/talentos").andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        JsonNode talentos = new ObjectMapper().readTree(resposta);
+        JsonNode candidato = null;
+        for (JsonNode item : talentos) if (ana.id().equals(item.path("id").asText())) candidato = item;
+        assertThat(candidato).isNotNull();
+        assertThat(candidato.path("nome").asText()).isEqualTo("Ana Clara Rodrigues");
+        assertThat(candidato.has("senha") || candidato.has("password") || candidato.has("cpf") || candidato.has("email")).isFalse();
+        getComo(ana, "/api/vagas/talentos").andExpect(status().isForbidden());
+    }
 
     @Test
     @DisplayName("CT-BE-VAG-01: a lista de vagas é pública")

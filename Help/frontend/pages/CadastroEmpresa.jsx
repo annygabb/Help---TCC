@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, Building, FileText } from 'lucide-react';
 import api from '../services/api';
 import './CadastroEmpresa.css';
 import logoImg from '../assets/logo.png';
-import { senhaValida } from '../utils/validacoes';
+import { mensagemDaApi, senhaValida } from '../utils/validacoes';
 import { CampoSenha, RequisitosSenha } from '../components/CampoSenha';
 
 function CadastroEmpresa() {
@@ -50,11 +50,7 @@ function CadastroEmpresa() {
             navigate('/login-empresa');
         } catch (error) {
             console.error("Erro ao realizar cadastro:", error);
-            if (error.response?.status === 400) {
-                alert("E-mail ou CNPJ já cadastrados no sistema.");
-            } else {
-                alert("Erro ao criar conta. Verifique a conexão com o servidor.");
-            }
+            alert(mensagemDaApi(error, 'Não foi possível criar a conta. Verifique os dados ou a conexão.'));
         } finally {
             setLoading(false);
         }

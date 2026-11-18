@@ -6,8 +6,8 @@ import {
 } from 'lucide-react';
 
 import logoImg from '../assets/logo.png';
-import womanImg from '../assets/mulher-escritorio.png';
-import conexaoImg from '../assets/conexao.png';
+import womanImg from '../assets/mulher-escritorio-otimizada.webp';
+import conexaoImg from '../assets/conexao-otimizada.webp';
 import './Home.css';
 
 const DATA = {
@@ -111,7 +111,6 @@ function Home() {
             <a href="#sobre">Para Empresas</a>
             <a href="#curso">Cursos</a>
             <a href="#vaga">Vagas</a>
-            <a href="#avaliacoes">Avaliações</a>
           </nav>
 
           <div className="header-actions">
@@ -226,53 +225,35 @@ function Home() {
           <div className="section-header reveal">
             <span className="badge">Jobs</span>
             <h2>Vagas em <span>Destaque</span></h2>
+            <p>Exemplos ilustrativos. Consulte as vagas disponíveis na plataforma.</p>
           </div>
           <div className="grid-cards">
-            {[1, 2, 3].map((vaga) => (
-              <div className="job-card reveal" key={vaga}>
+            {[
+              { cargo: 'Desenvolvimento de Software', local: 'Remoto', tipo: 'Tempo integral' },
+              { cargo: 'Design de Produto', local: 'Híbrido', tipo: 'Tempo integral' },
+              { cargo: 'Análise de Dados', local: 'Presencial', tipo: 'Estágio' }
+            ].map((vaga) => (
+              <div className="job-card reveal" key={vaga.cargo}>
                 <div className="job-header">
-                  <span className="job-company">Tech Solutions</span>
-                  <span className="match-tag">98% MATCH</span>
+                  <span className="job-company">Exemplo ilustrativo</span>
                 </div>
-                <h4>Systems Analyst</h4>
+                <h4>{vaga.cargo}</h4>
                 <div className="job-info">
                   <div className="info-group">
                     <MapPin size={16} />
-                    <span>Remoto</span>
+                    <span>{vaga.local}</span>
                   </div>
                   <div className="info-group">
                     <Briefcase size={16} />
-                    <span>Full-time</span>
+                    <span>{vaga.tipo}</span>
                   </div>
                 </div>
-                <div className="salary">R$ 6.500 - R$ 8.000</div>
-                <button type="button" className="btn-primary-small">Ver Detalhes</button>
+                <button type="button" className="btn-primary-small" onClick={() => navigate('/vagas')}>Ver vagas disponíveis</button>
               </div>
             ))}
           </div>
         </section>
 
-        <section id="avaliacoes" className="section-padding">
-          <div className="section-header reveal">
-            <span className="badge">Avaliações</span>
-            <h2>O que dizem nossos <span>Talentos</span></h2>
-          </div>
-          <div className="grid-cards">
-            <div className="review-card reveal">
-              <div className="stars-row">
-                {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="#a855f7" color="#a855f7" />)}
-              </div>
-              <p>"O Help mudou minha carreira. Consegui minha primeira vaga como Systems Analyst através das certificações da plataforma!"</p>
-              <div className="reviewer">
-                <div className="reviewer-avatar"></div>
-                <div className="reviewer-text">
-                  <strong>Anny Gabrielly</strong>
-                  <span>Systems Analyst @ NTT DATA</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   );

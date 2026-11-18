@@ -32,6 +32,7 @@ const ConfigPerfil = () => {
   });
 
   const [fotoFile, setFotoFile] = useState(null);
+  const [erroPerfil, setErroPerfil] = useState('');
 
   const [experiencias, setExperiencias] = useState([]);
   const [cursos, setCursos] = useState([]);
@@ -59,7 +60,8 @@ const ConfigPerfil = () => {
       return;
     }
 
-    const parsed = JSON.parse(savedUser);
+    let parsed;
+    try { parsed = JSON.parse(savedUser); } catch { parsed = {}; }
     setUserData((anterior) => ({
       ...anterior,
       id: parsed.id || parsed.idUsuario || parsed.uuid || '',
@@ -84,8 +86,9 @@ const ConfigPerfil = () => {
         token: tokenDireto,
         fotoPerfil: data.fotoUrl || null
       });
-      setExperiencias(data.experiencias || []);
-      setCursos((data.cursos || []).map((curso) => ({
+      setErroPerfil('');
+      setExperiencias(Array.isArray(data.experiencias) ? data.experiencias : []);
+      setCursos((Array.isArray(data.cursos) ? data.cursos : []).map((curso) => ({
         ...curso,
         certificadoPdf: curso.certificadoUrl || null,
         nomeArquivo: curso.certificadoUrl ? 'Certificado salvo' : '',
@@ -93,6 +96,7 @@ const ConfigPerfil = () => {
       })));
     }).catch((error) => {
       console.error('Erro ao carregar o perfil individual:', error);
+      if (ativo) setErroPerfil('Não foi possível carregar seu perfil. Atualize a página antes de editar.');
     });
 
     return () => {
@@ -390,16 +394,22 @@ const ConfigPerfil = () => {
         arquivoReal: null
       })));
 
-      const sessao = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
-      localStorage.setItem('usuarioLogado', JSON.stringify({
-        ...sessao,
-        id: perfilSalvo.usuarioId,
-        nome: perfilSalvo.nome,
-        cargo: perfilSalvo.cargo,
-        localidade: perfilSalvo.localidade,
-        email: perfilSalvo.email,
-        fotoPerfil: perfilSalvo.fotoUrl
-      }));
+      // A foto completa já foi salva na API. Mantê-la no localStorage pode
+      // exceder a cota do navegador e transformar um salvamento real em erro.
+      try {
+        const { fotoPerfil: _fotoAntiga, ...sessao } = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+        localStorage.setItem('usuarioLogado', JSON.stringify({
+          ...sessao,
+          id: perfilSalvo.usuarioId,
+          nome: perfilSalvo.nome,
+          cargo: perfilSalvo.cargo,
+          localidade: perfilSalvo.localidade,
+          email: perfilSalvo.email,
+          ...(perfilSalvo.fotoUrl?.length <= 60000 ? { fotoPerfil: perfilSalvo.fotoUrl } : {})
+        }));
+      } catch (erroLocal) {
+        console.warn('Perfil salvo, mas os dados locais não puderam ser atualizados.');
+      }
 
       alert('Perfil atualizado com sucesso!');
     } catch (error) {
@@ -442,6 +452,7 @@ const ConfigPerfil = () => {
       </nav>
 
       <main className="config-main">
+        {erroPerfil && <p role="alert" style={{ color: '#fca5a5' }}>{erroPerfil} <button type="button" onClick={() => window.location.reload()}>Tentar novamente</button></p>}
         <div className="profile-card-dark">
           <section className="profile-photo-section">
             <div className="avatar-preview-medium">
@@ -778,7 +789,7 @@ const ConfigPerfil = () => {
             </div>
 
             <div className="form-actions mt-20">
-              <button type="submit" className="save-btn"><Save size={20} /> Salvar Alterações</button>
+              <button type="submit" className="save-btn" disabled={Boolean(erroPerfil)}><Save size={20} /> Salvar Alterações</button>
             </div>
           </form>
         </div>
