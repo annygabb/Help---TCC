@@ -4,8 +4,6 @@ import com.example.Help.model.curso.MatriculaGratuita;
 import com.example.Help.model.curso.MatriculaGratuitaRepository;
 import com.example.Help.model.usuario.Usuario;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,12 +20,12 @@ import java.util.Map;
 public class MatriculaGratuitaService {
     private static final Map<String, String> CURSOS = Map.of("java-spring-boot", "Java Spring Boot Profissional");
     private final MatriculaGratuitaRepository repository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final SecureRandom random = new SecureRandom();
 
-    public MatriculaGratuitaService(MatriculaGratuitaRepository repository, JavaMailSender mailSender) {
+    public MatriculaGratuitaService(MatriculaGratuitaRepository repository, EmailService emailService) {
         this.repository = repository;
-        this.mailSender = mailSender;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -44,12 +42,8 @@ public class MatriculaGratuitaService {
         matricula.setSolicitadoEm(LocalDateTime.now());
         matricula.setTentativas(0);
         repository.saveAndFlush(matricula);
-        SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setFrom("suportesistemahelp@gmail.com");
-        mensagem.setTo(usuario.getEmail());
-        mensagem.setSubject("Confirme sua matrícula no Help");
-        mensagem.setText("Seu código para confirmar a matrícula em " + nomeCurso + " é: " + codigo + ". Ele expira em 15 minutos.");
-        try { mailSender.send(mensagem); }
+        try { emailService.enviarTexto(usuario.getEmail(), "Confirme sua matrícula no Help",
+                "Seu código para confirmar a matrícula em " + nomeCurso + " é: " + codigo + ". Ele expira em 15 minutos."); }
         catch (RuntimeException ex) { throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Não foi possível enviar o código por e-mail. Tente novamente.", ex); }
     }
 

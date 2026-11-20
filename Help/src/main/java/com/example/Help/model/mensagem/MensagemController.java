@@ -44,6 +44,32 @@ public class MensagemController {
         }
     }
 
+    @GetMapping("/nao-lidas/total")
+    public java.util.Map<String, Long> totalNaoLidas(Authentication authentication) {
+        return java.util.Map.of("total", service.contarNaoLidas(participanteService.obterAutenticado(authentication)));
+    }
+
+    @DeleteMapping("/conversa/{tipoConta}/{contaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluirConversa(@PathVariable TipoParticipante tipoConta, @PathVariable UUID contaId, Authentication authentication) {
+        service.ocultarConversa(participanteService.obterAutenticado(authentication), contaId, tipoConta);
+    }
+
+    @GetMapping("/bloqueios/{tipoConta}/{contaId}")
+    public java.util.Map<String, Boolean> bloqueio(@PathVariable TipoParticipante tipoConta, @PathVariable UUID contaId, Authentication auth) {
+        return java.util.Map.of("bloqueado", service.estaBloqueada(participanteService.obterAutenticado(auth), contaId, tipoConta));
+    }
+
+    @PutMapping("/bloqueios/{tipoConta}/{contaId}")
+    public java.util.Map<String, Boolean> bloquear(@PathVariable TipoParticipante tipoConta, @PathVariable UUID contaId, Authentication auth) {
+        return java.util.Map.of("bloqueado", service.definirBloqueio(participanteService.obterAutenticado(auth), contaId, tipoConta, true));
+    }
+
+    @DeleteMapping("/bloqueios/{tipoConta}/{contaId}")
+    public java.util.Map<String, Boolean> desbloquear(@PathVariable TipoParticipante tipoConta, @PathVariable UUID contaId, Authentication auth) {
+        return java.util.Map.of("bloqueado", service.definirBloqueio(participanteService.obterAutenticado(auth), contaId, tipoConta, false));
+    }
+
     @GetMapping("/conversa/{outroUsuarioId}")
     public ResponseEntity<?> buscarConversa(@PathVariable UUID outroUsuarioId, Authentication authentication) {
         try {

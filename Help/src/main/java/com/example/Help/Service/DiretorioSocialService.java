@@ -31,7 +31,7 @@ public class DiretorioSocialService {
                         p.getTipoParticipante(),
                         p.getNomeSocial(),
                         subtitulo(p),
-                        p.getFotoUrl(),
+                        com.example.Help.util.Miniaturas.avatar(p.getFotoUrl()),
                         seguidorService.estaSeguindo(atual, p.getId(), p.getTipoParticipante())
                 ))
                 .toList();
@@ -40,7 +40,7 @@ public class DiretorioSocialService {
     public ParticipanteResumoDTO obterContato(ParticipanteSocial atual, UUID id, TipoParticipante tipo) {
         ParticipanteSocial p = participanteService.buscarAtivo(id, tipo);
         return new ParticipanteResumoDTO(p.getId(), p.getTipoParticipante(), p.getNomeSocial(),
-                subtitulo(p), p.getFotoUrl(), seguidorService.estaSeguindo(atual, p.getId(), p.getTipoParticipante()));
+                subtitulo(p), com.example.Help.util.Miniaturas.avatar(p.getFotoUrl()), seguidorService.estaSeguindo(atual, p.getId(), p.getTipoParticipante()));
     }
 
     private String subtitulo(ParticipanteSocial participante) {

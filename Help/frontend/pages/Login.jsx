@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { CampoSenha } from '../components/CampoSenha';
 
@@ -10,6 +10,7 @@ import { estabelecerSessao } from '../services/session';
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,7 +46,7 @@ function Login() {
 
         estabelecerSessao(token, usuarioParaSalvar);
 
-        navigate('/feed');
+        navigate(location.state?.retorno?.startsWith('/feed') ? location.state.retorno : '/feed', { replace: true });
       } else {
         alert("O servidor não retornou um token de acesso.");
       }

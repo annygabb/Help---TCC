@@ -30,7 +30,9 @@ const handlePedirCodigo = async (e) => {
         setEtapa(2);
       } else {
         const errorData = await response.text();
-        alert(errorData || "Erro: Verifique se o e-mail está correto.");
+        let mensagem = errorData;
+        try { const dados = JSON.parse(errorData); mensagem = dados.error || dados.message || dados.mensagem; } catch { /* texto simples */ }
+        alert(mensagem || "Não foi possível enviar o código agora.");
       }
     } catch (error) {
       alert("Erro ao conectar com o servidor.");
@@ -49,6 +51,7 @@ const handlePedirCodigo = async (e) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          email: email,
           token: token,
           novaSenha: novaSenha
         })
@@ -79,7 +82,7 @@ const handlePedirCodigo = async (e) => {
           <>
             <h2 style={{ color: 'white', marginBottom: '10px' }}>Esqueceu a senha?</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '25px', fontSize: '14px', textAlign: 'center' }}>
-              Enviaremos um código de verificação para o seu e-mail.
+              Se o e-mail estiver cadastrado, enviaremos um código de verificação.
             </p>
             <form className="login-form" onSubmit={handlePedirCodigo}>
               <div className="input-container">
@@ -104,7 +107,7 @@ const handlePedirCodigo = async (e) => {
           <>
             <h2 style={{ color: 'white', marginBottom: '10px' }}>Criar Nova Senha</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '25px', fontSize: '14px', textAlign: 'center' }}>
-              Insira o código enviado ao seu e-mail e a nova senha desejada.
+              Se houver uma conta para este e-mail, enviaremos o código. Informe-o abaixo junto da nova senha.
             </p>
             <form className="login-form" onSubmit={handleRedefinirSenha}>
               <div className="input-container">

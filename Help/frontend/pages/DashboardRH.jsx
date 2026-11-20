@@ -28,6 +28,7 @@ const DashboardRH = () => {
     const navigate = useNavigate();
     const [busca, setBusca] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [erroNovaVaga, setErroNovaVaga] = useState('');
     const [menuAberto, setMenuAberto] = useState(null);
     const [vagaSelecionada, setVagaSelecionada] = useState(null);
     const [statusCandidatos, setStatusCandidatos] = useState({});
@@ -118,7 +119,8 @@ const DashboardRH = () => {
     const [vagas, setVagas] = useState([]);
 
     const adicionarVaga = async () => {
-        if (!novaVaga.cargo.trim()) return;
+        if (!novaVaga.cargo.trim()) { setErroNovaVaga('Informe o nome do cargo para publicar a vaga.'); return; }
+        setErroNovaVaga('');
         const payload = {
             cargo: novaVaga.cargo.trim(),
             skillsExigidas: novaVaga.skills.split(',').map(s => s.trim()).filter(Boolean),
@@ -432,9 +434,10 @@ const DashboardRH = () => {
                                 <label style={{ color: 'white', fontWeight: '600', fontSize: '14px' }}>Nome do Cargo</label>
                                 <input
                                     value={novaVaga.cargo}
-                                    onChange={e => setNovaVaga({ ...novaVaga, cargo: e.target.value })}
+                                    onChange={e => { setNovaVaga({ ...novaVaga, cargo: e.target.value }); setErroNovaVaga(''); }}
                                     placeholder="Ex: Desenvolvedor Backend"
                                 />
+                                {erroNovaVaga && <p role="alert" style={{color: "#fca5a5"}}>{erroNovaVaga}</p>}
                             </div>
 
                             <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '6px' }}>

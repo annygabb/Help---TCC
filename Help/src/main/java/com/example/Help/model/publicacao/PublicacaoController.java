@@ -39,6 +39,18 @@ public class PublicacaoController {
         return interacoes.alternarCurtida(id, participantes.obterAutenticado(authentication));
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable java.util.UUID id, Authentication authentication) {
+        service.excluir(id, participantes.obterAutenticado(authentication));
+    }
+
+    @DeleteMapping("/{id}/comentarios/{comentarioId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluirComentario(@PathVariable java.util.UUID id, @PathVariable java.util.UUID comentarioId, Authentication authentication) {
+        service.excluirComentario(id, comentarioId, participantes.obterAutenticado(authentication));
+    }
+
     @GetMapping("/{id}/comentarios")
     public java.util.List<ComentarioResponseDTO> comentarios(@PathVariable java.util.UUID id) {
         return interacoes.listarComentarios(id);

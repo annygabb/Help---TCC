@@ -1,7 +1,7 @@
 package com.example.Help.model.cadastro;
 
 import com.example.Help.Service.AdminAccountService;
-import com.example.Help.Service.PagamentoService;
+import com.example.Help.Service.UsuarioService;
 import com.example.Help.Service.UsuarioAutenticadoService;
 import com.example.Help.Service.SessaoService;
 import com.example.Help.model.empresa.EmpresaRepository;
@@ -30,7 +30,7 @@ public class CadastroController {
 
     private final UsuarioRepository repository;
     private final EmpresaRepository empresaRepository;
-    private final PagamentoService pagamentoService;
+    private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final AdminAccountService adminAccountService;
@@ -40,7 +40,7 @@ public class CadastroController {
     public CadastroController(
             UsuarioRepository repository,
             EmpresaRepository empresaRepository,
-            PagamentoService pagamentoService,
+            UsuarioService usuarioService,
             PasswordEncoder passwordEncoder,
             TokenService tokenService,
             AdminAccountService adminAccountService,
@@ -49,7 +49,7 @@ public class CadastroController {
     ) {
         this.repository = repository;
         this.empresaRepository = empresaRepository;
-        this.pagamentoService = pagamentoService;
+        this.usuarioService = usuarioService;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.adminAccountService = adminAccountService;
@@ -65,11 +65,11 @@ public class CadastroController {
 
         if (encontrado.isPresent()) {
             Usuario usuario = adminAccountService.sincronizar(encontrado.get());
-            if (!usuario.isAtivo()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Conta desativada."));
-            }
             if (passwordEncoder.matches(data.password(), usuario.getPassword())) {
+                if (!usuario.isAtivo() || usuario.getTipoConta() == TipoConta.ADMIN) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(Map.of("error", "E-mail ou senha inválidos."));
+                }
                 sessaoService.invalidarContaAnterior(sessaoAtual, usuario);
                 usuario.setSessionVersion(UUID.randomUUID().toString());
                 repository.save(usuario);
@@ -158,19 +158,8 @@ public class CadastroController {
 
     @PostMapping("/gerar-token")
     public ResponseEntity<?> solicitarToken(@RequestBody Map<String, String> payload) {
-        String email = Usuario.normalizarEmail(payload.get("email"));
-        try {
-            if (!repository.existsByEmailIgnoreCase(email)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "E-mail não encontrado no sistema."));
-            }
-
-            pagamentoService.gerarTokenMatricula(email, "Recuperação de Senha");
-            return ResponseEntity.ok(Map.of("message", "Código enviado com sucesso para " + email));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erro ao processar solicitação."));
-        }
+        usuarioService.gerarTokenRecuperacao(payload.get("email"));
+        return ResponseEntity.ok(Map.of("message", "Se o e-mail estiver cadastrado, você receberá um código."));
     }
 
     @GetMapping("/listar")

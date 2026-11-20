@@ -13,6 +13,6 @@ public record TalentoResumoDTO(UUID id, String nome, String cargo, String formac
                 Arrays.stream(usuario.getSkills().split("[,;\\n]"))
                         .map(String::trim).filter(s -> !s.isBlank()).toList();
         return new TalentoResumoDTO(usuario.getId(), usuario.getName(), usuario.getJobRole(),
-                usuario.getFormacao(), usuario.getLocation(), habilidades, usuario.getFotoUrl());
+                usuario.getFormacao(), usuario.getLocation(), habilidades, com.example.Help.util.Miniaturas.avatar(usuario.getFotoUrl()));
     }
 }

@@ -51,6 +51,29 @@ public class PublicacaoService {
                 .toList();
     }
 
+    @Transactional
+    public void excluir(java.util.UUID id, ParticipanteSocial atual) {
+        Publicacao p = repository.findById(id).orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Publicação não encontrada."));
+        ParticipanteSocial autor = p.getAutorSocial();
+        if (!autor.getId().equals(atual.getId()) || autor.getTipoParticipante() != atual.getTipoParticipante())
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Você não pode excluir esta publicação.");
+        comentarios.deleteAllByPublicacaoId(id);
+        curtidas.deleteAllByPublicacaoId(id);
+        repository.delete(p);
+    }
+
+    @Transactional
+    public void excluirComentario(java.util.UUID postId, java.util.UUID comentarioId, ParticipanteSocial atual) {
+        ComentarioPublicacao comentario = comentarios.findById(comentarioId).orElseThrow(() ->
+                new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Comentário não encontrado."));
+        if (!comentario.getPublicacao().getId().equals(postId))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Comentário não encontrado.");
+        if (!comentario.getAutorId().equals(atual.getId()) || comentario.getAutorTipo() != atual.getTipoParticipante())
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Você não pode excluir este comentário.");
+        comentarios.delete(comentario);
+    }
+
     private boolean podeVisualizar(Publicacao publicacao, ParticipanteSocial atual) {
         ParticipanteSocial autor = publicacao.getAutorSocial();
         boolean proprio = autor.getId().equals(atual.getId())
@@ -71,7 +94,7 @@ public class PublicacaoService {
         String subtitulo = autor instanceof Usuario u ? u.getCargo()
                 : autor instanceof Empresa ? "Empresa" : null;
         return new PublicacaoResponseDTO(p.getId(), autor.getId(), autor.getTipoParticipante(),
-                autor.getNomeSocial(), subtitulo, autor.getFotoUrl(), p.getConteudo(), p.getMidiaUrl(),
+                autor.getNomeSocial(), subtitulo, com.example.Help.util.Miniaturas.avatar(autor.getFotoUrl()), p.getConteudo(), com.example.Help.util.Miniaturas.publicacao(p.getMidiaUrl()),
                 p.getMidiaTipo(), p.getPermissaoComentario(), p.getVisibilidade(), podeComentar,
                 curtidas.countByPublicacaoId(p.getId()),
                 curtidas.findByPublicacaoIdAndParticipante(p.getId(), atual.getId(), atual.getTipoParticipante()).isPresent(),

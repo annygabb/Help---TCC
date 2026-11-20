@@ -29,6 +29,16 @@ public class PerfilController {
         );
     }
 
+    @GetMapping("/publico/{usuarioId}")
+    public ResponseEntity<PerfilService.PerfilPublico> obterPerfilPublico(@PathVariable java.util.UUID usuarioId) {
+        return ResponseEntity.ok(perfilService.obterPublico(usuarioId));
+    }
+
+    @GetMapping("/me/resumo")
+    public ResponseEntity<PerfilService.ResumoPerfil> obterResumo(Authentication authentication) {
+        return ResponseEntity.ok(perfilService.obterResumo(usuarioAutenticadoService.obterId(authentication)));
+    }
+
     @PutMapping("/me")
     public ResponseEntity<PerfilResponseDTO> atualizarMeuPerfil(
             Authentication authentication,

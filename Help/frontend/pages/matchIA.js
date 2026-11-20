@@ -1,3 +1,5 @@
+import api from '../services/api';
+
 const normalizar = (texto = '') =>
     String(texto)
         .normalize('NFD')
@@ -250,49 +252,11 @@ ${JSON.stringify(analiseLocal, null, 2)}
 
 export const analisarMatchGemini = async (talento, vaga, pesos = {}) => {
     const analiseLocal = calcularMatchIA(talento, vaga, pesos);
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
-
-    if (!apiKey) {
-        return {
-            ...analiseLocal,
-            origem: 'local',
-            aviso: 'Configure VITE_GEMINI_API_KEY no arquivo .env para usar a API Gemini.'
-        };
-    }
-
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': apiKey
-                },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                {
-                                    text: montarPromptMatch(talento, vaga, analiseLocal)
-                                }
-                            ]
-                        }
-                    ],
-                    generationConfig: {
-                        temperature: 0.2,
-                        responseMimeType: 'application/json'
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Gemini API retornou ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await api.post('/api/ia/match', {
+            prompt: montarPromptMatch(talento, vaga, analiseLocal)
+        });
+        const data = response.data;
         const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
         const json = extrairJson(texto);
         const score = Math.max(0, Math.min(100, Number(json.score) || analiseLocal.score));
@@ -309,7 +273,7 @@ export const analisarMatchGemini = async (talento, vaga, pesos = {}) => {
         return {
             ...analiseLocal,
             origem: 'fallback',
-            aviso: `Nao foi possivel consultar a API Gemini. Usando analise local. (${error.message})`
+            aviso: 'Não foi possível consultar a IA. Usando análise local.'
         };
     }
 };

@@ -1,8 +1,9 @@
+import CompanyMenu from '../components/CompanyMenu';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
-  Share2, ThumbsUp, MessageCircle, MessageCircleOff, Image, Video, MapPin, Lock, Check, Flag
+  Share2, ThumbsUp, MessageCircle, MessageCircleOff, Image, Video, MapPin, Lock, Check, Flag, Trash2
 } from 'lucide-react';
 import './Feed.css';
 import './FeedPostAcoes.css';
@@ -72,7 +73,7 @@ const Feed = () => {
 
     let ativo = true;
     const tipoConta = parsedUser.tipoConta;
-    api.get(tipoConta === 'EMPRESA' ? '/empresas/me' : '/perfis/me', {
+    api.get(tipoConta === 'EMPRESA' ? '/empresas/me' : '/perfis/me/resumo', {
       headers: { Authorization: `Bearer ${token}` }
     }).then(({ data }) => {
       if (!ativo) return;
@@ -117,6 +118,16 @@ const Feed = () => {
       ativo = false;
     };
   }, [navigate]);
+
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get('publicacao');
+    if (!id || carregandoPosts) return;
+    if (!posts.some(post => String(post.id) === id)) {
+      setErroSocial('Esta publicação não está disponível para sua conta.');
+      return;
+    }
+    requestAnimationFrame(() => document.getElementById(`publicacao-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  }, [location.search, carregandoPosts, posts]);
 
   const formatTimeAgo = (dateString) => {
     if (!dateString) return 'agora';
@@ -172,6 +183,22 @@ const Feed = () => {
   const abrirComentarios = (postId) => {
     setComentarioAberto((aberto) => aberto === postId ? null : postId);
     setNovoComentario('');
+  };
+
+  const excluirPublicacao = async (postId) => {
+    if (!window.confirm('Excluir esta publicação?')) return;
+    try {
+      await api.delete(`/publicacoes/${postId}`);
+      setPosts(anteriores => anteriores.filter(post => post.id !== postId));
+    } catch (error) { setErroSocial(mensagemDoErro(error, 'Não foi possível excluir a publicação.')); }
+  };
+
+  const excluirComentario = async (postId, comentarioId) => {
+    if (!window.confirm('Excluir este comentário?')) return;
+    try {
+      await api.delete(`/publicacoes/${postId}/comentarios/${comentarioId}`);
+      setComentarios(anteriores => ({ ...anteriores, [postId]: (anteriores[postId] || []).filter(c => c.id !== comentarioId) }));
+    } catch (error) { setErroSocial(mensagemDoErro(error, 'Não foi possível excluir o comentário.')); }
   };
 
   const enviarComentario = async (event, postId) => {
@@ -236,6 +263,7 @@ const Feed = () => {
             <GlobalSearch />
           </div>
           <div className="header-right-nav">
+            <CompanyMenu />
             <Link to="/feed" className={`nav-item ${location.pathname === '/feed' ? 'active' : ''}`}>
               <Home size={22} />
               <span>Início</span>
@@ -368,7 +396,7 @@ const Feed = () => {
             const comentariosDoPost = comentarios[post.id] || [];
 
             return (
-              <div className="post" key={post.id}>
+              <div className="post" key={post.id} id={`publicacao-${post.id}`}>
                 <div className="post-header">
                   <button className="post-author-button" onClick={() => navigate(`/perfil/${post.autorTipo}/${post.autorId}`)} aria-label={`Abrir perfil de ${post.autorNome}`}>
                   <div className="avatar-mini">
@@ -385,6 +413,9 @@ const Feed = () => {
                     </button>
                     <button onClick={() => navigate('/mensagens', { state: { iniciarCom: contaDoAutor(post) } })}>Mensagem</button>
                   </div>}
+                  {autorEhContaAtual(post) && <MenuAcoes rotulo="Opções da sua publicação" itens={[
+                    { chave: 'excluir', rotulo: 'Excluir publicação', icone: Trash2, perigo: true, onSelecionar: () => excluirPublicacao(post.id) }
+                  ]} />}
                   {!autorEhContaAtual(post) && (
                     <MenuAcoes
                       rotulo={`Mais opções da publicação de ${post.autorNome}`}
@@ -464,6 +495,8 @@ const Feed = () => {
                       <div className="comment-item" key={comentario.id}>
                         <strong>{comentario.autorNome || comentario.autor}</strong>
                         <span>{comentario.conteudo}</span>
+                        {contaAtual?.contaId === comentario.autorId && contaAtual?.tipoConta === comentario.autorTipo &&
+                          <button type="button" onClick={() => excluirComentario(post.id, comentario.id)} aria-label="Excluir comentário"><Trash2 size={16}/></button>}
                       </div>
                     ))}
                     <form onSubmit={(event) => enviarComentario(event, post.id)} className="comment-form">

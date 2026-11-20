@@ -7,6 +7,7 @@ import { obterSessao } from '../services/session';
 import './PerfilPublico.css';
 import DenunciaModal from '../components/DenunciaModal';
 import { mensagemDaApi } from '../utils/validacoes';
+import api from '../services/api';
 
 const mensagemDoErro = mensagemDaApi;
 
@@ -19,17 +20,20 @@ export default function PerfilPublico() {
   const [atualizandoSeguimento, setAtualizandoSeguimento] = useState(false);
   const [erro, setErro] = useState('');
   const [denunciando, setDenunciando] = useState(false);
+  const [perfilProfissional, setPerfilProfissional] = useState(null);
 
   const carregar = useCallback(async () => {
     const referencia = { contaId: id, tipoConta: tipo };
     setCarregando(true);
     setErro('');
     try {
-      const [dadosDaConta, numeros, seguindo] = await Promise.all([
+      const [dadosDaConta, numeros, seguindo, profissional] = await Promise.all([
         obterContato(referencia),
         consultarContagem(referencia),
-        consultarStatus(referencia)
+        consultarStatus(referencia),
+        tipo.toUpperCase() === 'USUARIO' ? api.get(`/perfis/publico/${id}`).then(r => r.data) : Promise.resolve(null)
       ]);
+      setPerfilProfissional(profissional);
       setConta({ ...dadosDaConta, seguindo });
       setContagem(numeros);
     } catch (error) {
@@ -101,6 +105,18 @@ export default function PerfilPublico() {
           {!contaEhDoUsuarioAtual && <button className="secundario" onClick={() => setDenunciando(true)}><Flag size={18} /> Denunciar</button>}
         </div>
       </section>
+      {perfilProfissional && <section className="perfil-publico-card" aria-label="Informações profissionais">
+        {perfilProfissional.bio && <><h2>Sobre</h2><p>{perfilProfissional.bio}</p></>}
+        {perfilProfissional.skills && <><h2>Habilidades</h2><p>{perfilProfissional.skills}</p></>}
+        <h2>Experiências</h2>
+        {perfilProfissional.experiencias?.length ? perfilProfissional.experiencias.map((e, i) =>
+          <div key={`${e.empresa}-${i}`}><strong>{e.cargo}</strong><p>{e.empresa}</p>{e.atividades && <p>{e.atividades}</p>}</div>
+        ) : <p>Nenhuma experiência informada.</p>}
+        <h2>Cursos</h2>
+        {perfilProfissional.cursos?.length ? perfilProfissional.cursos.map((c, i) =>
+          <div key={`${c.nomeCurso}-${i}`}><strong>{c.nomeCurso}</strong><p>{c.instituicao}</p></div>
+        ) : <p>Nenhum curso informado.</p>}
+      </section>}
       {denunciando && <DenunciaModal alvoTipo={conta.tipoConta} alvoId={conta.contaId} alvoNome={conta.nome} onClose={() => setDenunciando(false)} />}
     </main>
   );

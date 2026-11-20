@@ -10,6 +10,13 @@ import java.util.UUID;
 public interface MensagemRepository extends JpaRepository<Mensagem, UUID> {
 
     @Query("""
+            SELECT COUNT(m) FROM Mensagem m WHERE m.lida = false
+              AND ((:usuarioId IS NOT NULL AND m.destinatarioUsuario.id = :usuarioId)
+                OR (:empresaId IS NOT NULL AND m.destinatarioEmpresa.id = :empresaId))
+            """)
+    long contarTotalNaoLidas(@Param("usuarioId") UUID usuarioId, @Param("empresaId") UUID empresaId);
+
+    @Query("""
             SELECT m FROM Mensagem m
             WHERE (((:u1 IS NOT NULL AND m.remetenteUsuario.id = :u1) OR (:e1 IS NOT NULL AND m.remetenteEmpresa.id = :e1))
                AND ((:u2 IS NOT NULL AND m.destinatarioUsuario.id = :u2) OR (:e2 IS NOT NULL AND m.destinatarioEmpresa.id = :e2)))

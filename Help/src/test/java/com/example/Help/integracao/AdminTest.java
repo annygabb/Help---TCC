@@ -98,8 +98,8 @@ class AdminTest extends IntegracaoBase {
         getComo(ana, "/auth/me").andExpect(status().isUnauthorized());
         mockMvc.perform(post("/api/usuarios/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(ana.email(), SENHA)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("Conta desativada."));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("E-mail ou senha inválidos."));
     }
 
     @Test

@@ -41,6 +41,7 @@ public class VagaEmpresaService {
         return repository.findByEmpresaIdOrderByDataPublicacaoDesc(empresaId);
     }
 
+    @Transactional
     public VagaEmpresa salvarVaga(Empresa empresa, VagaEmpresaRequestDTO dados) {
         VagaEmpresa novaVaga = new VagaEmpresa();
         preencher(novaVaga, dados);

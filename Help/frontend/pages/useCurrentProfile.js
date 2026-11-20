@@ -20,7 +20,7 @@ export default function useCurrentProfile() {
     setPerfil(normalizarPerfilAtual(sessao.conta, tipoConta));
 
     let ativo = true;
-    const endpoint = tipoConta === 'EMPRESA' ? '/empresas/me' : '/perfis/me';
+    const endpoint = tipoConta === 'EMPRESA' ? '/empresas/me' : '/perfis/me/resumo';
 
     api.get(endpoint)
       .then(({ data }) => {

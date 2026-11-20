@@ -1,3 +1,4 @@
+import CompanyMenu from '../components/CompanyMenu';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
@@ -133,6 +134,7 @@ const Notificacoes = () => {
             <GlobalSearch />
           </div>
           <div className="header-right-nav">
+            <CompanyMenu />
             <Link to="/feed" className="nav-item">
               <Home size={22} /><span>Início</span>
             </Link>
@@ -175,7 +177,7 @@ const Notificacoes = () => {
           {carregando ? (
             <p className="notificacoes-vazio">Carregando...</p>
           ) : notificacoesFiltradas.length === 0 ? (
-            <p className="notificacoes-vazio">Você ainda não tem notificações.</p>
+            <p className="notificacoes-vazio">{filtro === 'NAO_LIDAS' ? 'Você não tem notificações não lidas.' : 'Você ainda não tem notificações.'}</p>
           ) : (
             <div className="notificacoes-lista">
               {Object.entries(grupos).map(([titulo, itens]) => <section key={titulo} className="notificacoes-grupo"><h3>{titulo}</h3>{itens.map((notificacao) => (

@@ -1,8 +1,9 @@
+import CompanyMenu from '../components/CompanyMenu';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Briefcase, MessageSquare, Bell, Search,
-  Send, ArrowLeft, UserPlus, X, Flag, User
+  Send, ArrowLeft, UserPlus, X, Flag, User, Trash2, ShieldOff
 } from 'lucide-react';
 
 import './Mensagens.css';
@@ -15,6 +16,7 @@ import MenuAcoes from '../components/MenuAcoes';
 import DenunciaModal from '../components/DenunciaModal';
 import { normalizarContato } from '../utils/contatos';
 import { mensagemDaApi } from '../utils/validacoes';
+import api from '../services/api';
 
 const Mensagens = () => {
   const navigate = useNavigate();
@@ -39,6 +41,7 @@ const Mensagens = () => {
   const [carregandoContatos, setCarregandoContatos] = useState(false);
   const [erroContatos, setErroContatos] = useState('');
   const [alvoDenuncia, setAlvoDenuncia] = useState(null);
+  const [bloqueado, setBloqueado] = useState(false);
 
   const scrollRef = useRef(null);
 
@@ -96,10 +99,35 @@ const Mensagens = () => {
 
   useEffect(() => {
     if (!conversaAtiva) return;
+    setBloqueado(false);
+    api.get(`/mensagens/bloqueios/${conversaAtiva.tipoConta}/${conversaAtiva.contaId}`)
+      .then(({ data }) => setBloqueado(Boolean(data.bloqueado)))
+      .catch(() => setErroConversa('Não foi possível consultar o bloqueio desta conversa.'));
     carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta);
     const intervalo = setInterval(() => carregarConversaAtiva(conversaAtiva.contaId, conversaAtiva.tipoConta), 5000);
     return () => clearInterval(intervalo);
   }, [conversaAtiva]);
+
+  const excluirConversa = async () => {
+    if (!conversaAtiva || !window.confirm('Remover esta conversa da sua lista? A outra pessoa manterá o histórico dela.')) return;
+    try {
+      await api.delete(`/mensagens/conversa/${conversaAtiva.tipoConta}/${conversaAtiva.contaId}`);
+      setConversas(lista => lista.filter(c => c.contaId !== conversaAtiva.contaId || c.tipoConta !== conversaAtiva.tipoConta));
+      setConversaAtiva(null);
+      setMensagens([]);
+      window.dispatchEvent(new Event('help:unread-counts-changed'));
+    } catch (error) { setErroConversa(mensagemDoErro(error, 'Não foi possível remover a conversa.')); }
+  };
+
+  const alternarBloqueio = async () => {
+    if (!conversaAtiva) return;
+    const url = `/mensagens/bloqueios/${conversaAtiva.tipoConta}/${conversaAtiva.contaId}`;
+    try {
+      const { data } = bloqueado ? await api.delete(url) : await api.put(url);
+      setBloqueado(Boolean(data.bloqueado));
+      setErroEnvio('');
+    } catch (error) { setErroConversa(mensagemDoErro(error, 'Não foi possível alterar o bloqueio.')); }
+  };
 
   //desce o scroll quando chega mensagem nova
   useEffect(() => {
@@ -189,6 +217,7 @@ const Mensagens = () => {
             <GlobalSearch />
           </div>
           <div className="header-right-nav">
+            <CompanyMenu />
             <Link to="/feed" className="nav-item">
               <Home size={22} /><span>Início</span>
             </Link>
@@ -289,6 +318,18 @@ const Mensagens = () => {
                         onSelecionar: () => navigate(`/perfil/${conversaAtiva.tipoConta}/${conversaAtiva.contaId}`)
                       },
                       {
+                        chave: 'bloquear',
+                        rotulo: bloqueado ? 'Desbloquear mensagens' : 'Bloquear mensagens',
+                        icone: ShieldOff,
+                        onSelecionar: alternarBloqueio
+                      },
+                      {
+                        chave: 'excluir',
+                        rotulo: 'Remover conversa',
+                        icone: Trash2,
+                        onSelecionar: excluirConversa
+                      },
+                      {
                         chave: 'denunciar',
                         rotulo: `Denunciar ${conversaAtiva.nome}`,
                         icone: Flag,
@@ -329,12 +370,13 @@ const Mensagens = () => {
                     placeholder="Escreva uma mensagem..."
                     value={textoNovaMensagem}
                     onChange={(e) => setTextoNovaMensagem(e.target.value)}
-                    disabled={enviando}
+                    disabled={enviando || bloqueado}
                   />
-                  <button type="submit" className="enviar-btn" disabled={enviando || !textoNovaMensagem.trim()}>
+                  <button type="submit" className="enviar-btn" disabled={enviando || bloqueado || !textoNovaMensagem.trim()}>
                     <Send size={20} />
                   </button>
                 </form>
+                {bloqueado && <p className="mensagens-vazio">Mensagens bloqueadas. Use o menu para desbloquear.</p>}
                 {erroEnvio && <div className="mensagens-erro" role="alert">{erroEnvio} <button type="button" onClick={enviarMensagem} disabled={enviando || !textoNovaMensagem.trim()}>Reenviar</button></div>}
               </>
             )}
