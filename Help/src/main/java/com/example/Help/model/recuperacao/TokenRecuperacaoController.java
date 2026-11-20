@@ -19,10 +19,12 @@ public class TokenRecuperacaoController {
             String email = request.get("email");
             usuarioService.gerarTokenRecuperacao(email);
             return ResponseEntity.ok(Map.of(
-                    "message", "Código de recuperação enviado ao seu e-mail!"
+                    "message", "Se o e-mail estiver cadastrado, você receberá um código."
             ));
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("error", e.getReason()));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", "Não foi possível processar a solicitação."));
         }
     }
 
@@ -32,11 +34,11 @@ public class TokenRecuperacaoController {
             String token = request.get("token");
             String novaSenha = request.get("novaSenha");
 
-            usuarioService.redefinirSenhaComToken(token, novaSenha);
+            usuarioService.redefinirSenhaComToken(request.get("email"), token, novaSenha);
 
             return ResponseEntity.ok(Map.of("message", "Senha alterada com sucesso!"));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", "Não foi possível processar a solicitação."));
         }
     }
 }

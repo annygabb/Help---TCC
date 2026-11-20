@@ -6,4 +6,7 @@ import java.util.UUID;
 
 public interface DenunciaRepository extends JpaRepository<Denuncia, UUID> {
     List<Denuncia> findByDenuncianteTipoAndDenuncianteIdOrderByCriadaEmDesc(com.example.Help.model.social.TipoParticipante tipo, UUID id);
+    boolean existsByDenuncianteTipoAndDenuncianteIdAndAlvoTipoAndAlvoIdAndStatusNot(
+            com.example.Help.model.social.TipoParticipante tipo, UUID id, TipoAlvoDenuncia alvoTipo,
+            UUID alvoId, StatusDenuncia status);
 }

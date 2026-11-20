@@ -29,6 +29,11 @@ public class TokenRecuperacao {
     @Column(nullable = false)
     private LocalDateTime dataExpiracao;
 
+    @Column(nullable = false)
+    private int tentativas;
+
+    private LocalDateTime enviadoEm;
+
     public TokenRecuperacao(String token, Usuario usuario, LocalDateTime dataExpiracao) {
         this.token = token;
         this.usuario = usuario;

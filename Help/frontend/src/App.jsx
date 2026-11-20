@@ -1,39 +1,40 @@
-import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect, Suspense, lazy } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 // 📂 Arquivos dentro da pasta "pages" (fora da pasta src)
-import Home from '../pages/Home.jsx';
-import Cadastro from '../pages/Cadastro.jsx';
-import Feed from '../pages/Feed.jsx';
-import ConfigPerfil from '../pages/ConfigPerfil.jsx';
-import Cursos from '../pages/Cursos.jsx';
-import DashboardRH from '../pages/DashboardRH.jsx';
-import CadastroEmpresa from '../pages/CadastroEmpresa.jsx';
-import CriarPublicacao from '../pages/CriarPublicacao.jsx';
-import Mensagens from '../pages/Mensagens.jsx';
-import Notificacoes from '../pages/Notificacoes.jsx';
-import PerfilPublico from '../pages/PerfilPublico.jsx';
 
 // 📂 Arquivos soltos na raiz do projeto (fora da pasta src)
-import Login from '../pages/Login.jsx';
-import LoginEmpresa from '../pages/LoginEmpresa.jsx';
-import RecuperarSenha from '../pages/RecuperarSenha.jsx';
-import Talentos from '../pages/Talentos.jsx';
-import Vagas from '../pages/Vagas.jsx';
 
-import AdminRoute from '../pages/admin/AdminRoute.jsx';
-import AdminLayout from '../pages/admin/AdminLayout.jsx';
-import AdminHome from '../pages/admin/AdminHome.jsx';
-import AdminUsuarios from '../pages/admin/AdminUsuarios.jsx';
-import AdminUsuarioDetalhe from '../pages/admin/AdminUsuarioDetalhe.jsx';
-import AdminEmpresas from '../pages/admin/AdminEmpresas.jsx';
-import AdminEmpresaDetalhe from '../pages/admin/AdminEmpresaDetalhe.jsx';
-import AdminDenuncias from '../pages/admin/AdminDenuncias.jsx';
-import AdminMensagens from '../pages/admin/AdminMensagens.jsx';
-import AdminNotificacoes from '../pages/admin/AdminNotificacoes.jsx';
-import AdminAvisos from '../pages/admin/AdminAvisos.jsx';
-import AdminLogin from '../pages/admin/AdminLogin.jsx';
 import { observarSessao, obterSessao } from '../services/session';
+
+const Home = lazy(() => import('../pages/Home.jsx'));
+const Cadastro = lazy(() => import('../pages/Cadastro.jsx'));
+const Feed = lazy(() => import('../pages/Feed.jsx'));
+const ConfigPerfil = lazy(() => import('../pages/ConfigPerfil.jsx'));
+const Cursos = lazy(() => import('../pages/Cursos.jsx'));
+const DashboardRH = lazy(() => import('../pages/DashboardRH.jsx'));
+const CadastroEmpresa = lazy(() => import('../pages/CadastroEmpresa.jsx'));
+const CriarPublicacao = lazy(() => import('../pages/CriarPublicacao.jsx'));
+const Mensagens = lazy(() => import('../pages/Mensagens.jsx'));
+const Notificacoes = lazy(() => import('../pages/Notificacoes.jsx'));
+const PerfilPublico = lazy(() => import('../pages/PerfilPublico.jsx'));
+const Login = lazy(() => import('../pages/Login.jsx'));
+const LoginEmpresa = lazy(() => import('../pages/LoginEmpresa.jsx'));
+const RecuperarSenha = lazy(() => import('../pages/RecuperarSenha.jsx'));
+const Talentos = lazy(() => import('../pages/Talentos.jsx'));
+const Vagas = lazy(() => import('../pages/Vagas.jsx'));
+const AdminRoute = lazy(() => import('../pages/admin/AdminRoute.jsx'));
+const AdminLayout = lazy(() => import('../pages/admin/AdminLayout.jsx'));
+const AdminHome = lazy(() => import('../pages/admin/AdminHome.jsx'));
+const AdminUsuarios = lazy(() => import('../pages/admin/AdminUsuarios.jsx'));
+const AdminUsuarioDetalhe = lazy(() => import('../pages/admin/AdminUsuarioDetalhe.jsx'));
+const AdminEmpresas = lazy(() => import('../pages/admin/AdminEmpresas.jsx'));
+const AdminEmpresaDetalhe = lazy(() => import('../pages/admin/AdminEmpresaDetalhe.jsx'));
+const AdminDenuncias = lazy(() => import('../pages/admin/AdminDenuncias.jsx'));
+const AdminMensagens = lazy(() => import('../pages/admin/AdminMensagens.jsx'));
+const AdminNotificacoes = lazy(() => import('../pages/admin/AdminNotificacoes.jsx'));
+const AdminAvisos = lazy(() => import('../pages/admin/AdminAvisos.jsx'));
+const AdminLogin = lazy(() => import('../pages/admin/AdminLogin.jsx'));
 
 const SessionSynchronizer = () => {
   useEffect(() => observarSessao((sessao) => {
@@ -51,10 +52,20 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const ProtectedRouteDupla = ({ children }) => {
+  const location = useLocation();
   if (!obterSessao()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" state={{ retorno: location.pathname + location.search }} replace />;
   }
 
+  return children;
+};
+
+const ProtectedCompanyRoute = ({ children }) => {
+  const sessao = obterSessao();
+  if (!sessao) return <Navigate to="/login-empresa" replace />;
+  if (String(sessao.conta?.tipoConta || '').toUpperCase() !== 'EMPRESA') {
+    return <main role="alert"><p>Esta área é exclusiva para empresas.</p><a href="#/feed">Voltar ao feed</a></main>;
+  }
   return children;
 };
 
@@ -62,6 +73,7 @@ function App() {
   return (
     <Router>
       <SessionSynchronizer />
+      <Suspense fallback={<main aria-live="polite">Carregando...</main>}>
       <Routes>
         {/* Rotas Públicas */}
         <Route path="/" element={<Home />} />
@@ -133,18 +145,18 @@ function App() {
         <Route
           path="/talentos"
           element={
-            <ProtectedRouteDupla>
+            <ProtectedCompanyRoute>
               <Talentos />
-            </ProtectedRouteDupla>
+            </ProtectedCompanyRoute>
           }
         />
 
         <Route
           path="/dashboard-rh"
           element={
-            <ProtectedRouteDupla>
+            <ProtectedCompanyRoute>
               <DashboardRH />
-            </ProtectedRouteDupla>
+            </ProtectedCompanyRoute>
           }
         />
 
@@ -187,6 +199,7 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </Router>
   );
 }

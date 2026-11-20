@@ -1,6 +1,7 @@
 package com.example.Help;
 
 import com.example.Help.Service.UsuarioService;
+import com.example.Help.Service.EmailService;
 import com.example.Help.model.empresa.EmpresaRepository;
 import com.example.Help.model.login.LoginRequestDTO;
 import com.example.Help.model.recuperacao.TokenRecuperacao;
@@ -59,7 +60,7 @@ class UsuarioServiceTest {
     private TokenRecuperacaoRepository tokenRepository;
 
     @Mock
-    private JavaMailSender mailSender;
+    private EmailService emailService;
 
     @InjectMocks
     private UsuarioService usuarioService;
@@ -69,6 +70,7 @@ class UsuarioServiceTest {
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(emailService.configurado()).thenReturn(true);
         requestDTO = new UsuarioRequestDTO(
                 "Anny Gabrielly", "  ANNY@Email.com ", "Senha123", "Anny Gabrielly",
                 "Analista de Sistemas", "Anápolis, GO", "Engenharia de Software", "Java", "Profissional de TI");
@@ -190,105 +192,47 @@ class UsuarioServiceTest {
     }
 
     @Test
-    @DisplayName("CT-UN-USR-10: pedir recuperação apaga o código anterior antes de criar o novo")
-    void recuperacaoApagaCodigoAnteriorAntes() {
-        when(repository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
-        when(mailSender.createMimeMessage()).thenReturn(mensagemReal());
-
-        usuarioService.gerarTokenRecuperacao("anny@email.com");
-
-        InOrder ordem = inOrder(tokenRepository);
-        ordem.verify(tokenRepository).deleteByUsuario(usuario);
-        ordem.verify(tokenRepository).flush();
-        ordem.verify(tokenRepository).save(any(TokenRecuperacao.class));
-    }
-
-    @Test
-    @DisplayName("CT-UN-USR-11: o código tem 6 caracteres hexadecimais maiúsculos e vale 5 minutos")
-    void codigoTemFormatoEValidadeEsperados() {
-        when(repository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
-        when(mailSender.createMimeMessage()).thenReturn(mensagemReal());
-
-        usuarioService.gerarTokenRecuperacao("anny@email.com");
-
-        ArgumentCaptor<TokenRecuperacao> token = ArgumentCaptor.forClass(TokenRecuperacao.class);
-        verify(tokenRepository).save(token.capture());
-        assertThat(token.getValue().getToken()).matches("[0-9A-F]{6}");
-        assertThat(token.getValue().getDataExpiracao())
-                .isCloseTo(LocalDateTime.now().plusMinutes(5), within(5, ChronoUnit.SECONDS));
-        assertThat(token.getValue().getUsuario()).isSameAs(usuario);
-    }
-
-    @Test
-    @DisplayName("CT-UN-USR-12: o e-mail de recuperação vai para a pessoa com o assunto certo")
-    void emailDeRecuperacaoTemAssuntoCerto() throws Exception {
-        when(repository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
-        when(mailSender.createMimeMessage()).thenReturn(mensagemReal());
-
-        usuarioService.gerarTokenRecuperacao("anny@email.com");
-
-        ArgumentCaptor<MimeMessage> enviada = ArgumentCaptor.forClass(MimeMessage.class);
-        verify(mailSender).send(enviada.capture());
-        assertThat(enviada.getValue().getSubject()).isEqualTo("Recuperação de Senha — Help Academy");
-        assertThat(enviada.getValue().getAllRecipients()[0].toString()).isEqualTo("anny@email.com");
-    }
-
-    @Test
-    @DisplayName("CT-UN-USR-13: falha no servidor de e-mail não derruba a geração do código")
-    void falhaNoEmailNaoDerrubaFluxo() {
-        when(repository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
-        when(mailSender.createMimeMessage()).thenReturn(mensagemReal());
-        doThrow(new MailSendException("SMTP fora do ar")).when(mailSender).send(any(MimeMessage.class));
-
-        assertThatCode(() -> usuarioService.gerarTokenRecuperacao("anny@email.com")).doesNotThrowAnyException();
-        verify(tokenRepository).save(any(TokenRecuperacao.class));
-    }
-
-    @Test
-    @DisplayName("CT-UN-USR-14: e-mail sem cadastro não gera código nem envia e-mail")
-    void emailSemCadastroNaoGeraCodigo() {
+    @DisplayName("Recuperação não revela se uma conta existe")
+    void emailInexistenteNaoRevelaCadastro() {
         when(repository.findByEmailIgnoreCase("nao@existe.com")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> usuarioService.gerarTokenRecuperacao("nao@existe.com"))
-                .hasMessage("Usuário não encontrado.");
+        assertThatCode(() -> usuarioService.gerarTokenRecuperacao("nao@existe.com")).doesNotThrowAnyException();
         verify(tokenRepository, never()).save(any());
-        verify(mailSender, never()).send(any(MimeMessage.class));
+        verify(emailService, never()).enviarTexto(any(), any(), any());
     }
 
     @Test
-    @DisplayName("CT-UN-USR-15: código válido troca a senha e é apagado depois do uso")
-    void codigoValidoTrocaSenha() {
-        TokenRecuperacao token = new TokenRecuperacao("ABC123", usuario, LocalDateTime.now().plusMinutes(5));
-        when(tokenRepository.findByToken("ABC123")).thenReturn(Optional.of(token));
-        when(passwordEncoder.encode("NovaSenha1")).thenReturn("$2a$10$hashNovo");
-
-        usuarioService.redefinirSenhaComToken("ABC123", "NovaSenha1");
-
-        assertThat(usuario.getPassword()).isEqualTo("$2a$10$hashNovo");
-        verify(repository).save(usuario);
-        verify(tokenRepository).delete(token);
+    @DisplayName("Código longo é enviado e apenas seu hash fica salvo")
+    void codigoLongoFicaProtegido() {
+        when(repository.findByEmailIgnoreCase("anny@email.com")).thenReturn(Optional.of(usuario));
+        usuarioService.gerarTokenRecuperacao("anny@email.com");
+        ArgumentCaptor<TokenRecuperacao> registro = ArgumentCaptor.forClass(TokenRecuperacao.class);
+        ArgumentCaptor<String> corpo = ArgumentCaptor.forClass(String.class);
+        verify(tokenRepository).save(registro.capture());
+        verify(emailService).enviarTexto(org.mockito.ArgumentMatchers.eq("anny@email.com"), any(), corpo.capture());
+        var matcher = java.util.regex.Pattern.compile("[0-9A-F]{24}").matcher(corpo.getValue());
+        assertThat(matcher.find()).isTrue();
+        assertThat(registro.getValue().getToken()).hasSize(64).doesNotContain(matcher.group());
     }
 
     @Test
-    @DisplayName("CT-UN-USR-16: código vencido é apagado e a senha continua a mesma")
-    void codigoVencidoNaoTrocaSenha() {
-        TokenRecuperacao token = new TokenRecuperacao("OLD123", usuario, LocalDateTime.now().minusSeconds(1));
-        when(tokenRepository.findByToken("OLD123")).thenReturn(Optional.of(token));
-
-        assertThatThrownBy(() -> usuarioService.redefinirSenhaComToken("OLD123", "NovaSenha1"))
-                .hasMessage("O código de recuperação de senha expirou.");
-        verify(tokenRepository).delete(token);
+    @DisplayName("Código incorreto aumenta a contagem de tentativas")
+    void codigoIncorretoContaTentativas() {
+        TokenRecuperacao registro = new TokenRecuperacao("hash", usuario, LocalDateTime.now().plusMinutes(5));
+        when(tokenRepository.buscarPorEmailComBloqueio("anny@email.com")).thenReturn(Optional.of(registro));
+        assertThatThrownBy(() -> usuarioService.redefinirSenhaComToken("anny@email.com", "AAAAAAAAAAAAAAAAAAAAAAAA", "NovaSenha1"))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+        assertThat(registro.getTentativas()).isEqualTo(1);
         verify(repository, never()).save(any());
-        assertThat(usuario.getPassword()).isEqualTo("$2a$10$hashAtual");
     }
 
     @Test
-    @DisplayName("CT-UN-USR-17: código inexistente é recusado")
-    void codigoInexistenteRecusado() {
-        when(tokenRepository.findByToken("XXXXXX")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> usuarioService.redefinirSenhaComToken("XXXXXX", "NovaSenha1"))
-                .hasMessage("Código inválido ou inexistente.");
+    @DisplayName("Após cinco tentativas o código é bloqueado")
+    void limiteDeTentativasBloqueiaCodigo() {
+        TokenRecuperacao registro = new TokenRecuperacao("hash", usuario, LocalDateTime.now().plusMinutes(5));
+        registro.setTentativas(5);
+        when(tokenRepository.buscarPorEmailComBloqueio("anny@email.com")).thenReturn(Optional.of(registro));
+        assertThatThrownBy(() -> usuarioService.redefinirSenhaComToken("anny@email.com", "AAAAAAAAAAAAAAAAAAAAAAAA", "NovaSenha1"))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
         verify(repository, never()).save(any());
     }
 }

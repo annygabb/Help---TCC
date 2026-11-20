@@ -7,11 +7,19 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.Help.model.usuario.Usuario;
 import java.util.Optional;
+import java.util.UUID;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.repository.query.Param;
 
 @Repository
-public interface TokenRecuperacaoRepository extends JpaRepository<TokenRecuperacao, Long> {
+public interface TokenRecuperacaoRepository extends JpaRepository<TokenRecuperacao, UUID> {
 
     Optional<TokenRecuperacao> findByToken(String token);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT t FROM TokenRecuperacao t WHERE lower(t.usuario.email) = lower(:email)")
+    Optional<TokenRecuperacao> buscarPorEmailComBloqueio(@Param("email") String email);
 
     @Modifying
     @Transactional

@@ -16,12 +16,14 @@ public class MensagemService {
     private final MensagemRepository repository;
     private final ParticipanteService participantes;
     private final NotificacaoService notificacoes;
+    private final ControleConversaRepository controles;
 
     public MensagemService(MensagemRepository repository, ParticipanteService participantes,
-                           NotificacaoService notificacoes) {
+                           NotificacaoService notificacoes, ControleConversaRepository controles) {
         this.repository = repository;
         this.participantes = participantes;
         this.notificacoes = notificacoes;
+        this.controles = controles;
     }
 
     @Transactional
@@ -35,6 +37,9 @@ public class MensagemService {
             throw new RuntimeException("Você não pode enviar uma mensagem para si mesmo.");
         }
 
+        if (bloqueada(remetente, destinatario) || bloqueada(destinatario, remetente))
+            throw new RuntimeException("Não é possível enviar mensagens para esta conta.");
+
         Mensagem salva = repository.save(new Mensagem(remetente, destinatario, conteudo));
         String preview = conteudo.length() > 80 ? conteudo.substring(0, 80) + "..." : conteudo;
         notificacoes.criarOuAtualizar(destinatario, TipoNotificacao.NOVA_MENSAGEM,
@@ -44,8 +49,11 @@ public class MensagemService {
 
     public List<MensagemResponseDTO> buscarConversa(ParticipanteSocial atual, UUID outraId, TipoParticipante outroTipo) {
         ParticipanteSocial outra = participantes.buscarAtivo(outraId, outroTipo);
+        var limite = controles.findByContaIdAndContaTipoAndOutroIdAndOutroTipo(atual.getId(), atual.getTipoParticipante(), outraId, outroTipo)
+                .map(ControleConversa::getOcultaAte).orElse(null);
         return repository.buscarConversa(id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA),
                         id(outra, TipoParticipante.USUARIO), id(outra, TipoParticipante.EMPRESA)).stream()
+                .filter(m -> limite == null || (m.getDataEnvio() != null && m.getDataEnvio().isAfter(limite)))
                 .map(MensagemResponseDTO::fromEntity).toList();
     }
 
@@ -63,10 +71,16 @@ public class MensagemService {
         List<Mensagem> todas = repository.buscarTodasDaConta(
                 id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA));
         LinkedHashMap<String, Mensagem> ultimas = new LinkedHashMap<>();
+        Map<String, java.time.LocalDateTime> ocultas = new HashMap<>();
+        for (ControleConversa controle : controles.findByContaIdAndContaTipo(atual.getId(), atual.getTipoParticipante())) {
+            if (controle.getOcultaAte() != null) ocultas.put(controle.getOutroTipo() + ":" + controle.getOutroId(), controle.getOcultaAte());
+        }
         for (Mensagem mensagem : todas) {
             ParticipanteSocial outro = mesmaConta(mensagem.getRemetenteSocial(), atual)
                     ? mensagem.getDestinatarioSocial() : mensagem.getRemetenteSocial();
-            ultimas.putIfAbsent(chave(outro), mensagem);
+            var limite = ocultas.get(chave(outro));
+            if (limite == null || (mensagem.getDataEnvio() != null && mensagem.getDataEnvio().isAfter(limite)))
+                ultimas.putIfAbsent(chave(outro), mensagem);
         }
 
         List<ConversaResponseDTO> resposta = new ArrayList<>();
@@ -77,10 +91,48 @@ public class MensagemService {
                     id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA),
                     id(outro, TipoParticipante.USUARIO), id(outro, TipoParticipante.EMPRESA));
             resposta.add(new ConversaResponseDTO(outro.getId(), outro.getTipoParticipante(),
-                    outro.getNomeSocial(), subtitulo(outro), outro.getFotoUrl(), ultima.getConteudo(),
+                    outro.getNomeSocial(), subtitulo(outro), com.example.Help.util.Miniaturas.avatar(outro.getFotoUrl()), ultima.getConteudo(),
                     DataHora.comoUtc(ultima.getDataEnvio()), naoLidas));
         }
         return resposta;
+    }
+
+    public long contarNaoLidas(ParticipanteSocial atual) {
+        return repository.contarTotalNaoLidas(id(atual, TipoParticipante.USUARIO), id(atual, TipoParticipante.EMPRESA));
+    }
+
+    @Transactional
+    public void ocultarConversa(ParticipanteSocial atual, UUID outroId, TipoParticipante tipo) {
+        ParticipanteSocial outro = participantes.buscarAtivo(outroId, tipo);
+        if (mesmaConta(atual, outro)) throw new IllegalArgumentException("Conta inválida.");
+        ControleConversa controle = obterControle(atual, outro);
+        controle.setOcultaAte(DataHora.agoraUtc());
+        controles.save(controle);
+        marcarConversaComoLida(atual, outroId, tipo);
+    }
+
+    @Transactional
+    public boolean definirBloqueio(ParticipanteSocial atual, UUID outroId, TipoParticipante tipo, boolean bloquear) {
+        ParticipanteSocial outro = participantes.buscarAtivo(outroId, tipo);
+        if (mesmaConta(atual, outro)) throw new IllegalArgumentException("Você não pode bloquear a própria conta.");
+        ControleConversa controle = obterControle(atual, outro);
+        controle.setBloqueado(bloquear);
+        controles.save(controle);
+        return bloquear;
+    }
+
+    public boolean estaBloqueada(ParticipanteSocial atual, UUID outroId, TipoParticipante tipo) {
+        return controles.existsByContaIdAndContaTipoAndOutroIdAndOutroTipoAndBloqueadoTrue(atual.getId(), atual.getTipoParticipante(), outroId, tipo);
+    }
+
+    private boolean bloqueada(ParticipanteSocial atual, ParticipanteSocial outro) {
+        return estaBloqueada(atual, outro.getId(), outro.getTipoParticipante());
+    }
+
+    private ControleConversa obterControle(ParticipanteSocial atual, ParticipanteSocial outro) {
+        return controles.findByContaIdAndContaTipoAndOutroIdAndOutroTipo(atual.getId(), atual.getTipoParticipante(), outro.getId(), outro.getTipoParticipante())
+                .orElseGet(() -> { ControleConversa c = new ControleConversa(); c.setContaId(atual.getId()); c.setContaTipo(atual.getTipoParticipante());
+                    c.setOutroId(outro.getId()); c.setOutroTipo(outro.getTipoParticipante()); return c; });
     }
 
     private UUID id(ParticipanteSocial participante, TipoParticipante tipo) {

@@ -31,6 +31,9 @@ public class DenunciaService {
 
     @Transactional public DenunciaDtos.Resposta criar(DenunciaDtos.Criar dados, Authentication auth) {
         ParticipanteSocial autor = participantes.obterAutenticado(auth); Denuncia d = new Denuncia();
+        if (repository.existsByDenuncianteTipoAndDenuncianteIdAndAlvoTipoAndAlvoIdAndStatusNot(
+                autor.getTipoParticipante(), autor.getId(), dados.alvoTipo(), dados.alvoId(), StatusDenuncia.RESOLVIDA))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Você já enviou uma denúncia sobre este conteúdo ou perfil.");
         d.setDenuncianteTipo(autor.getTipoParticipante()); d.setDenuncianteId(autor.getId()); d.setDenuncianteNome(autor.getNomeSocial());
         d.setAlvoTipo(dados.alvoTipo()); d.setAlvoId(dados.alvoId()); d.setAlvoNome(nomeAlvo(dados.alvoTipo(), dados.alvoId()));
         if (d.getDenuncianteTipo().name().equals(d.getAlvoTipo().name()) && d.getDenuncianteId().equals(d.getAlvoId()))

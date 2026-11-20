@@ -63,7 +63,13 @@ class BackendIdentityIsolationTest {
         cadastrarUsuario("Administradora", "admin@help.test", "52998224725");
         cadastrarUsuario("Pessoa comum", "pessoa@help.test", "11144477735");
 
-        String tokenAdmin = loginUsuario("admin@help.test");
+        mockMvc.perform(post("/api/usuarios/login").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"admin@help.test\",\"password\":\"Senha123\"}"))
+                .andExpect(status().isUnauthorized());
+        String respostaAdmin = mockMvc.perform(post("/usuarios/login/admin").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"admin@help.test\",\"password\":\"Senha123\"}"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String tokenAdmin = JsonPath.read(respostaAdmin, "$.token");
         String tokenComum = loginUsuario("pessoa@help.test");
 
         mockMvc.perform(get("/auth/me").header("Authorization", bearer(tokenAdmin)))

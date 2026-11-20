@@ -13,15 +13,14 @@ export default function useUnreadCounts(intervaloMs = 15000) {
 
     const buscar = async () => {
       try {
-        const [resNotificacoes, resConversas] = await Promise.all([
+        const [resNotificacoes, resMensagens] = await Promise.all([
           api.get('/notificacoes/nao-lidas/total', { headers }),
-          api.get('/mensagens/conversas', { headers })
+          api.get('/mensagens/nao-lidas/total', { headers })
         ]);
 
         if (!ativo) return;
 
-        const totalMensagens = (resConversas.data || [])
-          .reduce((soma, conversa) => soma + (conversa.naoLidas || 0), 0);
+        const totalMensagens = resMensagens.data?.total || 0;
 
         setNaoLidas({
           notificacoes: resNotificacoes.data?.total || 0,

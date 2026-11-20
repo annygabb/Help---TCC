@@ -6,4 +6,5 @@ public interface CurtidaPublicacaoRepository extends JpaRepository<CurtidaPublic
  Optional<CurtidaPublicacao> findByPublicacaoIdAndParticipanteIdAndParticipanteTipo(UUID p, UUID a, TipoParticipante t);
  default Optional<CurtidaPublicacao> findByPublicacaoIdAndParticipante(UUID p, UUID a, TipoParticipante t){return findByPublicacaoIdAndParticipanteIdAndParticipanteTipo(p,a,t);}
  long countByPublicacaoId(UUID p);
+ void deleteAllByPublicacaoId(UUID p);
 }

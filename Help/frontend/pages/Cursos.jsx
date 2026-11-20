@@ -1,3 +1,5 @@
+import GlobalSearch from '../components/GlobalSearch';
+import CompanyMenu from '../components/CompanyMenu';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -155,6 +157,7 @@ const MatriculaForm = ({ curso, usuarioDados, onFinalizar, onFechar }) => {
 const Cursos = () => {//pag principal
   const navigate = useNavigate();
   const { perfil } = useCurrentProfile();
+  const ehEmpresa = String(obterSessao()?.conta?.tipoConta || "").toUpperCase() === "EMPRESA";
   const [showMeusCursosModal, setShowMeusCursosModal] = useState(false);
   const [cursoParaDetalhes, setCursoParaDetalhes] = useState(null);
   const [cursoParaMatricula, setCursoParaMatricula] = useState(null);
@@ -200,7 +203,7 @@ const Cursos = () => {//pag principal
   ]);
 
   useEffect(() => {
-    if (!obterSessao()) return;
+    if (!obterSessao() || ehEmpresa) return;
     let ativa = true;
     api.get('/matriculas/gratuitas/minhas').then(({ data }) => {
       if (!ativa) return;
@@ -210,7 +213,7 @@ const Cursos = () => {//pag principal
       }).filter(Boolean));
     }).catch(() => { if (ativa) setMeusCursosMatriculados([]); });
     return () => { ativa = false; };
-  }, [novosCursosData]);
+  }, [novosCursosData, ehEmpresa]);
 
   const cursosFiltrados = novosCursosData.filter(curso => {
     const matchesCategoria = filtroCategoria === 'Todos' || curso.categoria.toLowerCase() === filtroCategoria.toLowerCase();
@@ -255,12 +258,10 @@ const Cursos = () => {//pag principal
         <div className="header-inner">
           <div className="header-left">
             <img src={logoImg} alt="Help Logo" className="header-logo" onClick={() => navigate('/feed')} />
-            <div className="search-bar">
-              <Search size={18} color="#9ca3af" />
-              <input type="text" placeholder="Pesquisar treinamentos..." />
-            </div>
+            <GlobalSearch />
           </div>
           <div className="header-right-nav">
+            <CompanyMenu />
             <Link to="/feed" className="nav-item"><Home size={22} /><span>Início</span></Link>
             <Link to="/cursos" className="nav-item active"><BookOpen size={22} /><span>Cursos</span></Link>
             <Link to="/vagas" className="nav-item"><Briefcase size={22} /><span>Vagas</span></Link>
@@ -484,7 +485,7 @@ const Cursos = () => {//pag principal
         <DetalhesCursoModal
           curso={{ ...cursoParaDetalhes, descricao: cursoParaDetalhes.descricao || 'Este treinamento oferece uma imersão completa nos fundamentos e práticas avançadas da área.' }}
           onFechar={() => setCursoParaDetalhes(null)}
-          onMatricular={c => setCursoParaMatricula(c)}
+          onMatricular={c => ehEmpresa ? alert("A matrícula está disponível para contas de candidato.") : setCursoParaMatricula(c)}
         />
       )}
 

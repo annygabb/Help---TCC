@@ -121,7 +121,7 @@ public class EmpresaController {
             var tokenJWT = tokenService.gerarToken(empresa);
             return ResponseEntity.ok(new TokenDadosEmpresaDTO(tokenJWT));
         } catch (DisabledException | LockedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (Exception e) {
@@ -147,6 +147,7 @@ public class EmpresaController {
     }
 
     @PutMapping("/me")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> atualizarMinhaEmpresa(@RequestBody @Valid EmpresaPerfilRequestDTO dados,
                                                     Authentication authentication) {
         if (!(authentication.getPrincipal() instanceof Empresa autenticada)) {

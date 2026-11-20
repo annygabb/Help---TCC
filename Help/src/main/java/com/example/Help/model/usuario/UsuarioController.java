@@ -1,7 +1,6 @@
 package com.example.Help.model.usuario;
 
 import com.example.Help.Service.UsuarioService;
-import com.example.Help.Service.PagamentoService;
 import com.example.Help.Service.UsuarioAutenticadoService;
 import com.example.Help.Service.SessaoService;
 import com.example.Help.model.login.LoginRequestDTO;
@@ -28,9 +27,6 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService service;
-
-    @Autowired
-    private PagamentoService pagamentoService;
 
     @Autowired
     private AuthenticationManager manager;
@@ -86,7 +82,7 @@ public class UsuarioController {
             return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuario.getId(), usuario.getName(),
                     usuario.getEmail(), usuario.getTipoConta().name()));
         } catch (DisabledException | LockedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Conta desativada.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         } catch (Exception e) {
@@ -117,53 +113,19 @@ public class UsuarioController {
         return ResponseEntity.ok(service.listarTodos());
     }
 
-    @PostMapping("/gerar-token") //recuperar senha
+    @PostMapping("/gerar-token")
     public ResponseEntity<String> solicitarToken(@RequestBody Map<String, String> request) {
-        try {
-            String email = request.get("email");
-            if (email == null || email.isBlank()) return ResponseEntity.badRequest().body("E-mail é obrigatório.");
-
-            service.gerarTokenRecuperacao(email);
-            return ResponseEntity.ok("Código de recuperação enviado com sucesso!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        service.gerarTokenRecuperacao(request.get("email"));
+        return ResponseEntity.ok("Se o e-mail estiver cadastrado, você receberá um código.");
     }
 
     @PostMapping("/redefinir-senha")
     public ResponseEntity<String> redefinirSenha(@RequestBody Map<String, String> request) {
         try {
-            String token = request.get("token");
-            String novaSenha = request.get("novaSenha");
-            service.redefinirSenhaComToken(token, novaSenha);
+            service.redefinirSenhaComToken(request.get("email"), request.get("token"), request.get("novaSenha"));
             return ResponseEntity.ok("Senha alterada com sucesso!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/gerar-token-matricula") //gerar token da matricula
-    public ResponseEntity<String> solicitarTokenMatricula(@RequestBody Map<String, Object> request) {
-        try {
-            String email = (String) request.get("email");
-            String nomeCurso = (String) request.get("nomeCurso");
-
-            pagamentoService.gerarTokenMatricula(email, nomeCurso);
-            return ResponseEntity.ok("Token de matrícula enviado ao e-mail!");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/confirmar-matricula")
-    public ResponseEntity<String> confirmarMatricula(@RequestBody Map<String, String> request) {
-        try {
-            String token = request.get("token");
-
-            pagamentoService.confirmarMatriculaComToken(token);
-            return ResponseEntity.ok("Matrícula ativada com sucesso!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         }
     }
 }

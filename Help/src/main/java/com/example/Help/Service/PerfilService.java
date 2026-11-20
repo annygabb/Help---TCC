@@ -34,6 +34,39 @@ public class PerfilService {
         return toResponse(perfil);
     }
 
+    /** Dados profissionais visíveis, sem e-mail, CPF, certificados ou currículo privado. */
+    @Transactional
+    public PerfilPublico obterPublico(UUID usuarioId) {
+        Usuario usuario = buscarUsuario(usuarioId);
+        if (!usuario.isAtivo()) throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Perfil não encontrado.");
+        Perfil perfil = perfilRepository.findByUsuarioId(usuarioId).orElseGet(() -> novoPerfil(usuario));
+        var experiencias = perfil.getExperiencias().stream().map(e -> new ExperienciaPublica(
+                e.getEmpresa(), e.getCargo(), e.getAtividades(), e.getDataInicio(), e.getDataFim(), e.isTrabalhaAtualmente())).toList();
+        var cursos = perfil.getCursos().stream().map(c -> new CursoPublico(c.getNomeCurso(), c.getInstituicao(), c.getCargaHoraria())).toList();
+        return new PerfilPublico(perfil.getBio(), perfil.getSkills(), experiencias, cursos);
+    }
+
+    public record PerfilPublico(String bio, String skills, java.util.List<ExperienciaPublica> experiencias,
+                                java.util.List<CursoPublico> cursos) {}
+    public record ExperienciaPublica(String empresa, String cargo, String atividades, String dataInicio,
+                                    String dataFim, boolean trabalhaAtualmente) {}
+    public record CursoPublico(String nomeCurso, String instituicao, String cargaHoraria) {}
+
+    @Transactional
+    public ResumoPerfil obterResumo(UUID usuarioId) {
+        Usuario usuario = buscarUsuario(usuarioId);
+        Perfil perfil = perfilRepository.findByUsuarioId(usuarioId).orElseGet(() -> novoPerfil(usuario));
+        var experiencias = perfil.getExperiencias().stream()
+                .map(e -> new ExperienciaResumida(e.getEmpresa(), e.isTrabalhaAtualmente())).toList();
+        return new ResumoPerfil(usuario.getId(), perfil.getName(), perfil.getCargoAtual(), usuario.getLocation(),
+                com.example.Help.util.Miniaturas.avatar(usuario.getFotoUrl()), experiencias);
+    }
+
+    public record ResumoPerfil(UUID usuarioId, String nome, String cargo, String localidade, String fotoUrl,
+                               java.util.List<ExperienciaResumida> experiencias) {}
+    public record ExperienciaResumida(String empresa, boolean trabalhaAtualmente) {}
+
     @Transactional
     public PerfilResponseDTO atualizar(UUID usuarioId, PerfilRequestDTO dados) {
         Usuario usuario = buscarUsuario(usuarioId);

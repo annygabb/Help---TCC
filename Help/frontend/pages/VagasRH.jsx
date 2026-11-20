@@ -365,7 +365,7 @@ const VagasRH = ({
 
                         <div className="vaga-modal-tabs">
                             {['resumo', 'candidatos', 'configuracoes'].map(aba => (
-                                <button key={aba} className={abaDetalhe === aba ? 'active' : ''} onClick={() => setAbaDetalhe(aba)}>{aba}</button>
+                                <button key={aba} className={abaDetalhe === aba ? 'active' : ''} onClick={() => setAbaDetalhe(aba)}>{aba === 'configuracoes' ? 'Configurações' : aba}</button>
                             ))}
                         </div>
 

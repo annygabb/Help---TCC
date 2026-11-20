@@ -69,24 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/redefinir-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/redefinir-senha").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/matricula/gratuita/gerar-token").permitAll()//matriculas
-                        .requestMatchers(HttpMethod.POST, "/matricula/gratuita/gerar-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/matricula/gratuita/confirmar").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/matricula/gratuita/confirmar").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/matricula/paga/gerar-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/matricula/paga/gerar-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/matricula/paga/confirmar").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/matricula/paga/confirmar").permitAll()
-
-                        .requestMatchers(HttpMethod.POST, "/api/pagamento/cartao").permitAll()//pagamento cartao e pix
-                        .requestMatchers(HttpMethod.POST, "/api/pagamento/pix").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/pagamento/pix/status/**").permitAll()
-                        .requestMatchers("/api/pagamento/**").permitAll()
-                        .requestMatchers("/pagamento/**").permitAll()
-
                         .requestMatchers("/api/banco/**").hasRole("ADMIN")
-                        .requestMatchers("/api/matricula/**").permitAll()
-                        .requestMatchers("/matricula/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
@@ -96,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/vagas/**").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/ia/**").hasRole("EMPRESA")
                         .requestMatchers("/matriculas/gratuitas/**").hasRole("USER")
                         .requestMatchers("/cursos/**", "/api/cursos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()

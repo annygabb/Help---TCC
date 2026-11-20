@@ -7,6 +7,7 @@ import com.example.Help.model.empresa.Empresa;
 import com.example.Help.model.mensagem.Mensagem;
 import com.example.Help.model.mensagem.MensagemRepository;
 import com.example.Help.model.mensagem.MensagemRequestDTO;
+import com.example.Help.model.mensagem.ControleConversaRepository;
 import com.example.Help.model.social.TipoParticipante;
 import com.example.Help.model.usuario.Usuario;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,7 @@ class MensagemServiceSocialTest {
     private MensagemRepository repository;
     private ParticipanteService participantes;
     private NotificacaoService notificacoes;
+    private ControleConversaRepository controles;
     private MensagemService service;
 
     @BeforeEach
@@ -30,7 +32,8 @@ class MensagemServiceSocialTest {
         repository = mock(MensagemRepository.class);
         participantes = mock(ParticipanteService.class);
         notificacoes = mock(NotificacaoService.class);
-        service = new MensagemService(repository, participantes, notificacoes);
+        controles = mock(ControleConversaRepository.class);
+        service = new MensagemService(repository, participantes, notificacoes, controles);
         when(repository.save(any(Mensagem.class))).thenAnswer(i -> i.getArgument(0));
     }
 

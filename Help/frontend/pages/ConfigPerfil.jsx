@@ -1,3 +1,4 @@
+import CompanyMenu from '../components/CompanyMenu';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -430,6 +431,7 @@ const ConfigPerfil = () => {
           </div>
 
           <div className="header-right-nav">
+            <CompanyMenu />
             <div className="nav-item" onClick={() => navigate('/feed')}><Home size={24} /><span>Início</span></div>
             <div className="nav-item" onClick={() => navigate('/cursos')}><BookOpen size={24} /><span>Cursos</span></div>
             <div className="nav-item" onClick={() => navigate('/vagas')}><Briefcase size={24} /><span>Vagas</span></div>

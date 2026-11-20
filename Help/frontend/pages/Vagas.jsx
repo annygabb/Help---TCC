@@ -1,3 +1,5 @@
+import GlobalSearch from '../components/GlobalSearch';
+import CompanyMenu from '../components/CompanyMenu';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -178,12 +180,10 @@ const Vagas = () => {
         <div className="header-inner">
           <div className="header-left">
             <img src={logoImg} alt="Logo" className="header-logo" onClick={() => navigate('/feed')} />
-            <div className="search-bar">
-              <Search size={18} color="#9ca3af" />
-              <input type="text" placeholder="Buscar no sistema..." />
-            </div>
+            <GlobalSearch />
           </div>
           <div className="header-right-nav">
+            <CompanyMenu />
             <Link to="/feed" className="nav-item"><Home size={22} /><span>Início</span></Link>
             <Link to="/cursos" className="nav-item"><BookOpen size={22} /><span>Cursos</span></Link>
             <Link to="/vagas" className="nav-item active"><Briefcase size={22} /><span>Vagas</span></Link>
@@ -351,6 +351,8 @@ const Vagas = () => {
           </div>
 
           <h2 style={{ fontSize: '18px', color: 'white', marginBottom: '20px' }}>Vagas Sugeridas ({vagasFiltradas.length})</h2>
+
+          {vagasFiltradas.length === 0 && <p className="feed-state">Nenhuma vaga disponível para os filtros selecionados.</p>}
 
           {vagasFiltradas.map(vaga => (
             <div className="post" key={vaga.id} onClick={() => { setMensagemCandidatura(''); setErroCandidatura(''); setVagaSelecionada(vaga); }} style={{ cursor: 'pointer', marginBottom: '16px', padding: '24px' }}>

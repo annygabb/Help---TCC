@@ -18,7 +18,6 @@ import './Talentos.css';
 import { analisarTalentoIA } from './matchIA';
 import api from '../services/api';
 
-const senioridades = ['Estagiário', 'Júnior', 'Pleno', 'Sênior'];
 const areas = ['Todos', 'Devs', 'Designers', 'Favoritos'];
 
 const normalizarTalento = (talento) => {
@@ -57,8 +56,6 @@ const Talentos = () => {
 
     const [talentoSelecionado, setTalentoSelecionado] = useState(null);
     const [busca, setBusca] = useState('');
-    const [senioridadesSelecionadas, setSenioridadesSelecionadas] = useState([]);
-    const [salario, setSalario] = useState(20000);
     const [areaAtiva, setAreaAtiva] = useState('Todos');
     const [ordenacao, setOrdenacao] = useState('nome');
 
@@ -108,23 +105,16 @@ const Talentos = () => {
                     talento.localizacao?.toLowerCase().includes(textoBusca) ||
                     talento.skills?.some(skill => skill.toLowerCase().includes(textoBusca));
 
-                const bateSenioridade =
-                    senioridadesSelecionadas.length === 0 ||
-                    senioridadesSelecionadas.includes(talento.senioridade);
-
-                const bateSalario = talento.pretensaoSalarial == null || talento.pretensaoSalarial <= salario;
                 const bateArea = areaAtiva === 'Todos' || areaAtiva === 'Favoritos' || talento.area === areaAtiva;
                 const bateFavorito = areaAtiva !== 'Favoritos' || favoritos.has(talento.id);
 
-                return bateBusca && bateSenioridade && bateSalario && bateArea && bateFavorito;
+                return bateBusca && bateArea && bateFavorito;
             })
             .sort((a, b) => {
-                if (ordenacao === 'experiencia') return b.experiencia - a.experiencia;
-                if (ordenacao === 'salario') return a.pretensaoSalarial - b.pretensaoSalarial;
                 if (ordenacao === 'nome') return a.nome ? a.nome.localeCompare(b.nome) : 0;
                 return calcularCompatibilidade(b) - calcularCompatibilidade(a);
             });
-    }, [talentosBase, busca, senioridadesSelecionadas, salario, areaAtiva, favoritos, ordenacao]);
+    }, [talentosBase, busca, areaAtiva, favoritos, ordenacao]);
 
     const resumo = useMemo(() => ({
         total: talentosBase.length,
@@ -140,18 +130,8 @@ const Talentos = () => {
         });
     };
 
-    const toggleSenioridade = (nivel) => {
-        setSenioridadesSelecionadas(prev =>
-            prev.includes(nivel)
-                ? prev.filter(item => item !== nivel)
-                : [...prev, nivel]
-        );
-    };
-
     const limparFiltros = () => {
         setBusca('');
-        setSenioridadesSelecionadas([]);
-        setSalario(20000);
         setAreaAtiva('Todos');
         setOrdenacao('nome');
     };
@@ -187,49 +167,12 @@ const Talentos = () => {
                 </div>
 
                 <div className="filter-group">
-                    <label>Senioridade</label>
-                    {senioridades.map((nivel) => (
-                        <div className="check-item" key={nivel}>
-                            <input
-                                type="checkbox"
-                                id={`senioridade-${nivel}`}
-                                checked={senioridadesSelecionadas.includes(nivel)}
-                                onChange={() => toggleSenioridade(nivel)}
-                            />
-                            <label htmlFor={`senioridade-${nivel}`}>{nivel}</label>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="filter-group">
-                    <label>Pretensão salarial máxima</label>
-                    <span className="salary-text">
-                        R$ {salario.toLocaleString('pt-BR')}
-                    </span>
-                    <input
-                        type="range"
-                        className="salary-slider"
-                        min="2000"
-                        max="20000"
-                        step="500"
-                        value={salario}
-                        onChange={(e) => setSalario(Number(e.target.value))}
-                    />
-                    <div className="range-values">
-                        <span>2k</span>
-                        <span>20k+</span>
-                    </div>
-                </div>
-
-                <div className="filter-group">
                     <label>Ordenar por</label>
                     <select
                         className="talentos-select"
                         value={ordenacao}
                         onChange={(e) => setOrdenacao(e.target.value)}
                     >
-                        <option value="experiencia">Mais experiência</option>
-                        <option value="salario">Menor salário</option>
                         <option value="nome">Nome</option>
                     </select>
                 </div>
