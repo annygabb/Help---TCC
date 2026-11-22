@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.HexFormat;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /** Miniaturas para listagens: preserva o original no perfil para edição. */
 public final class Miniaturas {
@@ -33,7 +34,9 @@ public final class Miniaturas {
             String chave = maximo + ":" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(imagem.getBytes(StandardCharsets.UTF_8)));
             String guardada = CACHE.get(chave);
             if (guardada != null) return guardada;
-            if (!PROCESSAMENTO.tryAcquire()) return imagem;
+            // Evita enviar o original pesado e também evita bloquear o servidor
+            // indefinidamente quando o processamento estiver sobrecarregado.
+            if (!PROCESSAMENTO.tryAcquire(2, TimeUnit.SECONDS)) return null;
             try {
             BufferedImage original;
             try (var entrada = ImageIO.createImageInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(imagem.substring(virgula + 1))))) {
@@ -64,6 +67,9 @@ public final class Miniaturas {
             CACHE.put(chave, resultado);
             return resultado;
             } finally { PROCESSAMENTO.release(); }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
         } catch (Exception e) { return imagem; }
     }
 }
